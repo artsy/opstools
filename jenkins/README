@@ -1,0 +1,10 @@
+A script to help migrate Jenkins jobs from <old-instance> to <new-instance>.
+
+<old-instance> runs on EC2 instance.
+<new-instance> runs in prod kubernetes cluster.
+
+Pre-requisites:
+
+- connected to prod VPN.
+- kubectl is setup.
+- k8s Jenkins is up and running.

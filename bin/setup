@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Setup script for Artsy use.
+
+# This assumes you have general prerequisites installed as by:
+# https://github.com/artsy/potential/blob/master/scripts/setup
+
+echo "Downloading .env.shared (for common internal configuration)..."
+aws s3 cp s3://artsy-citadel/dev/.env.opstools .env.shared

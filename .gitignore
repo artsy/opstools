@@ -1,0 +1,24 @@
+# ignore __ files/dirs. such as __pycache__
+__*
+
+# ignore env files.
+.env*
+
+# don't ignore .gitignore
+!/.gitignore
+
+# Yaml files
+*.yml
+*.yaml
+
+# don't ignore rubyrep ymls
+!rubyrep*.yml
+
+# don't ignore dnstest.yml
+!dnstest.yml
+
+# don't ignore .env.example
+!.env.example
+
+# don't ignore files in hokusai dir
+!hokusai/*
