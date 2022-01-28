@@ -1,0 +1,27 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ job_name }}
+spec:
+  parallelism: 1
+  completions: 1
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: {{ job_name }}
+        env:
+          - name: S3_BUCKET
+            value: "{{ s3_bucket }}"
+          - name: S3_PREFIX
+            value: "{{ s3_prefix }}"
+          - name: AWS_ACCESS_KEY_ID
+            value: "{{ aws_access_key_id }}"
+          - name: AWS_SECRET_ACCESS_KEY
+            value: "{{ aws_secret_access_key }}"
+          - name: AWS_DEFAULT_REGION
+            value: "{{ aws_default_region }}"
+        image: artsy/ops-util
+        command: ["pipenv", "run", "python", "s3-bucket-cleaner/clean_s3_bucket.py"]
+      restartPolicy: Never

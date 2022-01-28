@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dnstest
+  namespace: default
+  labels:
+    app: dnstest
+spec:
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 100%
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: dnstest
+  template:
+    metadata:
+      labels:
+        app: dnstest
+    spec:
+      containers:
+        - name: dnstest
+          image: artsy/ops-util:dnstest
+          imagePullPolicy: Always
+          args: ["./dnstest.sh"]
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi 
+            limits:
+              memory: 256Mi
+          envFrom:
+            - configMapRef:
+                name: dnstest-environment
+      terminationGracePeriodSeconds: 1
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
