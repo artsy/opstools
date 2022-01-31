@@ -7,9 +7,12 @@ __*
 # don't ignore .gitignore
 !/.gitignore
 
-# Yaml files
+# ignore Yaml files
 *.yml
 *.yaml
+
+# ignore .txt files as they are likely used as input to scripts
+*.txt
 
 # don't ignore rubyrep ymls
 !rubyrep*.yml

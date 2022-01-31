@@ -2,8 +2,10 @@
 
 set -e
 
+ARGUMENT_COUNT=6
+
 function check_input() {
-  if !(( $# == 6 ))
+  if (( $# < $ARGUMENT_COUNT ))
   then
     usage
     exit 1
@@ -12,7 +14,7 @@ function check_input() {
 
 function usage() {
   cat << EOF
-    Usage: $0 path_to_change_script(relative to this dir) path_to_project_list path_to_source_code_root_dir branch_name commit_message(also pr title/body) pr_reviewer(also assignee)
+    Usage: $0 path_to_change_script(relative to this dir) path_to_project_list path_to_source_code_root_dir branch_name commit_message(also pr title/body) pr_reviewer(also assignee) <extra arguments to pass to the change script itself>...
 EOF
 }
 
@@ -21,10 +23,12 @@ function prep() {
 
   echo "### stash ###"
   git stash
-  echo "### checkout master ###"
-  git checkout master
-  echo "### rebase from origin/master ###"
-  git pull --rebase origin master
+  echo "### git pull ###"
+  git pull
+  echo "### checkout main ###"
+  git checkout main
+  echo "### rebase from origin/main ###"
+  git pull --rebase origin main
   echo "### checkout $BRANCH branch ###"
   git checkout -b "$BRANCH"
 }
@@ -91,7 +95,8 @@ do
 
   cd "$WORKDIR"
   echo "### run script ###"
-  $SCRIPT_DIR/$SCRIPT
+  # pass on to script argument#7 and on
+  $SCRIPT_DIR/$SCRIPT "${@:7}"
 
   cd "$WORKDIR"
   commit "$BRANCH"
