@@ -3,6 +3,7 @@ Convenience script to request a certificate from Let's Encrypt using the Certbot
 # Requirements
 - AWS CLI
 - Docker
+- Kubectl
 
 # Run like:
 
@@ -10,7 +11,7 @@ Convenience script to request a certificate from Let's Encrypt using the Certbot
 ./cert.sh
 ```
 
-Here's a sample run of the Certbot step that requests a cert for *.foo.bar/*.prd.foo.bar/*.stg.foo.bar:
+Here's a sample run of the Certbot step that requests a cert for `*.foo.bar`/`*.prd.foo.bar`/`*.stg.foo.bar`:
 
 ```
 $ docker run -it --rm --name certbot \
