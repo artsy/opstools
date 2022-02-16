@@ -80,21 +80,25 @@ echo "Ship the tar up to $S3_LOCATION which currently has:"
 aws s3 ls "$S3_LOCATION" || echo "Something wrong with executing AWS CLI."
 aws s3 cp "$TAR_FILE" "$S3_LOCATION"
 
+K8S_SECRET_NAME=$(echo $DOMAIN | sed 's/\./-/g')-tls
+CERT_DIR="$CERTBOT_ETC_DIR/archive/$DOMAIN/fullchain1.pem"
+KEY_DIR="$CERTBOT_ETC_DIR/archive/$DOMAIN/privkey1.pem"
+
 echo "Loading new cert/key into staging k8s for use by ingress controllers..."
-kubectl --context staging delete secret "$DOMAIN-tls"
-kubectl --context staging create secret tls "$DOMAIN-tls" \
-  --cert="$CERTBOT_CERT_DIR/fullchain.pem" \
-  --key="$CERTBOT_CERT_DIR/privkey.pem"
+kubectl --context staging delete secret "$K8S_SECRET_NAME"
+kubectl --context staging create secret tls "$K8S_SECRET_NAME" \
+  --cert="$CERT_DIR" \
+  --key="$KEY_DIR"
 
 echo "Go visit https://kubernetes.stg.$DOMAIN and check out the cert."
 read -p "Hit enter if the cert is good."
 read -p "You said cert is good. I am ready to repeat for prod k8s. Hit enter to proceed."
 
 echo "Loading new cert/key into production k8s for use by ingress controllers..."
-kubectl --context production delete secret "$DOMAIN-tls"
-kubectl --context production create secret tls "$DOMAIN-tls" \
-  --cert="$CERTBOT_CERT_DIR/fullchain.pem" \
-  --key="$CERTBOT_CERT_DIR/privkey.pem"
+kubectl --context production delete secret "$K8S_SECRET_NAME"
+kubectl --context production create secret tls "$K8S_SECRET_NAME" \
+  --cert="$CERT_DIR" \
+  --key="$KEY_DIR"
 
 echo "Go visit https://kubernetes.prd.$DOMAIN and check out the cert."
 
