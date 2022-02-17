@@ -2,8 +2,35 @@
 
 set -e
 
-DOMAIN='<the domain you want to get certs for>'
-S3_BUCKET='<name of S3 bucket to save the certs in>'
+function usage() {
+  cat << EOF
+    Usage: $0
+
+    Please ensure these vars are set in env:
+
+      DOMAIN - The domain to request certs for.
+               For example, if domain is foo.bar, certs will be requested for:
+               *.foo.bar, *.prd.foo.bar, *.stg.foo.bar
+
+      S3_BUCKET - Name of the S3 bucket to save the certs in.
+                  For example, if domain is foo.bar, and S3 bucket is 'foobar-data', the certs will be saved in:
+                  s3://foobar-data/certificates/foo.bar/"
+
+EOF
+}
+
+# make sure vars are set in the env
+if [[ "$DOMAIN" == '' ]] || [[ "$S3_BUCKET" == '' ]]
+then
+  usage
+  exit 1
+fi
+
+S3_LOCATION="s3://$S3_BUCKET/certificates/$DOMAIN/"
+CERT_DOMAINS="*.$DOMAIN,*.prd.$DOMAIN,*.stg.$DOMAIN"
+
+echo "Requesting certs for domains: $CERT_DOMAINS"
+echo "They will be saved in: $S3_LOCATION"
 
 echo "Creating certbot dirs under your home dir..."
 CERTBOT_DIR=~/certbot
@@ -16,7 +43,7 @@ mkdir -p "$CERTBOT_VAR_DIR"
 cat << EOF
 Running certbot, follow interactive prompts. See README for how to answer prompts.
 
-Provide to certbot these domains: *.$DOMAIN,*.prd.$DOMAIN,*.stg.$DOMAIN
+When prompted, provide to certbot these domains: $CERT_DOMAINS
 To prove that you own those domains, certbot will ask you to create the following TXT records:
 
 _acme-challenge.$DOMAIN
@@ -49,26 +76,29 @@ DAY=$(date +%Y%m%d)
 TAR_FILE="$CERTBOT_DIR/certbot.$DAY.tar.gz"
 tar -czvvf "$TAR_FILE" "$CERTBOT_DIR"
 
-S3_LOCATION="s3://$S3_BUCKET/certificates/$DOMAIN/"
 echo "Ship the tar up to $S3_LOCATION which currently has:"
 aws s3 ls "$S3_LOCATION" || echo "Something wrong with executing AWS CLI."
 aws s3 cp "$TAR_FILE" "$S3_LOCATION"
 
+K8S_SECRET_NAME=$(echo $DOMAIN | sed 's/\./-/g')-tls
+CERT_DIR="$CERTBOT_ETC_DIR/archive/$DOMAIN/fullchain1.pem"
+KEY_DIR="$CERTBOT_ETC_DIR/archive/$DOMAIN/privkey1.pem"
+
 echo "Loading new cert/key into staging k8s for use by ingress controllers..."
-kubectl --context staging delete secret "$DOMAIN-tls"
-kubectl --context staging create secret tls "$DOMAIN-tls" \
-  --cert="$CERTBOT_CERT_DIR/fullchain.pem" \
-  --key="$CERTBOT_CERT_DIR/privkey.pem"
+kubectl --context staging delete secret "$K8S_SECRET_NAME"
+kubectl --context staging create secret tls "$K8S_SECRET_NAME" \
+  --cert="$CERT_DIR" \
+  --key="$KEY_DIR"
 
 echo "Go visit https://kubernetes.stg.$DOMAIN and check out the cert."
 read -p "Hit enter if the cert is good."
 read -p "You said cert is good. I am ready to repeat for prod k8s. Hit enter to proceed."
 
 echo "Loading new cert/key into production k8s for use by ingress controllers..."
-kubectl --context production delete secret "$DOMAIN-tls"
-kubectl --context production create secret tls "$DOMAIN-tls" \
-  --cert="$CERTBOT_CERT_DIR/fullchain.pem" \
-  --key="$CERTBOT_CERT_DIR/privkey.pem"
+kubectl --context production delete secret "$K8S_SECRET_NAME"
+kubectl --context production create secret tls "$K8S_SECRET_NAME" \
+  --cert="$CERT_DIR" \
+  --key="$KEY_DIR"
 
 echo "Go visit https://kubernetes.prd.$DOMAIN and check out the cert."
 

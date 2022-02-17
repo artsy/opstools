@@ -1,27 +1,42 @@
-Convenience script to request a certificate from Let's Encrypt using the Certbot tool and upload to Artsy's kubernetes clusters.
+Convenience script to:
+
+- request certificates from Let's Encrypt for a domain
+- save the certs to S3
+- update the certs in staging and production Kubernetes secrets objects
 
 # Requirements
+
 - AWS CLI
 - Docker
+- Kubectl
 
-# Run like:
+# How to run:
 
-```bash
-./cert.sh
-```
-
-Here's a sample run of the Certbot step that requests a cert for *.foo.bar/*.prd.foo.bar/*.stg.foo.bar:
+Here's a sample run requesting certs for `*.example.com`/`*.prd.example.com`/`*.stg.example.com`:
 
 ```
-$ docker run -it --rm --name certbot \
-    -v "$CERTBOT_ETC_DIR:/etc/letsencrypt"  \
-    -v "$CERTBOT_VAR_DIR:/var/lib/letsencrypt" \
-    certbot/certbot certonly --manual --force-renewal --preferred-challenges=dns
+userX$ DOMAIN=example.com S3_BUCKET=example-bucket ./cert.sh
+Requesting certs for domains: *.example.com,*.prd.example.com,*.stg.example.com
+They will be saved in: s3://example-bucket/certificates/example.com/
+Creating certbot dirs under your home dir...
+Running certbot, follow interactive prompts. See README for how to answer prompts.
 
-Saving debug log to /var/log/letsencrypt/letsencrypt.log
-Plugins selected: Authenticator manual, Installer None
+When prompted, provide to certbot these domains: *.example.com,*.prd.example.com,*.stg.example.com
+To prove that you own those domains, certbot will ask you to create the following TXT records:
+
+_acme-challenge.example.com
+_acme-challenge.prd.example.com
+_acme-challenge.stg.example.com
+
+Go to Route53, create them all under 'example.com' hosted zone. (not under prd/stg.example.com zones)
+
+After you create each record, verify it exists using dig/nslookup. (make sure you are not on VPN otherwise you won't see the record)
+
+Certbot will generate cert/key and save them in ~/certbot/etc/live/example.com
+...
+
 Enter email address (used for urgent renewal and security notices)
- (Enter 'c' to cancel): ops@foo.bar
+ (Enter 'c' to cancel): responsible-team@example.com
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Please read the Terms of Service at
@@ -39,67 +54,79 @@ EFF news, campaigns, and ways to support digital freedom.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 (Y)es/(N)o: N
 Account registered.
-Please enter in your domain name(s) (comma and/or space separated)  (Enter 'c'
-to cancel): *.foo.bar,*.prd.foo.bar,*.stg.foo.bar
-Requesting a certificate for *.foo.bar and 2 more domains
-Performing the following challenges:
-dns-01 challenge for foo.bar
-dns-01 challenge for prd.foo.bar
-dns-01 challenge for stg.foo.bar
+Please enter the domain name(s) you would like on your certificate (comma and/or
+space separated) (Enter 'c' to cancel): *.example.com,*.prd.example.com,*.stg.example.com
+Requesting a certificate for *.example.com and 2 more domains
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Please deploy a DNS TXT record under the name
-_acme-challenge.foo.bar with the following value:
+Please deploy a DNS TXT record under the name:
 
-<snip>
+_acme-challenge.example.com.
 
-Before continuing, verify the record is deployed.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Press Enter to Continue
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Please deploy a DNS TXT record under the name
-_acme-challenge.prd.foo.bar with the following value:
-
-<snip>
-
-Before continuing, verify the record is deployed.
-(This must be set up in addition to the previous challenges; do not remove,
-replace, or undo the previous challenge tasks yet. Note that you might be
-asked to create multiple distinct TXT records with the same name. This is
-permitted by DNS standards.)
+with the following value:
+...
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Press Enter to Continue
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Please deploy a DNS TXT record under the name
-_acme-challenge.stg.foo.bar with the following value:
+Please deploy a DNS TXT record under the name:
 
-<snip>
+_acme-challenge.prd.example.com.
 
-Before continuing, verify the record is deployed.
-(This must be set up in addition to the previous challenges; do not remove,
-replace, or undo the previous challenge tasks yet. Note that you might be
-asked to create multiple distinct TXT records with the same name. This is
-permitted by DNS standards.)
+with the following value:
+...
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Press Enter to Continue
-Waiting for verification...
-Cleaning up challenges
 
-IMPORTANT NOTES:
- - Congratulations! Your certificate and chain have been saved at:
-   /etc/letsencrypt/live/foo.bar/fullchain.pem
-   Your key file has been saved at:
-   /etc/letsencrypt/live/foo.bar/privkey.pem
-   Your certificate will expire on 2021-06-03. To obtain a new or
-   tweaked version of this certificate in the future, simply run
-   certbot again. To non-interactively renew *all* of your
-   certificates, run "certbot renew"
- - If you like Certbot, please consider supporting our work by:
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Please deploy a DNS TXT record under the name:
 
-   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
-   Donating to EFF:                    https://eff.org/donate-le
+_acme-challenge.stg.example.com.
+
+with the following value:
+...
+
+Before continuing, verify the TXT record has been deployed. Depending on the DNS
+provider, this may take some time, from a few seconds to multiple minutes. You can
+check if it has finished deploying with aid of online tools, such as the Google
+Admin Toolbox: https://toolbox.googleapps.com/apps/dig/#TXT/_acme-challenge.stg.example.com.
+Look for one or more bolded line(s) below the line ';ANSWER'. It should show the
+value(s) you've just added.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Press Enter to Continue
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/example.com/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/example.com/privkey.pem
+This certificate expires on ...
+These files will be updated when the certificate renews.
+NEXT STEPS:
+- This certificate will not be renewed automatically. Autorenewal of --manual certificates requires the use of an authentication hook script (--manual-auth-hook) but one was not provided. To renew this certificate, repeat this same certbot command before the certificate's expiry date.
+...
+
+The TXT records that you created are no longer required. Please delete them. Hit enter when done.
+Files generated by Certbot are owned by root. Changing ownership to you (via sudo)...
+[sudo] password for userX:
+
+Tar up Certbot files...
+...
+
+Ship the tar up to s3://example-bucket/certificates/example.com/ which currently has:
+...
+
+Loading new cert/key into staging k8s for use by ingress controllers...
+secret "example.com-tls" deleted
+secret/example.com-tls created
+Go visit https://kubernetes.stg.example.com and check out the cert.
+Hit enter if the cert is good.
+You said cert is good. I am ready to repeat for prod k8s. Hit enter to proceed.
+
+Loading new cert/key into production k8s for use by ingress controllers...
+secret "example.com-tls" deleted
+secret/example.com-tls created
+Go visit https://kubernetes.prd.example.com and check out the cert.
+Deleting certbot files from your home dir...
 ```
