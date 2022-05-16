@@ -15,7 +15,7 @@ Convenience script to:
 Here's a sample run requesting certs for `*.example.com`/`*.prd.example.com`/`*.stg.example.com`:
 
 ```
-userX$ DOMAIN=example.com S3_BUCKET=example-bucket ./cert.sh
+userX$ ./cert.sh
 Requesting certs for domains: *.example.com,*.prd.example.com,*.stg.example.com
 They will be saved in: s3://example-bucket/certificates/example.com/
 Creating certbot dirs under your home dir...
