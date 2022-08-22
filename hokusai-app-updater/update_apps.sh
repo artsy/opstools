@@ -2,7 +2,7 @@
 
 set -e
 
-ARGUMENT_COUNT=6
+ARGUMENT_COUNT=7
 
 function check_input() {
   if (( $# < $ARGUMENT_COUNT ))
@@ -14,7 +14,7 @@ function check_input() {
 
 function usage() {
   cat << EOF
-    Usage: $0 path_to_change_script(relative to this dir) path_to_project_list path_to_source_code_root_dir branch_name commit_message(also pr title/body) pr_reviewer(also assignee) <extra arguments to pass to the change script itself>...
+    Usage: $0 path_to_change_script(relative to this dir) path_to_project_list path_to_source_code_root_dir branch_name commit_message(also pr title/body) pr_assignee(user or team) pr_reviewer(user) <extra arguments to pass to the change script itself>...
 EOF
 }
 
@@ -44,7 +44,7 @@ function commit() {
   then
       exit 1
   fi
-  
+
   echo "### commit changes ###"
   git commit -am "$MSG" --no-verify
   echo "### push to origin ###"
@@ -56,7 +56,7 @@ function commit() {
   # command exits 0 if yes, 1 if not.
   # assumes script is run with set -e, so script exits if 1.
   gh auth status
-  gh pr create --title "$MSG" --body "$MSG" --reviewer "$REVIEWER" --assignee "$REVIEWER"
+  gh pr create --title "$MSG" --body "$MSG" --reviewer "$REVIEWER" --assignee "$ASSIGNEE"
 }
 
 check_input "$@"
@@ -80,8 +80,11 @@ BRANCH=$4
 # commit message. will be title of PR as well.
 MSG=$5
 
-# reviewer/assignee for pr.
+# reviewer (user or team) for pr.
 REVIEWER=$6
+
+# assignee for pr.
+ASSIGNEE=$7
 
 COUNT=1
 
@@ -95,8 +98,8 @@ do
 
   cd "$WORKDIR"
   echo "### run script ###"
-  # pass on to script argument#7 and on
-  $SCRIPT_DIR/$SCRIPT "${@:7}"
+  # pass on to script argument#8 and on
+  $SCRIPT_DIR/$SCRIPT "${@:8}"
 
   cd "$WORKDIR"
   commit "$BRANCH"
