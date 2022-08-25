@@ -23,8 +23,8 @@ function prep() {
 
   echo "### stash ###"
   git stash
-  echo "### git pull ###"
-  git pull
+  echo "### git fetch ###"
+  git fetch
   echo "### checkout main ###"
   git checkout main
   echo "### rebase from origin/main ###"
