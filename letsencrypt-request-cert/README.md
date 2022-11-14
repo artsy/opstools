@@ -12,6 +12,8 @@ Convenience script to:
 
 # How to run:
 
+When prompted to create DNS TXT records for verification purposes, create them all under the _publicly available_ `artsy.systems` hosted zone.
+
 Here's a sample run requesting certs for `*.example.com`/`*.prd.example.com`/`*.stg.example.com`:
 
 ```
