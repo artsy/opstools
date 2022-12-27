@@ -21,12 +21,12 @@ function file_search() {
 }
 
 # Check for existence of files that would include the ruby version.
-# Order matters here, as we aren't currently validating if an existing 
+# Order matters here, as we aren't currently validating if an existing
 # file has the ruby version.
 #
-# For example: a Gemfile may exist in a repo but just point 
-# to the .ruby-version. Currently this would result in use 
-# skipping the grep for .ruby-version.
+# For example: a Gemfile may exist in a repo but just point
+# to the .ruby-version. Currently this would result in us
+# skipping the .ruby-version grep.
 if ! file_validator ".ruby-version"; then
   result=$(file_search "$DOT_RUBY_VERSION_REGEX")
 elif ! file_validator "Gemfile"; then
