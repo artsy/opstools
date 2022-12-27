@@ -21,11 +21,11 @@ function file_search() {
 }
 
 if ! file_validator "Dockerfile"; then
-  RES=$(file_search "$DOCKERFILE_REGEX")
+  result=$(file_search "$DOCKERFILE_REGEX")
 fi
 
-if [ -n "$RES" ]; then
+if [ -n "$result" ]; then
   echo "###### $PROJECT ######"
-  echo $RES
+  echo $result
   echo
 fi
