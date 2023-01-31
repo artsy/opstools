@@ -14,8 +14,8 @@ __*
 # ignore .txt files as they are likely used as input to scripts
 *.txt
 
-# don't ignore rubyrep ymls
-!rubyrep*.yml
+# python ignores
+.python-version
 
 # don't ignore dnstest.yml
 !dnstest.yml
