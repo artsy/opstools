@@ -1,27 +1,20 @@
-# ignore __ files/dirs. such as __pycache__
-__*
+########
+# ignore
+########
 
-# ignore env files.
 .env*
-
-# don't ignore .gitignore
-!/.gitignore
-
-# ignore Yaml files
 *.yml
 *.yaml
-
-# ignore .txt files as they are likely used as input to scripts
 *.txt
-
-# python ignores
 .python-version
+__pycache__
 
-# don't ignore dnstest.yml
+##############
+# don't ignore
+##############
+
+!/.gitignore
+!/.requirements.txt
 !dnstest.yml
-
-# don't ignore .env.example
 !.env.example
-
-# don't ignore files in hokusai dir
 !hokusai/*
