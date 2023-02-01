@@ -2,19 +2,20 @@
 # ignore
 ########
 
-.env*
-*.yml
-*.yaml
-*.txt
-.python-version
 __pycache__
+*.yaml
+*.yml
+*.pyc
+*.txt
+.env*
+.pytest_cache
+.python-version
 
 ##############
 # don't ignore
 ##############
 
 !/.gitignore
-!/.requirements.txt
-!dnstest.yml
 !.env.example
+!dnstest.yml
 !hokusai/*

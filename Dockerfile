@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.9.10
 
 RUN pip --no-cache-dir install poetry
 RUN pip --no-cache-dir install awscli --upgrade
