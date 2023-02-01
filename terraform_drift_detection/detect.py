@@ -3,17 +3,14 @@
 import os
 import tempfile
 
-from terraform_drift_detection.git import clone_repo
-from terraform_drift_detection.terraform import find_tf_dirs, tf_in_repo_dir
-from terraform_drift_detection.util import abort_on_nonzero_exit, getenv, run_cmd
+from terraform_drift_detection.util import Drift, getenv
 
 repo_names, github_key = getenv()
 
 with tempfile.TemporaryDirectory() as tmpdir:
+  results = []
   for repo in repo_names:
-    print('INFO: checking repo: %s' %repo)
-    clone_repo(repo, tmpdir)
-    repo_dir = os.path.join(tmpdir, repo)
-    tf_dirs = find_tf_dirs(repo_dir)
-    for tf_dir in tf_dirs:
-      tf_in_repo_dir(tf_dir)
+    results += check_repo(repo, tmpdir)
+  if Drift.DRIFT in results:
+    print('Error: Drift detected')
+    exit(1)

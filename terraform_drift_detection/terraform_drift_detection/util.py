@@ -1,11 +1,13 @@
 import os
 import subprocess
 
-def abort_on_nonzero_exit(cmd, code):
-  ''' print error message and exit program '''
-  if code != 0:
-    print('ERROR: Aborting, because "%s" command exited with code %s.' %(cmd, code))
-    exit(code)
+from enum import Enum
+
+class Drift(Enum):
+  ''' enumerates all possible terraform drift detction results '''
+  NODRIFT = 0
+  DRIFT = 1
+  UNKNOWN = 2
 
 def getenv():
   repos = os.getenv('REPOS', default='')
