@@ -1,0 +1,8 @@
+---
+version: '2'
+services:
+  {{ project_name }}:
+    command: ["pytest"]
+    env_file: ../.env.test
+    build:
+      context: ../
