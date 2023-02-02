@@ -1,10 +1,11 @@
 import glob
 import os
+import tempfile
 
 from terraform_drift_detection.util import Drift, run_cmd
 
 def check_dir(dirx):
-  ''' run terraform init and plan in dir '''
+  ''' return drift detection result for dir '''
   init_cmd = 'terraform init'
   output = run_cmd(init_cmd, dirx)
   if output.returncode != 0:
@@ -19,7 +20,7 @@ def check_dir(dirx):
     return Drift.UNKNOWN
 
 def check_repo(repo, basedir):
-  ''' clone repo and run terraform init and plan in each sub dir that has .tf files '''
+  ''' return drift detection result for repo '''
   clone_cmd = 'git clone git@github.com:artsy/' + repo + '.git'
   output = run_cmd(clone_cmd, basedir)
   if output.returncode != 0:
@@ -29,8 +30,16 @@ def check_repo(repo, basedir):
   results = [check_dir(tf_dir) for tf_dir in tf_dirs]
   return results
 
+def check_repos(repo_names):
+  ''' return drift detection result for repos '''
+  results = []
+  with tempfile.TemporaryDirectory() as tmpdir:
+    for repo in repo_names:
+      results += check_repo(repo, tmpdir)
+  return results
+
 def find_tf_dirs(dirx):
-  ''' return sorted list of sub dirs that have .tf files '''
+  ''' return sub dirs that house terraform plans '''
   globstr = dirx + '/**/*.tf'
   tf_files = [
     path for path in glob.glob(globstr, recursive=True)

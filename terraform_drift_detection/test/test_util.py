@@ -3,7 +3,7 @@ import tempfile
 
 from terraform_drift_detection.util import getenv, run_cmd
 
-def describe_env():
+def describe_getenv():
   def it_gets():
     os.environ['REPO_NAMES'] = 'foo'
     repos, dummy = getenv()
