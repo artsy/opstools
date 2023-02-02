@@ -22,3 +22,21 @@ def run_cmd(cmd, dirx):
   output = subprocess.run(cmd, shell=True, text=True, capture_output=True)
   print('INFO: "%s" command exited with code "%s".' %(cmd, output.returncode))
   return output
+
+def validate(repo_names, github_key):
+  ''' validate input '''
+  valid = []
+  valid += [validate_repo_names(repo_names)]
+  return not False in valid
+
+def validate_repo_name(name):
+  ''' validate repo name '''
+  valid = len(name) > 0
+  return valid
+
+def validate_repo_names(names):
+  ''' validate repo names '''
+  valid = []
+  valid += [len(names) > 0]
+  valid = valid + [validate_repo_name(name) for name in names]
+  return not False in valid
