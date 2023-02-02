@@ -67,10 +67,8 @@
 **/parts/
 **/pip-delete-this-directory.txt
 **/pip-log.txt
-**/pytest.*
 **/sdist/
 **/target/
-**/test/
 **/tmp
 **/var/
 **/venv/

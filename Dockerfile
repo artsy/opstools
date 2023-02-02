@@ -7,14 +7,14 @@ RUN chown deploy:deploy /src
 RUN pip --no-cache-dir install poetry
 RUN pip --no-cache-dir install awscli --upgrade
 
+WORKDIR /src
+COPY pyproject.toml poetry.lock /src/
+RUN poetry config virtualenvs.create false \
+  && poetry install --without dev
+
 USER deploy
 ENV USER deploy
 ENV HOME /home/deploy
-
-WORKDIR /src
-
-COPY pyproject.toml /src
-RUN poetry install --no-dev
 
 COPY . /src
 
