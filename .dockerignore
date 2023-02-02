@@ -27,6 +27,7 @@
 .LSOverride
 .Python
 .cache
+.circleci
 .coverage
 .dockerignore
 .env
@@ -37,12 +38,14 @@
 .hokusai-tmp
 .idea
 .installed.cfg
+.pytest_cache
 .python-version
 .ropeproject
 .tox/
 .venv/
 Dockerfile
 LICENSE
+Makefile
 README.md
 VERSION
 __pycache__/
@@ -64,6 +67,7 @@ nosetests.xml
 parts/
 pip-delete-this-directory.txt
 pip-log.txt
+pytest.*
 sdist/
 target/
 tmp
