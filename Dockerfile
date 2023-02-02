@@ -5,6 +5,6 @@ RUN pip --no-cache-dir install awscli --upgrade
 
 WORKDIR /src
 COPY . /src
-RUN poetry install
+RUN poetry install --no-dev
 
 CMD ["python"]
