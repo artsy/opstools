@@ -1,4 +1,5 @@
 import glob
+import logging
 import os
 import tempfile
 
@@ -19,9 +20,9 @@ def check_dir(dirx):
   else:
     return Drift.UNKNOWN
 
-def check_repo(repo, basedir):
+def check_repo(repo, basedir, github_token):
   ''' return drift detection result for repo '''
-  clone_cmd = 'git clone git@github.com:artsy/' + repo + '.git'
+  clone_cmd = 'git clone https://github:' + github_token + '@github.com/artsy/' + repo + '.git'
   output = run_cmd(clone_cmd, basedir)
   if output.returncode != 0:
     return [Drift.UNKNOWN]
@@ -30,12 +31,12 @@ def check_repo(repo, basedir):
   results = [check_dir(tf_dir) for tf_dir in tf_dirs]
   return results
 
-def check_repos(repo_names):
+def check_repos(repo_names, github_token):
   ''' return drift detection result for repos '''
   results = []
   with tempfile.TemporaryDirectory() as tmpdir:
     for repo in repo_names:
-      results += check_repo(repo, tmpdir)
+      results += check_repo(repo, tmpdir, github_token)
   return results
 
 def find_tf_dirs(dirx):

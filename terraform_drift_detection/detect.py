@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 from terraform_drift_detection.terraform import check_repos
-from terraform_drift_detection.util import Drift, getenv, validate
+from terraform_drift_detection.util import Drift, getenv, setup_logging, validate
 
-repo_names, github_key = getenv()
+setup_logging()
+repo_names, github_token = getenv()
 
-if validate(repo_names, github_key):
-  results = check_repos(repo_names)
+if validate(repo_names, github_token):
+  results = check_repos(repo_names, github_token)
   if Drift.DRIFT in results:
-    print('Error: Drift detected.')
+    logger.error('Drift detected.')
     exit(1)
 else:
-  print('INFO: input is invalid.')
-  exit(0)
+  logging.info('Input is invalid.')

@@ -38,3 +38,7 @@ def describe_validate():
     assert validate([''], 'foo') == False
   def it_validates_good_repo_names():
     assert validate(['foo'], 'bar') == True
+  def it_invalidates_empty_github_token():
+    assert validate(['foo'], '') == False
+  def it_validates_nonempty_github_token():
+    assert validate(['foo'], 'bar') == True
