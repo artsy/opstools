@@ -13,7 +13,7 @@ Read and run the setup script:
 
 Load environment vars:
 ```
-set -a; source .env.shared; set +a;
+export $(grep --no-filename --invert-match '^#' .env.shared .env | xargs)
 ```
 
 # Testing
