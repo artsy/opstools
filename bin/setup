@@ -5,8 +5,13 @@
 # This assumes you have general prerequisites installed as by:
 # https://github.com/artsy/potential/blob/master/scripts/setup
 
-echo "Downloading .env.shared (for common internal configuration)..."
+echo "Downloading .env.shared (for common local dev configuration)..."
 aws s3 cp s3://artsy-citadel/dev/.env.opstools .env.shared
+
+if [ ! -e ".env" ]; then
+  echo "Initializing .env from .env.example (for any custom local dev configuration)..."
+  cp .env.example .env
+fi
 
 echo "Adding pre-commit hook..."
 cp bin/pre-commit .git/hooks/pre-commit
