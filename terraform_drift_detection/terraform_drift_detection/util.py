@@ -28,12 +28,6 @@ class FilterOutSensitiveInfoFormatter(logging.Formatter):
     formatted_log = logging.Formatter.format(self, record)
     return self._filter(formatted_log)
 
-def getenv():
-  ''' get env '''
-  repos = os.getenv('REPO_NAMES', default='')
-  github_token = os.getenv('GITHUB_TOKEN', default='')
-  return repos.split(','), github_token
-
 def run_cmd(cmd, dirx):
   ''' run command in dir and return output '''
   os.chdir(dirx)
@@ -47,22 +41,3 @@ def setup_logging():
   format = '%(levelname)s: %(message)s'
   for handler in logging.root.handlers:
      handler.setFormatter(FilterOutSensitiveInfoFormatter(format))
-
-def validate(repo_names, github_token):
-  ''' validate input '''
-  valid = []
-  valid += [validate_repo_names(repo_names)]
-  valid += [len(github_token) > 0]
-  return not False in valid
-
-def validate_repo_name(name):
-  ''' validate repo name '''
-  valid = len(name) > 0
-  return valid
-
-def validate_repo_names(names):
-  ''' validate repo names '''
-  valid = []
-  valid += [len(names) > 0]
-  valid = valid + [validate_repo_name(name) for name in names]
-  return not False in valid

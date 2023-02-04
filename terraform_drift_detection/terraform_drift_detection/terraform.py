@@ -3,6 +3,7 @@ import logging
 import os
 import tempfile
 
+from terraform_drift_detection.config import config
 from terraform_drift_detection.util import Drift, run_cmd
 
 def check_dir(dirx):
@@ -20,9 +21,9 @@ def check_dir(dirx):
   else:
     return Drift.UNKNOWN
 
-def check_repo(repo, basedir, github_token):
+def check_repo(repo, basedir):
   ''' return drift detection result for repo '''
-  clone_cmd = 'git clone https://github:' + github_token + '@github.com/artsy/' + repo + '.git'
+  clone_cmd = 'git clone https://github:' + config.github_token + '@github.com/artsy/' + repo + '.git'
   output = run_cmd(clone_cmd, basedir)
   if output.returncode != 0:
     return [Drift.UNKNOWN]
@@ -31,12 +32,12 @@ def check_repo(repo, basedir, github_token):
   results = [check_dir(tf_dir) for tf_dir in tf_dirs]
   return results
 
-def check_repos(repo_names, github_token):
+def check_repos():
   ''' return drift detection result for repos '''
   results = []
   with tempfile.TemporaryDirectory() as tmpdir:
-    for repo in repo_names:
-      results += check_repo(repo, tmpdir, github_token)
+    for repo in config.repos:
+      results += check_repo(repo, tmpdir)
   return results
 
 def find_tf_dirs(dirx):
