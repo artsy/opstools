@@ -4,6 +4,7 @@ import re
 from terraform_drift_detection.config import config
 
 def init():
+  ''' initialize everything for the app '''
   setup_logging()
 
 class FilterOutSensitiveInfoFormatter(logging.Formatter):
@@ -24,6 +25,7 @@ class FilterOutSensitiveInfoFormatter(logging.Formatter):
     return self._filter(formatted_log)
 
 def setup_logging():
+  ''' setup app wide logging '''
   logging.basicConfig(level=logging.INFO)
   format = '%(levelname)s: %(message)s'
   for handler in logging.root.handlers:

@@ -1,33 +1,33 @@
 import os
 
+from cerberus import Validator
+
 class AppConfig:
+  ''' get env config and validate them '''
   def __init__(self, env):
-    repo_names = env.get('REPO_NAMES', '')
     self.github_token = env.get('GITHUB_TOKEN', '')
+    repo_names = env.get('REPO_NAMES', '')
     self.repos = repo_names.split(',')
-    if not validate(self.repos, self.github_token):
-      raise AppConfigError('Error: Env vars are missing or invalid.')
+    validate(self.github_token, repo_names, self.repos)
 
 class AppConfigError(Exception):
-    pass
+  pass
 
-def validate(repo_names, github_token):
-  ''' validate input '''
-  valid = []
-  valid += [validate_repo_names(repo_names)]
-  valid += [len(github_token) > 0]
-  return not False in valid
+def validate(github_token, repo_names, repos):
+  ''' validate input data '''
+  validator = Validator()
+  schema = {
+    'github_token': {'type': 'string', 'empty': False},
+    'repo_names': {'type': 'string', 'empty': False},
+    'repos': {'type': 'list', 'empty': False, 'schema': {'type': 'string', 'empty': False}}
+  }
+  document = {
+    'github_token': github_token,
+    'repo_names': repo_names,
+    'repos': repos
+  }
+  if not validator.validate(document, schema):
+    raise AppConfigError('Error: Env vars are missing or invalid.')
 
-def validate_repo_name(name):
-  ''' validate repo name '''
-  valid = len(name) > 0
-  return valid
-
-def validate_repo_names(names):
-  ''' validate repo names '''
-  valid = []
-  valid += [len(names) > 0]
-  valid = valid + [validate_repo_name(name) for name in names]
-  return not False in valid
-
+# import this from other modules in order to instantiate
 config = AppConfig(os.environ)

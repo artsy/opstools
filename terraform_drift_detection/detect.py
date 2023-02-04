@@ -8,5 +8,5 @@ from terraform_drift_detection.util import Drift
 
 init()
 if Drift.DRIFT in check_repos():
-  logging.error('Drift detected.')
+  logging.error('Drift detected. Please see logs.')
   exit(1)
