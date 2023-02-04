@@ -7,6 +7,7 @@
 *.py[cod]
 *.so
 *.swp
+*.txt
 */*.py[cod]
 */*.swp
 */*/*.py[cod]
@@ -31,7 +32,6 @@
 .hokusai-tmp
 .idea
 .installed.cfg
-.python-version
 .ropeproject
 .tox/
 .venv/
