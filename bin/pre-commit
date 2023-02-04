@@ -1,0 +1,2 @@
+echo 'Executing detect-secrets...'
+bin/detect-secrets
