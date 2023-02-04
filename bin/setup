@@ -1,11 +1,35 @@
 #!/bin/sh
 
-# Setup script for Artsy use.
+# Setup script for Artsy's use.
 
-# This assumes you have general prerequisites installed as by:
-# https://github.com/artsy/potential/blob/master/scripts/setup
+# It assumes that the general Artsy pre-requisites are already installed.
+# Please see: https://github.com/artsy/potential/blob/master/scripts/setup
 
-echo "Downloading .env.shared (for common local dev configuration)..."
+trap 'ret=$?; test $ret -ne 0 && printf "Setup script failed.\n\n" >&2; exit $ret' EXIT
+
+set -e
+
+python_version=$(cat .python-version)
+if (command -v pyenv >/dev/null)
+then
+  echo "Found Pyenv."
+  if (pyenv versions | grep -Fq "$python_version")
+  then
+    echo "Found Python $python_version."
+  else
+    echo "Using Pyenv to install Python $python_version..."
+    pyenv install -s "$python_version"
+  fi
+  pyenv rehash
+  echo "Installing Poetry..."
+  pip install poetry
+  echo "Running poetry install..."
+  poetry install
+else
+  echo "Pyenv not found, will not install Python packages, for fear of polluting system-wide Python installation."
+fi
+
+echo "Downloading .env.shared (project's local dev configuration common across developers)..."
 aws s3 cp s3://artsy-citadel/dev/.env.opstools .env.shared
 
 if [ ! -e ".env" ]; then
