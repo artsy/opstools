@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "opstools"
 version = "0.1.0"
-description = ""
-authors = ["Isac Petruzzi <isac.petruzzi@gmail.com>"]
+description = "Tools for Operations"
+authors = ["Artsy Product Velocity Team <product-velocity@artsymail.com>"]
 
 [tool.poetry.dependencies]
 boto3 = "^1.26.61"

@@ -17,7 +17,7 @@ spec:
           containers:
             - name: opstools-terraform-drift-detection
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["terraform_drift_detection/detect.py"]
+              command: ["src/terraform_drift_detection/detect.py"]
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
