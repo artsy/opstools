@@ -6,7 +6,7 @@ from subprocess import CompletedProcess
 def mock_clone_failed():
   def mock_run_cmd(cmd, dir):
     return_values = {
-      'git clone https://github:token@github.com/artsy/foorepo.git': CompletedProcess('git clone', 1),
+      'git clone https://github:footoken@github.com/artsy/foorepo.git': CompletedProcess('git clone', 1),
     }
     return return_values[cmd]
   return mock_run_cmd
@@ -15,7 +15,7 @@ def mock_clone_failed():
 def mock_clone_success():
   def mock_run_cmd(cmd, dir):
     return_values = {
-      'git clone https://github:token@github.com/artsy/foorepo.git': CompletedProcess('git clone', 0),
+      'git clone https://github:footoken@github.com/artsy/foorepo.git': CompletedProcess('git clone', 0),
     }
     return return_values[cmd]
   return mock_run_cmd

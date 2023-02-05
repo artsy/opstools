@@ -8,7 +8,9 @@ class AppConfig:
     self.github_token = env.get('GITHUB_TOKEN', '')
     repo_names = env.get('REPO_NAMES', '')
     self.repos = repo_names.split(',')
-    validate(self.github_token, repo_names, self.repos)
+
+    if not validate(self.github_token, repo_names, self.repos):
+      raise AppConfigError('Error: Env vars are missing or invalid.')
 
 class AppConfigError(Exception):
   pass
@@ -26,8 +28,7 @@ def validate(github_token, repo_names, repos):
     'repo_names': repo_names,
     'repos': repos
   }
-  if not validator.validate(document, schema):
-    raise AppConfigError('Error: Env vars are missing or invalid.')
+  return validator.validate(document, schema)
 
 # import this from other modules in order to instantiate
 config = AppConfig(os.environ)
