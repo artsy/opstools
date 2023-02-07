@@ -1,27 +1,58 @@
-# ignore __ files/dirs. such as __pycache__
-__*
-
-# ignore env files.
-.env*
-
-# don't ignore .gitignore
-!/.gitignore
-
-# ignore Yaml files
-*.yml
-*.yaml
-
-# ignore .txt files as they are likely used as input to scripts
-*.txt
-
-# don't ignore rubyrep ymls
-!rubyrep*.yml
-
-# don't ignore dnstest.yml
-!dnstest.yml
-
-# don't ignore .env.example
 !.env.example
-
-# don't ignore files in hokusai dir
-!hokusai/*
+*.egg
+*.egg-info/
+*.log
+*.mo
+*.pot
+*.py[cod]
+*.so
+*.swp
+*.txt
+*/*.py[cod]
+*/*.swp
+*/*/*.py[cod]
+*/*/*.swp
+*/*/*/*.py[cod]
+*/*/*/*.swp
+*/*/*/.ropeproject
+*/*/*/__pycache__/
+*/*/.ropeproject
+*/*/__pycache__/
+*/.ropeproject
+*/__pycache__/
+.AppleDouble
+.DS_Store
+.LSOverride
+.Python
+.cache
+.coverage
+.env
+.env.*
+.env/
+.hokusai-tmp
+.idea
+.installed.cfg
+.ropeproject
+.tox/
+.venv/
+__pycache__/
+develop-eggs/
+dist/
+docs/_build/
+downloads/
+eggs/
+env
+env/
+htmlcov/
+lib/
+lib64/
+log
+nosetests.xml
+parts/
+pip-delete-this-directory.txt
+pip-log.txt
+sdist/
+target/
+tmp
+var/
+venv/

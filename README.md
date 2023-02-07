@@ -1,13 +1,31 @@
-# opstools
+# Opstools
 
 Tools for Operations.
 
-# setup
+* __Point People:__ [#product-velocity][velocity_channel]
 
-Read/run the script:
+# Setup
 
-`./bin/setup`
+Read and run the setup script:
+```
+./bin/setup
+```
 
 Load environment vars:
+```
+export $(grep --no-filename --invert-match '^#' .env.shared .env | xargs)
+```
 
-`set -a; source .env.shared; set +a;`
+# Testing
+
+```
+pytest
+```
+
+or
+
+```
+ptw
+```
+
+[velocity_channel]: https://artsy.slack.com/messages/product-velocity "#product-velocity Slack Channel"
