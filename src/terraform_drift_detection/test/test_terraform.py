@@ -1,10 +1,12 @@
+import logging
 import os
 
 import terraform_drift_detection.terraform
 
 from functools import reduce
 from terraform_drift_detection.config import config
-from terraform_drift_detection.terraform import check_dir, check_repo, check_repos, check_tf_dir, find_tf_dirs
+from terraform_drift_detection.init import setup_logging
+from terraform_drift_detection.terraform import check_dir, check_repo, check_repos, check_tf_dir, find_tf_dirs, log_the_drift
 from terraform_drift_detection.util import Drift
 from test.fixtures.terraform import \
   expected_results, \
@@ -72,12 +74,15 @@ def describe_check_tf_dir():
     assert spy.call_count == 2
     spy.assert_has_calls([mocker.call('terraform init', 'foodir'), mocker.call('terraform plan -detailed-exitcode', 'foodir')])
     assert result == Drift.NODRIFT
-  def it_returns_drift_if_plan_returned_two(mocker, mock_plan_drift):
+  def it_returns_drift_and_log_the_resources_if_plan_returned_two(mocker, mock_plan_drift):
     mocker.patch('terraform_drift_detection.terraform.run_cmd').side_effect = mock_plan_drift
-    spy = mocker.spy(terraform_drift_detection.terraform, 'run_cmd')
+    run_cmd_spy = mocker.spy(terraform_drift_detection.terraform, 'run_cmd')
+    mocker.patch('terraform_drift_detection.terraform.log_the_drift')
+    log_the_drift_spy = mocker.spy(terraform_drift_detection.terraform, 'log_the_drift')
     result = check_tf_dir('foodir')
-    assert spy.call_count == 2
-    spy.assert_has_calls([mocker.call('terraform init', 'foodir'), mocker.call('terraform plan -detailed-exitcode', 'foodir')])
+    assert run_cmd_spy.call_count == 2
+    run_cmd_spy.assert_has_calls([mocker.call('terraform init', 'foodir'), mocker.call('terraform plan -detailed-exitcode', 'foodir')])
+    assert log_the_drift_spy.call_count == 1
     assert result == Drift.DRIFT
   def it_returns_unknown_if_plan_returned_something_else(mocker, mock_plan_unknown):
     mocker.patch('terraform_drift_detection.terraform.run_cmd').side_effect = mock_plan_unknown
@@ -100,3 +105,19 @@ def describe_find_tf_dirs():
     mocker.patch('glob.glob', return_value=files)
     mocker.patch('os.path.isfile', return_value=True)
     assert find_tf_dirs('foo') == tf_dirs
+
+def describe_log_the_drift():
+  def it_logs(caplog):
+    tf_plan_output = \
+      'foo foo foo\n' \
+      '# aws_instance.server1 will be updated in-place\n' \
+      'foo foo foo\n' \
+      '# aws_instance.server2 will be updated in-place\n' \
+      'foo foo foo\n'
+    expected_log_output = \
+      'INFO: # aws_instance.server1 will be updated in-place\n' \
+      'INFO: # aws_instance.server2 will be updated in-place\n'
+    caplog.set_level(logging.INFO)
+    setup_logging()
+    log_the_drift(tf_plan_output)
+    assert caplog.text == expected_log_output

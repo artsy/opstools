@@ -43,6 +43,7 @@ def check_tf_dir(tf_dir):
   if output.returncode == 0:
     return Drift.NODRIFT
   elif output.returncode == 2:
+    log_the_drift(output.stdout)
     return Drift.DRIFT
   else:
     return Drift.UNKNOWN
@@ -56,3 +57,10 @@ def find_tf_dirs(dirx):
   ]
   tf_dirs = [os.path.dirname(path) for path in tf_files]
   return sorted(list(set(tf_dirs)))
+
+def log_the_drift(tf_output):
+  ''' log resources mentioned in terraform plan output showing changes '''
+  # the lines marked with '#', example:
+  # '# aws_instance.serverx will be updated in-place'
+  for line in tf_output.split('\n'):
+    if '# ' in line: logging.info(line)
