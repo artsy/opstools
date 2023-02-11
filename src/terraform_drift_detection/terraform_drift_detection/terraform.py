@@ -7,19 +7,10 @@ from terraform_drift_detection.config import config
 from terraform_drift_detection.util import Drift, run_cmd
 
 def check_dir(dirx):
-  ''' return drift detection result for dir '''
-  init_cmd = 'terraform init'
-  output = run_cmd(init_cmd, dirx)
-  if output.returncode != 0:
-    return Drift.UNKNOWN
-  plan_cmd = 'terraform plan -detailed-exitcode'
-  output = run_cmd(plan_cmd, dirx)
-  if output.returncode == 0:
-    return Drift.NODRIFT
-  elif output.returncode == 2:
-    return Drift.DRIFT
-  else:
-    return Drift.UNKNOWN
+  ''' return drift detection result for a dir '''
+  tf_dirs = find_tf_dirs(dirx)
+  results = [check_tf_dir(tf_dir) for tf_dir in tf_dirs]
+  return results
 
 def check_repo(repo, basedir):
   ''' return drift detection result for repo '''
@@ -28,17 +19,33 @@ def check_repo(repo, basedir):
   if output.returncode != 0:
     return [Drift.UNKNOWN]
   repo_dir = os.path.join(basedir, repo)
-  tf_dirs = find_tf_dirs(repo_dir)
-  results = [check_dir(tf_dir) for tf_dir in tf_dirs]
+  results = []
+  for dirx in config.repos_dirs[repo]:
+    results += check_dir(os.path.join(repo_dir, dirx))
   return results
 
 def check_repos():
   ''' return drift detection result for repos '''
   results = []
   with tempfile.TemporaryDirectory() as tmpdir:
-    for repo in config.repos:
+    for repo in list(config.repos_dirs.keys()):
       results += check_repo(repo, tmpdir)
   return results
+
+def check_tf_dir(tf_dir):
+  ''' return drift detection result for a terraform dir '''
+  init_cmd = 'terraform init'
+  output = run_cmd(init_cmd, tf_dir)
+  if output.returncode != 0:
+    return Drift.UNKNOWN
+  plan_cmd = 'terraform plan -detailed-exitcode'
+  output = run_cmd(plan_cmd, tf_dir)
+  if output.returncode == 0:
+    return Drift.NODRIFT
+  elif output.returncode == 2:
+    return Drift.DRIFT
+  else:
+    return Drift.UNKNOWN
 
 def find_tf_dirs(dirx):
   ''' return sub dirs that house terraform plans '''

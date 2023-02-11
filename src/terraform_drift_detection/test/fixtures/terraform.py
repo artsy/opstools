@@ -1,6 +1,11 @@
 import pytest
 
 from subprocess import CompletedProcess
+from terraform_drift_detection.util import Drift
+
+@pytest.fixture
+def expected_results():
+  return  [Drift.NODRIFT, Drift.NODRIFT, Drift.DRIFT, Drift.NODRIFT, Drift.DRIFT, Drift.UNKNOWN]
 
 @pytest.fixture
 def mock_clone_failed():
@@ -28,6 +33,14 @@ def mock_init_failed():
     }
     return return_values[cmd]
   return mock_run_cmd
+
+@pytest.fixture
+def mock_multiple_repo_dir_results():
+  return [
+    [Drift.NODRIFT],
+    [Drift.NODRIFT, Drift.DRIFT],
+    [Drift.NODRIFT, Drift.DRIFT, Drift.UNKNOWN],
+  ]
 
 @pytest.fixture
 def mock_plan_drift():
