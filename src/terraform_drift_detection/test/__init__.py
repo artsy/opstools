@@ -2,5 +2,5 @@ import os
 
 # initialize environment for tests
 
-os.environ['REPO_NAMES'] = 'foorepo'
+os.environ['REPOSDIRS'] = 'foorepo:foodir'
 os.environ['GITHUB_TOKEN'] = 'footoken'
