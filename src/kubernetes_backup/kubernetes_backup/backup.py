@@ -19,8 +19,9 @@ def backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix):
     tar.add(export_dir, arcname=os.path.basename(export_dir))
 
   backup_id = str(datetime.now()).replace(' ', '_')
-  logging.info(f"Uploading archive file to s3://{s3_bucket}/{s3_prefix}/{cluster_label}/ as backup ID {backup_id} ...")
-  s3 = S3Interface(s3_bucket, prefix="%s/%s" % (s3_prefix,cluster_label))
+  full_prefix = full_s3_prefix(s3_prefix, cluster_label)
+  logging.info(f"Uploading archive file to s3://{s3_bucket}/{full_prefix}/ as backup ID {backup_id} ...")
+  s3 = S3Interface(s3_bucket, prefix=full_prefix)
   s3.backup(archive_file, backup_id)
 
   logging.info("Deleting local archive file...")
@@ -74,11 +75,15 @@ def export_and_backup(context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, K
   else:
     logging.info("Skipping backup to S3. Please delete the local files when done!")
 
+def full_s3_prefix(s3_prefix, cluster_label):
+  return f"{s3_prefix}/{cluster_label}"
+
 def prune(context, k8s_cluster, s3_bucket, s3_prefix, keepn, force):
   ''' keep 'keepn' most recent backups and delete the rest '''
   cluster_label = determine_cluster_label(context, k8s_cluster)
-  logging.info(f"Pruning backups in s3://{s3_bucket}/{s3_prefix}/{cluster_label}/ ...")
-  s3 = S3Interface(s3_bucket, prefix="%s/%s" % (s3_prefix,cluster_label))
+  full_prefix = full_s3_prefix(s3_prefix, cluster_label)
+  logging.info(f"Pruning backups in s3://{s3_bucket}/{full_prefix}/ ...")
+  s3 = S3Interface(s3_bucket, prefix=full_prefix)
   for backup_id in s3.backups()[keepn:]:
     if force:
       s3.delete(backup_id)
