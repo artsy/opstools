@@ -13,6 +13,7 @@ Read and run the setup script:
 
 Load environment vars:
 ```
+unset $(grep --no-filename --invert-match '^#' .env.shared .env | cut -f1 -d"=" | xargs)
 export $(grep --no-filename --invert-match '^#' .env.shared .env | xargs)
 ```
 
