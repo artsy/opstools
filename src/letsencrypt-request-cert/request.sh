@@ -84,5 +84,4 @@ echo "Ship the tar up to $S3_LOCATION which currently has:"
 aws s3 ls "$S3_LOCATION" || echo "Something wrong with executing AWS CLI."
 aws s3 cp "$TAR_FILE" "$S3_LOCATION"
 
-echo "Please delete certbot files from your home dir..."
-rm -rf ~/certbot
+echo "For security, please delete certbot files from your home dir when you have finished working with them."
