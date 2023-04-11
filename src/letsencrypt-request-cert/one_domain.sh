@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Script to request Let's Encrypt for an SSL cert for a specific domain.
+#
+# Example domains:
+#
+#   - www.example.com
+#   - *.example.com
+#   - www.foo.example.com
+#   - *.foo.example.com
+
 set -e
 
 function usage() {
