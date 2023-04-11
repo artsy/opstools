@@ -37,7 +37,7 @@ def get_env():
   s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev/backups')
 
   # number of most recent backups to keep
-  keepn_str = os.environ.get('K8S_RECENT_BACKUPS_KEEPN')
+  keepn_str = os.environ.get('K8S_BACKUP_KEEPN')
 
   return context, k8s_cluster, s3_bucket, s3_prefix, keepn_str
 
@@ -53,7 +53,7 @@ def validate(context, k8s_cluster, s3_bucket, keepn):
     sys.exit("Error: K8S_BACKUP_S3_BUCKET must be specified in the environment")
 
   if not keepn_str:
-    sys.exit("Error: K8S_RECENT_BACKUPS_KEEPN must be specified in the environment")
+    sys.exit("Error: K8S_BACKUP_KEEPN must be specified in the environment")
 
 ######
 # main
