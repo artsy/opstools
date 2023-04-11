@@ -1,5 +1,7 @@
 import os
 
+import logging
+
 import boto3
 
 class S3Interface(object):
@@ -10,10 +12,34 @@ class S3Interface(object):
     self.bucket_name = bucket_name
     self.bucket_prefix = prefix
 
+  def __list_backups(self):
+    ''' list content of s3 path that stores backups '''
+    logging.debug(f"Listing s3://{self.bucket_name}/{self.bucket_prefix}")
+    return sorted(
+      map(lambda o: o['Key'],
+      self.client.list_objects(Bucket=self.bucket_name, Prefix=self.bucket_prefix)['Contents']),
+      reverse=True
+    )
+
+  def backups(self):
+    ''' return a list of backups, ordered from most recent to oldest '''
+    backups = []
+    for k in self.__list_backups():
+      if self.KEY_SUFFIX not in k:
+        continue
+      backups.append(k.replace("%s/" % self.bucket_prefix, '').replace(self.KEY_SUFFIX, ''))
+    logging.debug("Found backups:")
+    logging.debug(backups)
+    return backups
+
   def put_file(self, file_path, key):
     with open(file_path, 'rb') as f:
       self.client.upload_fileobj(f, self.bucket_name, key)
 
   def backup(self, file_path, backup_name):
     self.put_file(file_path, os.path.join(self.bucket_prefix, backup_name + self.KEY_SUFFIX))
+    return os.path.join(self.bucket_prefix, backup_name)
+
+  def delete(self, backup_name):
+    self.client.delete_object(Bucket=self.bucket_name, Key=os.path.join(self.bucket_prefix, backup_name + self.KEY_SUFFIX))
     return os.path.join(self.bucket_prefix, backup_name)
