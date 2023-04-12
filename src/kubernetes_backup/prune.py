@@ -30,10 +30,10 @@ def get_env():
   # set this if running inside kubernetes
   k8s_cluster = os.environ.get('K8S_CLUSTER', '')
 
-  # S3 bucket to backup to
+  # S3 bucket that holds backups
   s3_bucket = os.environ.get('K8S_BACKUP_S3_BUCKET', '')
 
-  # S3 prefix to backup under
+  # S3 prefix that holds backups
   s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev/backups')
 
   # number of most recent backups to keep
