@@ -13,14 +13,18 @@ from kubernetes_backup.s3 import S3Interface
 
 def backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix):
   ''' back up yamls to S3 '''
-  archive_file = os.path.join(basedir, "kubernetes-backup-%s.tar.gz" % cluster_label)
+  archive_file = os.path.join(
+                   basedir, "kubernetes-backup-%s.tar.gz" % cluster_label
+                 )
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
     tar.add(export_dir, arcname=os.path.basename(export_dir))
 
   backup_id = str(datetime.now()).replace(' ', '_')
   full_prefix = full_s3_prefix(s3_prefix, cluster_label)
-  logging.info(f"Uploading archive file to s3://{s3_bucket}/{full_prefix}/ as backup ID {backup_id} ...")
+  logging.info(
+    f"Uploading archive file to s3://{s3_bucket}/{full_prefix}/ as backup ID {backup_id} ..."
+  )
   s3 = S3Interface(s3_bucket, prefix=full_prefix)
   s3.backup(archive_file, backup_id)
 
@@ -60,7 +64,9 @@ def export_and_backup(context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, K
   export_dir = os.path.join(basedir, cluster_label)
   mkpath(export_dir)
 
-  logging.info(f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {basedir}...")
+  logging.info(
+    f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {basedir}..."
+  )
   for obj in KUBERNETES_OBJECTS:
     try:
       export(obj, export_dir, context)

@@ -13,8 +13,13 @@ def parse_args():
   parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
   )
-  parser.add_argument('--force', action='store_true', help='to actually delete')
-  parser.add_argument('--loglevel',
+  parser.add_argument(
+    '--force',
+    action='store_true',
+    help='to actually delete'
+  )
+  parser.add_argument(
+    '--loglevel',
     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
     default='INFO',
     help='log level'
@@ -44,16 +49,24 @@ def get_env():
 def validate(context, k8s_cluster, s3_bucket, keepn):
   ''' validate params obtained from env and command line '''
   if not context and not k8s_cluster:
-    sys.exit("Error: either KUBECTL_CONTEXT or K8S_CLUSTER must be specified in the environment")
+    sys.exit(
+      "Error: either KUBECTL_CONTEXT or K8S_CLUSTER must be specified in the environment"
+    )
 
   if context and k8s_cluster:
-    sys.exit("Error: KUBECTL_CONTEXT and K8S_CLUSTER must not both be specified in the environment")
+    sys.exit(
+      "Error: KUBECTL_CONTEXT and K8S_CLUSTER must not both be specified in the environment"
+    )
 
   if not s3_bucket:
-    sys.exit("Error: K8S_BACKUP_S3_BUCKET must be specified in the environment")
+    sys.exit(
+      "Error: K8S_BACKUP_S3_BUCKET must be specified in the environment"
+    )
 
   if not keepn_str:
-    sys.exit("Error: K8S_BACKUP_KEEPN must be specified in the environment")
+    sys.exit(
+      "Error: K8S_BACKUP_KEEPN must be specified in the environment"
+    )
 
 ######
 # main
