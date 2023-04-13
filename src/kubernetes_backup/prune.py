@@ -68,17 +68,15 @@ def validate(context, k8s_cluster, s3_bucket, keepn):
       "Error: K8S_BACKUP_KEEPN must be specified in the environment"
     )
 
-######
-# main
-######
+if __name__ == "__main__":
 
-args = parse_args()
-force, loglevel = (args.force, args.loglevel)
+  args = parse_args()
+  force, loglevel = (args.force, args.loglevel)
 
-setup_logging(eval('logging.' + loglevel))
+  setup_logging(eval('logging.' + loglevel))
 
-context, k8s_cluster, s3_bucket, s3_prefix, keepn_str = get_env()
+  context, k8s_cluster, s3_bucket, s3_prefix, keepn_str = get_env()
 
-validate(context, k8s_cluster, s3_bucket, keepn_str)
+  validate(context, k8s_cluster, s3_bucket, keepn_str)
 
-prune(context, k8s_cluster, s3_bucket, s3_prefix, int(keepn_str), force)
+  prune(context, k8s_cluster, s3_bucket, s3_prefix, int(keepn_str), force)

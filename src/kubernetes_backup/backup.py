@@ -68,36 +68,34 @@ def validate(context, k8s_cluster, s3, s3_bucket):
       f"Error: It seems {s3_bucket} is not an Artsy S3 bucket."
     )
 
-######
-# main
-######
+if __name__ == "__main__":
 
-args = parse_args()
-loglevel, s3 = args.loglevel, args.s3
+  args = parse_args()
+  loglevel, s3 = args.loglevel, args.s3
 
-setup_logging(eval('logging.' + loglevel))
+  setup_logging(eval('logging.' + loglevel))
 
-context, k8s_cluster, basedir, s3_bucket, s3_prefix = get_env()
+  context, k8s_cluster, basedir, s3_bucket, s3_prefix = get_env()
 
-validate(context, k8s_cluster, s3, s3_bucket)
+  validate(context, k8s_cluster, s3, s3_bucket)
 
-KUBERNETES_OBJECTS = [
-  'configmaps',
-  'cronjobs',
-  'daemonsets',
-  'deployments',
-  'horizontalpodautoscalers',
-  'ingresses',
-  'persistentvolumeclaims',
-  'poddisruptionbudgets',
-  'replicationcontrollers',
-  'rolebindings',
-  'roles',
-  'secrets',
-  'services',
-  'statefulsets'
-]
+  KUBERNETES_OBJECTS = [
+    'configmaps',
+    'cronjobs',
+    'daemonsets',
+    'deployments',
+    'horizontalpodautoscalers',
+    'ingresses',
+    'persistentvolumeclaims',
+    'poddisruptionbudgets',
+    'replicationcontrollers',
+    'rolebindings',
+    'roles',
+    'secrets',
+    'services',
+    'statefulsets'
+  ]
 
-export_and_backup(
-  context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS
-)
+  export_and_backup(
+    context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS
+  )
