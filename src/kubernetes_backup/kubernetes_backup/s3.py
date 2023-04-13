@@ -12,12 +12,12 @@ class S3Interface(object):
     self.bucket_name = bucket_name
     self.bucket_prefix = prefix
 
-  def __backup_name_to_s3_key(self, name):
+  def _backup_name_to_s3_key(self, name):
     ''' given name of backup, return s3 key of backup '''
     key = os.path.join(self.bucket_prefix, name + self.KEY_SUFFIX)
     return key
 
-  def __list_backups(self):
+  def _list_backups(self):
     ''' list content of s3 path that stores backups '''
     logging.debug(f"Listing s3://{self.bucket_name}/{self.bucket_prefix}")
     return sorted(
@@ -29,7 +29,7 @@ class S3Interface(object):
       reverse=True
     )
 
-  def __s3_key_to_backup_name(self, key):
+  def _s3_key_to_backup_name(self, key):
     ''' given s3 key of backup, return name of backup '''
     object = key.replace("%s/" % self.bucket_prefix, '')
     name = object.replace(self.KEY_SUFFIX, '')
@@ -38,10 +38,10 @@ class S3Interface(object):
   def backups(self):
     ''' return a list of backups, ordered from most recent to oldest '''
     backups = []
-    for k in self.__list_backups():
+    for k in self._list_backups():
       if self.KEY_SUFFIX not in k:
         continue
-      backups.append(self.__s3_key_to_backup_name(k))
+      backups.append(self._s3_key_to_backup_name(k))
     logging.debug("Found backups:")
     logging.debug(backups)
     return backups
@@ -53,13 +53,13 @@ class S3Interface(object):
   def backup(self, file_path, backup_name):
     self.put_file(
       file_path,
-      self.__backup_name_to_s3_key(backup_name)
+      self._backup_name_to_s3_key(backup_name)
     )
     return os.path.join(self.bucket_prefix, backup_name)
 
   def delete(self, backup_name):
     self.client.delete_object(
       Bucket=self.bucket_name,
-      Key=self.__backup_name_to_s3_key(backup_name)
+      Key=self._backup_name_to_s3_key(backup_name)
     )
     return os.path.join(self.bucket_prefix, backup_name)
