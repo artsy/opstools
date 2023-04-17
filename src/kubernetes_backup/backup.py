@@ -92,6 +92,7 @@ if __name__ == "__main__":
     'rolebindings',
     'roles',
     'secrets',
+    'serviceaccounts',
     'services',
     'statefulsets'
   ]
