@@ -1,4 +1,40 @@
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opstools
+  namespace: default
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: opstools
+  namespace: default
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: opstools
+  namespace: default
+subjects:
+- kind: User
+  name: system:serviceaccount:default:opstools
+roleRef:
+  kind: Role
+  name: opstools
+  apiGroup: rbac.authorization.k8s.io
+
+---
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -18,6 +54,77 @@ spec:
             - name: opstools-terraform-drift-detection
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
               command: ["src/terraform_drift_detection/detect.py"]
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-k8s-create-backup
+spec:
+  schedule: "40 8 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-k8s-create-backup
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+              command: ["src/kubernetes_backup/backup.py", "--s3"]
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-k8s-prune-backup
+spec:
+  schedule: "40 9 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-k8s-prune-backup
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+              command: ["src/kubernetes_backup/prune.py", "--force"]
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
