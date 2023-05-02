@@ -5,9 +5,8 @@ from subprocess import check_output
 from kubernetes_cleanup_namespaces.config import config
 
 class Kctl():
-  ''' interfaces with kubectl '''
+  ''' interface with kubectl '''
   def __init__(self, context):
-    print('Kctl __init__')
     self.context = context
 
   def run(self, command):
