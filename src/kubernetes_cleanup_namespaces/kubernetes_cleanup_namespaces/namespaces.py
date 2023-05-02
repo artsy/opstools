@@ -7,15 +7,15 @@ from dateutil.parser import parse as parsedatetime
 from kubernetes_cleanup_namespaces.config import config
 from kubernetes_cleanup_namespaces.kctl import kctl
 
-def compile_namespaces():
-  ''' get all namespaces '''
-  data = kctl.run("get namespaces -o json")
-  namespaces = []
-  for namespace in data["items"]:
-    namespaces += [namespace]
-  return namespaces
+def cleanup_namespaces():
+  ''' delete un-protected namespaces older than n days '''
+  namespaces = get_ns()
+  non_protected =  non_protected_ns(namespaces)
+  to_delete = old_ns(non_protected)
+  delete_ns(to_delete)
 
-def delete_namespaces(namespaces):
+def delete_ns(namespaces):
+  ''' delete the given list of namespaces '''
   for ns in namespaces:
     ns_name = ns['metadata']['name']
     ns_created_at = ns['metadata']['creationTimestamp']
@@ -26,40 +26,25 @@ def delete_namespaces(namespaces):
       logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
   logging.info("Done.")
 
-def non_protected_namespaces(list):
-  ''' given list of namespaces, return same list excluding protected namespaces '''
-  PROTECTED_NAMESPACES = [
-    'cert-manager',
-    'data-application',
-    'default',
-    'ingress-nginx',
-    'kube-node-lease',
-    'kube-public',
-    'kubernetes-dashboard',
-    'kube-system'
+def get_ns():
+  ''' return list of namespaces '''
+  data = kctl.run("get namespaces -o json")
+  return data["items"]
+
+def non_protected_ns(namespaces):
+  ''' given a list of namespaces, return those that are un-protected '''
+  non_protected = [
+    ns for ns in namespaces
+      if not ns['metadata']['name'] in config.protected_namespaces
   ]
-  non_protected = []
-  for ns in list:
-    ns_name = ns['metadata']['name']
-    if ns_name in PROTECTED_NAMESPACES:
-      continue
-    else:
-      non_protected += [ns]
   return non_protected
 
-def too_old_namespaces(namespaces):
-  too_old = []
+def old_ns(namespaces):
+  ''' given a list of namespaces, return those older than n days '''
+  old = []
   for ns in namespaces:
     created_at = parsedatetime(ns['metadata']['creationTimestamp'])
-    now = datetime.utcnow()
-    now = now.replace(tzinfo=pytz.utc)
+    now = datetime.utcnow().replace(tzinfo=pytz.utc)
     if created_at < now - timedelta(days=config.ndays):
-      too_old += [ns]
-  return too_old
-
-def cleanup_namespaces():
-  ''' delete namespaces older than n days '''
-  namespaces = compile_namespaces()
-  non_protected =  non_protected_namespaces(namespaces)
-  to_delete = too_old_namespaces(non_protected)
-  delete_namespaces(to_delete)
+      old += [ns]
+  return old

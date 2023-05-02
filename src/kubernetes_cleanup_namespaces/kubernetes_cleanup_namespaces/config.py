@@ -17,10 +17,20 @@ class AppConfig:
     self.force = force
     self.ndays = ndays
 
+    self.protected_namespaces = [
+      'cert-manager',
+      'data-application',
+      'default',
+      'ingress-nginx',
+      'kube-node-lease',
+      'kube-public',
+      'kubernetes-dashboard',
+      'kube-system'
+    ]
+
     self._init_app(loglevel)
 
-  @classmethod
-  def _init_app(cls, loglevel):
+  def _init_app(self, loglevel):
     ''' initialize the app '''
     setup_logging(eval('logging.' + loglevel))
 
