@@ -1,54 +1,66 @@
 import logging
-import pytz
 
-from datetime import datetime, timedelta
 from dateutil.parser import parse as parsedatetime
 
-from kubernetes_cleanup_namespaces.config import config
+import kubernetes_cleanup_namespaces.context
+from lib.date import older_than_ndays
 from lib.kctl import Kctl
+from lib.util import list_subtract
 
-kctl = Kctl(config.context)
+from kubernetes_cleanup_namespaces.config import config
+
+class Namespaces():
+  ''' manage namespaces data '''
+  def __init__(self, kctl):
+    # load namespaces data using the given kctl client
+    self._ns_data = kctl.get_namespaces()
+
+  def created_at(self, namespace_name):
+    ''' given the name of a namespace, return its creation time '''
+    for ns in self._ns_data:
+      if ns['metadata']['name'] == namespace_name:
+        timestamp = ns['metadata']['creationTimestamp']
+        return parsedatetime(timestamp)
+
+  def names(self):
+    ''' return names of namespaces '''
+    return [
+      ns['metadata']['name'] for ns in self._ns_data
+    ]
 
 def cleanup_namespaces():
   ''' delete unprotected namespaces older than n days '''
-  namespaces = kctl.get_namespaces()
+  kctl = kctl_client()
+  ns_obj = Namespaces(kctl)
+  namespaces = ns_obj.names()
   unprotected = unprotected_namespaces(namespaces)
-  to_delete = old_namespaces(unprotected)
-  delete_namespaces(to_delete)
+  to_delete = old_namespaces(unprotected, ns_obj)
+  delete_namespaces(to_delete, ns_obj, kctl)
 
-def delete_namespace(namespace):
-  ''' delete the given namespace '''
-  ns_name = namespace['metadata']['name']
-  ns_created_at = namespace['metadata']['creationTimestamp']
-  if config.force:
-    logging.info(f"Deleting namespace {ns_name} created at {ns_created_at}")
-    kctl.delete_namespace(ns_name)
-  else:
-    logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
-
-def delete_namespaces(namespaces):
+def delete_namespaces(namespaces, ns_obj, kctl):
   ''' delete the given list of namespaces '''
-  for ns in namespaces:
-    delete_namespace(ns)
+  for name in namespaces:
+    created_at = ns_obj.created_at(name)
+    if config.force:
+      logging.info(f"Deleting namespace {name} created at {created_at}")
+      kctl.delete_namespace(namespace)
+    else:
+      logging.info(f"Would have deleted namespace {name} created at {created_at}")
   logging.info("Done.")
+
+def kctl_client():
+  ''' instantiate a kctl client '''
+  return Kctl(config.context)
 
 def unprotected_namespaces(namespaces):
   ''' given a list of namespaces, return those that are unprotected '''
-  unprotected = [
-    ns for ns in namespaces
-      if not ns['metadata']['name'] in config.protected_namespaces
-  ]
-  return unprotected
+  return list_subtract(namespaces, config.protected_namespaces)
 
-def old_namespaces(namespaces):
+def old_namespaces(namespaces, ns_obj):
   ''' given a list of namespaces, return those older than n days '''
   old = []
-  for ns in namespaces:
-    ns_timestamp = ns['metadata']['creationTimestamp']
-    ns_created_at = parsedatetime(ns_timestamp)
-    now = datetime.utcnow()
-    now_utc = now.replace(tzinfo=pytz.utc)
-    ndays_ago_date = now_utc - timedelta(days=config.ndays)
-    if ns_created_at < ndays_ago_date:
-      old += [ns]
+  for name in namespaces:
+    created_at = ns_obj.created_at(name)
+    if older_than_ndays(created_at, config.ndays):
+      old += [name]
   return old

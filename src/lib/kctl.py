@@ -4,8 +4,6 @@ import sys
 
 from subprocess import check_output, SubprocessError
 
-from kubernetes_cleanup_namespaces.config import config
-
 class Kctl():
   ''' interface with kubectl '''
   _self = None # track the singleton instance
@@ -21,7 +19,7 @@ class Kctl():
 
   @classmethod
   def _run(cls, command):
-    ''' kubectl run the given command '''
+    ''' kubectl run the given command and return output '''
     if cls._context:
       # when running locally
       cmd = f"kubectl --context {cls._context} {command}"
@@ -31,7 +29,7 @@ class Kctl():
       cmd = f"kubectl {command}"
     try:
       logging.debug(cmd)
-      data = json.loads(check_output(cmd, timeout=cls._timeout, shell=True))
+      data = check_output(cmd, timeout=cls._timeout, shell=True)
     except SubprocessError as e:
       logging.error(e)
       sys.exit(1)
@@ -45,7 +43,7 @@ class Kctl():
 
   @classmethod
   def get_namespaces(cls):
-    ''' return list of namespaces '''
+    ''' return list of namespace objects '''
     cmd = "get namespaces -o json"
-    data = cls._run(cmd)
+    data = json.loads(cls._run(cmd))
     return data["items"]
