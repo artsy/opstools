@@ -10,20 +10,14 @@ from lib.kctl import Kctl
 kctl = Kctl(config.context)
 
 def cleanup_namespaces():
-  ''' delete un-protected namespaces older than n days '''
+  ''' delete unprotected namespaces older than n days '''
   namespaces = kctl.get_namespaces()
-  non_protected = non_protected_namespaces(namespaces)
-  to_delete = old_namespaces(non_protected)
+  unprotected = unprotected_namespaces(namespaces)
+  to_delete = old_namespaces(unprotected)
   delete_namespaces(to_delete)
 
-def delete_namespaces(namespaces):
-  ''' delete the given list of namespaces '''
-  for ns in namespaces:
-    delete_namespace(ns)
-  logging.info("Done.")
-
 def delete_namespace(namespace):
-  ''' delete given namespace '''
+  ''' delete the given namespace '''
   ns_name = namespace['metadata']['name']
   ns_created_at = namespace['metadata']['creationTimestamp']
   if config.force:
@@ -32,20 +26,29 @@ def delete_namespace(namespace):
   else:
     logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
 
-def non_protected_namespaces(namespaces):
-  ''' given a list of namespaces, return those that are un-protected '''
-  non_protected = [
+def delete_namespaces(namespaces):
+  ''' delete the given list of namespaces '''
+  for ns in namespaces:
+    delete_namespace(ns)
+  logging.info("Done.")
+
+def unprotected_namespaces(namespaces):
+  ''' given a list of namespaces, return those that are unprotected '''
+  unprotected = [
     ns for ns in namespaces
       if not ns['metadata']['name'] in config.protected_namespaces
   ]
-  return non_protected
+  return unprotected
 
 def old_namespaces(namespaces):
   ''' given a list of namespaces, return those older than n days '''
   old = []
   for ns in namespaces:
-    created_at = parsedatetime(ns['metadata']['creationTimestamp'])
-    now = datetime.utcnow().replace(tzinfo=pytz.utc)
-    if created_at < now - timedelta(days=config.ndays):
+    ns_timestamp = ns['metadata']['creationTimestamp']
+    ns_created_at = parsedatetime(ns_timestamp)
+    now = datetime.utcnow()
+    now_utc = now.replace(tzinfo=pytz.utc)
+    ndays_ago_date = now_utc - timedelta(days=config.ndays)
+    if ns_created_at < ndays_ago_date:
       old += [ns]
   return old

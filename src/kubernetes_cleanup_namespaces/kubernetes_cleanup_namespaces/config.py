@@ -31,6 +31,7 @@ class AppConfig:
 
   def _init_app(self, loglevel):
     ''' initialize the app '''
+    # initialize logging
     setup_logging(eval('logging.' + loglevel))
 
 def parse_args():
@@ -60,7 +61,9 @@ def parse_env(env):
   # set this var if running locally
   # omit it if running inside a kubernetes cluster
   context = env.get('KUBECTL_CONTEXT', '')
+
   return context
 
-# import this from other modules in order to instantiate
+# import this from main script
+# object will be instantiated only once
 config = AppConfig(parse_args(), parse_env(os.environ))
