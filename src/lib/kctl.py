@@ -6,45 +6,37 @@ from subprocess import check_output, SubprocessError
 
 class Kctl():
   ''' interface with kubectl '''
-  _self = None # track the singleton instance
-  _context = None
   _timeout = 30 # seconds
 
-  def __new__(cls, context):
-    # allow one instantiation only (singleton use case)
-    if cls._self is None:
-      cls._self = super().__new__(cls)
-      cls._context = context
-    return cls._self
+  def __init__(self, context):
+    logging.debug(f"Kctl > __init__: context: {context}")
+    self._context = context
 
-  @classmethod
-  def _run(cls, command):
+  def _run(self, command):
     ''' kubectl run the given command and return output '''
-    if cls._context:
-      # when running locally
-      cmd = f"kubectl --context {cls._context} {command}"
-    else:
+    if self._context is None:
       # when running inside kubernetes, don't use kubeconfig or context
       # you will have to configure a service account and permissions for the pod
       cmd = f"kubectl {command}"
+    else:
+      # when running locally
+      cmd = f"kubectl --context {self._context} {command}"
     try:
-      logging.debug(cmd)
-      data = check_output(cmd, timeout=cls._timeout, shell=True)
+      logging.debug(f"Kctl > _run: cmd: {cmd}")
+      data = check_output(cmd, timeout=self._timeout, shell=True)
     except SubprocessError as e:
       logging.error(e)
       sys.exit(1)
     return data
 
-  @classmethod
-  def delete_namespace(cls, namespace):
+  def delete_namespace(self, namespace):
     ''' delete given namespace '''
     cmd = f"delete namespace {namespace}"
-    cls._run(cmd)
+    self._run(cmd)
 
-  @classmethod
-  def get_namespaces(cls):
+  def get_namespaces(self):
     ''' return list of namespace objects '''
     cmd = "get namespaces -o json"
-    output = cls._run(cmd)
+    output = self._run(cmd)
     data = json.loads(output)
     return data["items"]

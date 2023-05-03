@@ -50,7 +50,10 @@ def delete_namespaces(namespaces, ns_obj, kctl):
 
 def kctl_client():
   ''' instantiate a kctl client '''
-  return Kctl(config.context)
+  context = None
+  if config.context:
+    context = config.context
+  return Kctl(context)
 
 def unprotected_namespaces(namespaces):
   ''' given a list of namespaces, return those that are unprotected '''
