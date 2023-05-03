@@ -7,6 +7,10 @@ from lib.kctl import \
   check_output, \
   Kctl
 
+from lib.test.fixtures.kctl import \
+  mock_kubectl_get_namespaces_json_object, \
+  mock_kubectl_get_namespaces_json_string
+
 def describe_kctl():
   def describe_no_context():
     def describe_instantiation():
@@ -34,17 +38,14 @@ def describe_kctl():
         kctl._run('get pods')
         check_output_spy.assert_has_calls([mocker.call('kubectl --context staging get pods', timeout=30, shell=True)])
     def describe_get_namespaces():
-      def it_gets_namespaces(mocker):
-        obj = {
-          'items': [
-            'namespace1',
-            'namespace2'
-          ]
-        }
-        mock_get_namespaces_output = json.dumps(obj)
-        mocker.patch('lib.kctl.Kctl._run', return_value=mock_get_namespaces_output)
+      def it_gets_namespaces(
+        mocker,
+        mock_kubectl_get_namespaces_json_object,
+        mock_kubectl_get_namespaces_json_string
+      ):
+        mocker.patch('lib.kctl.Kctl._run', return_value=mock_kubectl_get_namespaces_json_string)
         data = kctl.get_namespaces()
-        assert data == obj['items']
+        assert data == mock_kubectl_get_namespaces_json_object['items']
     def describe_delete_namespace():
       def it_calls_run_with_correct_params(mocker):
         mocker.patch('lib.kctl.Kctl._run')
