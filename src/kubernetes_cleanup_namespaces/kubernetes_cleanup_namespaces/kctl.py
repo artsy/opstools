@@ -8,21 +8,27 @@ from kubernetes_cleanup_namespaces.config import config
 
 class Kctl():
   ''' interface with kubectl '''
-  def __init__(self, context):
-    self.context = context
-    self.timeout = 5 # seconds
+  _self = None # faciliate singleton use case
+  _context = None
+  _timeout = 5 # seconds
+
+  def __new__(cls, context):
+    if cls._self is None:
+      cls._self = super().__new__(cls)
+      cls._context = context
+    return cls._self
 
   def run(self, command):
-    if self.context:
+    if self._context:
       # when running locally
-      cmd = f"kubectl --context {self.context} {command}"
+      cmd = f"kubectl --context {self._context} {command}"
     else:
       # when running inside kubernetes, don't use kubeconfig or context
       # you will have to configure a service account and permissions for the pod
       cmd = f"kubectl {command}"
     try:
       logging.debug(cmd)
-      data = json.loads(check_output(cmd, timeout=self.timeout, shell=True))
+      data = json.loads(check_output(cmd, timeout=self._timeout, shell=True))
     except SubprocessError as e:
       logging.error(e)
       sys.exit(1)
@@ -38,5 +44,3 @@ class Kctl():
     cmd = "get namespaces -o json"
     data = self.run(cmd)
     return data["items"]
-
-kctl = Kctl(config.context)

@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 from dateutil.parser import parse as parsedatetime
 
 from kubernetes_cleanup_namespaces.config import config
-from kubernetes_cleanup_namespaces.kctl import kctl
+from kubernetes_cleanup_namespaces.kctl import Kctl
+
+kctl = Kctl(config.context)
 
 def cleanup_namespaces():
   ''' delete un-protected namespaces older than n days '''
