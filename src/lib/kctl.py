@@ -8,7 +8,7 @@ class Kctl():
   ''' interface with kubectl '''
   _self = None # track the singleton instance
   _context = None
-  _timeout = 5 # seconds
+  _timeout = 30 # seconds
 
   def __new__(cls, context):
     # allow one instantiation only (singleton use case)
@@ -45,5 +45,6 @@ class Kctl():
   def get_namespaces(cls):
     ''' return list of namespace objects '''
     cmd = "get namespaces -o json"
-    data = json.loads(cls._run(cmd))
+    output = cls._run(cmd)
+    data = json.loads(output)
     return data["items"]
