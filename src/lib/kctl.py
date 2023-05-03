@@ -21,6 +21,7 @@ class Kctl():
 
   @classmethod
   def _run(cls, command):
+    ''' kubectl run the given command '''
     if cls._context:
       # when running locally
       cmd = f"kubectl --context {cls._context} {command}"

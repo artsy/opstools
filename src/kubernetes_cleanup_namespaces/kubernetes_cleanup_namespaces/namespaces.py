@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from dateutil.parser import parse as parsedatetime
 
 from kubernetes_cleanup_namespaces.config import config
-from kubernetes_cleanup_namespaces.kctl import Kctl
+from lib.kctl import Kctl
 
 kctl = Kctl(config.context)
 
