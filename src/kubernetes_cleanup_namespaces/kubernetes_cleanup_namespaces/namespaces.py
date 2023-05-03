@@ -9,29 +9,33 @@ from kubernetes_cleanup_namespaces.kctl import kctl
 
 def cleanup_namespaces():
   ''' delete un-protected namespaces older than n days '''
-  namespaces = get_ns()
-  non_protected =  non_protected_ns(namespaces)
-  to_delete = old_ns(non_protected)
-  delete_ns(to_delete)
+  namespaces = get_namespaces()
+  non_protected =  non_protected_namespaces(namespaces)
+  to_delete = old_namespaces(non_protected)
+  delete_namespaces(to_delete)
 
-def delete_ns(namespaces):
+def delete_namespaces(namespaces):
   ''' delete the given list of namespaces '''
   for ns in namespaces:
-    ns_name = ns['metadata']['name']
-    ns_created_at = ns['metadata']['creationTimestamp']
-    if config.force:
-      logging.info(f"Deleting namespace {ns_name} created at {ns_created_at}")
-      data = kctl.run(f"delete namespace {ns_name}")
-    else:
-      logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
+    delete_namespace(ns)
   logging.info("Done.")
 
-def get_ns():
+def delete_namespace(namespace):
+  ''' delete given namespace '''
+  ns_name = namespace['metadata']['name']
+  ns_created_at = namespace['metadata']['creationTimestamp']
+  if config.force:
+    logging.info(f"Deleting namespace {ns_name} created at {ns_created_at}")
+    data = kctl.run(f"delete namespace {ns_name}")
+  else:
+      logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
+
+def get_namespaces():
   ''' return list of namespaces '''
   data = kctl.run("get namespaces -o json")
   return data["items"]
 
-def non_protected_ns(namespaces):
+def non_protected_namespaces(namespaces):
   ''' given a list of namespaces, return those that are un-protected '''
   non_protected = [
     ns for ns in namespaces
@@ -39,7 +43,7 @@ def non_protected_ns(namespaces):
   ]
   return non_protected
 
-def old_ns(namespaces):
+def old_namespaces(namespaces):
   ''' given a list of namespaces, return those older than n days '''
   old = []
   for ns in namespaces:
