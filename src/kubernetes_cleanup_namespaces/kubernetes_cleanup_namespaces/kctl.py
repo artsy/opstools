@@ -28,4 +28,15 @@ class Kctl():
       sys.exit(1)
     return data
 
+  def delete_namespace(self, namespace):
+    ''' delete given namespace '''
+    cmd = f"delete namespace {namespace}"
+    self.run(cmd)
+
+  def get_namespaces(self):
+    ''' return list of namespaces '''
+    cmd = "get namespaces -o json"
+    data = self.run(cmd)
+    return data["items"]
+
 kctl = Kctl(config.context)

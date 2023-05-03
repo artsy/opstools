@@ -9,8 +9,8 @@ from kubernetes_cleanup_namespaces.kctl import kctl
 
 def cleanup_namespaces():
   ''' delete un-protected namespaces older than n days '''
-  namespaces = get_namespaces()
-  non_protected =  non_protected_namespaces(namespaces)
+  namespaces = kctl.get_namespaces()
+  non_protected = non_protected_namespaces(namespaces)
   to_delete = old_namespaces(non_protected)
   delete_namespaces(to_delete)
 
@@ -26,14 +26,9 @@ def delete_namespace(namespace):
   ns_created_at = namespace['metadata']['creationTimestamp']
   if config.force:
     logging.info(f"Deleting namespace {ns_name} created at {ns_created_at}")
-    data = kctl.run(f"delete namespace {ns_name}")
+    kctl.delete_namespace(ns_name)
   else:
-      logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
-
-def get_namespaces():
-  ''' return list of namespaces '''
-  data = kctl.run("get namespaces -o json")
-  return data["items"]
+    logging.info(f"Would have deleted namespace {ns_name} created at {ns_created_at}")
 
 def non_protected_namespaces(namespaces):
   ''' given a list of namespaces, return those that are un-protected '''
