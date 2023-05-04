@@ -1,99 +1,4 @@
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: opstools
-  namespace: default
-
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: opstools
-  namespace: default
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  - persistentvolumeclaims
-  - replicationcontrollers
-  - secrets
-  - serviceaccounts
-  - services
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - apps
-  resources:
-  - daemonsets
-  - deployments
-  - statefulsets
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - autoscaling
-  resources:
-  - horizontalpodautoscalers
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - batch
-  resources:
-  - cronjobs
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - extensions
-  resources:
-  - daemonsets
-  - deployments
-  - ingresses
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - policy
-  resources:
-  - poddisruptionbudgets
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - rolebindings
-  - roles
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: opstools
-  namespace: default
-subjects:
-- kind: User
-  name: system:serviceaccount:default:opstools
-roleRef:
-  kind: Role
-  name: opstools
-  apiGroup: rbac.authorization.k8s.io
-
----
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -223,6 +128,7 @@ spec:
               envFrom:
                 - configMapRef:
                     name: opstools-environment
+          serviceAccountName: opstools
           restartPolicy: Never
           affinity:
             nodeAffinity:
