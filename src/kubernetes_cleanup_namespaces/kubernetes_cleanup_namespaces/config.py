@@ -10,7 +10,9 @@ class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
     force, loglevel, ndays = (
-      cmdline_args.force, cmdline_args.loglevel, int(cmdline_args.ndays)
+      cmdline_args.force,
+      cmdline_args.loglevel,
+      int(cmdline_args.ndays)
     )
 
     context = env

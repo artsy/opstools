@@ -20,7 +20,9 @@ def describe_namespaces():
     def it_returns_creation_time_when_namespace_exists(
       mock_kubectl_get_namespaces_json_object, ns
     ):
-      ns1_timestamp = mock_kubectl_get_namespaces_json_object['items'][0]['metadata']['creationTimestamp']
+      ns1_timestamp = (
+        mock_kubectl_get_namespaces_json_object['items'][0]['metadata']['creationTimestamp']
+      )
       assert ns.created_at('namespace1') == parsedatetime(ns1_timestamp)
     def it_returns_none_when_namespace_does_not_exist(
       mock_kubectl_get_namespaces_json_object, ns

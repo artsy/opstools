@@ -15,8 +15,9 @@ class Kctl():
   def _run(self, command):
     ''' kubectl run the given command and return output '''
     if self._context is None:
-      # when running inside kubernetes, don't use kubeconfig or context
-      # you will have to configure a service account and permissions for the pod
+      # when running in a pod inside kubernetes,
+      # don't use kubeconfig or context
+      # configure a service account with the permissions
       cmd = f"kubectl {command}"
     else:
       # when running locally

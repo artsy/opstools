@@ -25,7 +25,9 @@ def describe_kctl():
         mocker.patch('lib.kctl.check_output')
         check_output_spy = mocker.spy(lib.kctl, 'check_output')
         kctl._run('get pods')
-        check_output_spy.assert_has_calls([mocker.call('kubectl get pods', timeout=30, shell=True)])
+        check_output_spy.assert_has_calls([
+          mocker.call('kubectl get pods', timeout=30, shell=True)
+        ])
   def describe_with_context():
     kctl = Kctl('staging')
     def describe_instantiation():
@@ -36,14 +38,21 @@ def describe_kctl():
         mocker.patch('lib.kctl.check_output')
         check_output_spy = mocker.spy(lib.kctl, 'check_output')
         kctl._run('get pods')
-        check_output_spy.assert_has_calls([mocker.call('kubectl --context staging get pods', timeout=30, shell=True)])
+        check_output_spy.assert_has_calls([
+          mocker.call(
+            'kubectl --context staging get pods', timeout=30, shell=True
+          )
+        ])
     def describe_get_namespaces():
       def it_gets_namespaces(
         mocker,
         mock_kubectl_get_namespaces_json_object,
         mock_kubectl_get_namespaces_json_string
       ):
-        mocker.patch('lib.kctl.Kctl._run', return_value=mock_kubectl_get_namespaces_json_string)
+        mocker.patch(
+          'lib.kctl.Kctl._run',
+          return_value=mock_kubectl_get_namespaces_json_string
+        )
         data = kctl.get_namespaces()
         assert data == mock_kubectl_get_namespaces_json_object['items']
     def describe_delete_namespace():

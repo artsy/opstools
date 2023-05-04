@@ -1,7 +1,7 @@
 import os
 import sys
 
-## prepare environment before tests
+## prepare environment before tests, for pytest
 
 # set env
 os.environ['KUBECTL_CONTEXT'] = 'foo'

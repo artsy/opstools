@@ -22,10 +22,14 @@ def delete_namespaces(namespaces, ns_obj, kctl):
   for name in namespaces:
     created_at = ns_obj.created_at(name)
     if config.force:
-      logging.info(f"Deleting namespace {name} created at {created_at}")
+      logging.info(
+        f"Deleting namespace {name} created at {created_at}"
+      )
       kctl.delete_namespace(name)
     else:
-      logging.info(f"Would have deleted namespace {name} created at {created_at}")
+      logging.info(
+        f"Would have deleted namespace {name} created at {created_at}"
+      )
   logging.info("Done.")
 
 def kctl_client():

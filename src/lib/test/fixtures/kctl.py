@@ -32,7 +32,9 @@ def mock_kubectl_get_namespaces_json_object():
   return obj
 
 @pytest.fixture
-def mock_kubectl_get_namespaces_json_string(mock_kubectl_get_namespaces_json_object):
+def mock_kubectl_get_namespaces_json_string(
+  mock_kubectl_get_namespaces_json_object
+):
   obj = mock_kubectl_get_namespaces_json_object
   return json.dumps(obj)
 
