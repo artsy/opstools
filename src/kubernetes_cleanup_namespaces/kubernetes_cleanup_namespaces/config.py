@@ -7,9 +7,12 @@ import kubernetes_cleanup_namespaces.context
 from lib.logging import setup_logging
 
 class AppConfig:
-  def __init__(self, args, env):
+  def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
-    force, loglevel, ndays = args.force, args.loglevel, int(args.ndays)
+    force, loglevel, ndays = (
+      cmdline_args.force, cmdline_args.loglevel, int(cmdline_args.ndays)
+    )
+
     context = env
 
     self.context = context

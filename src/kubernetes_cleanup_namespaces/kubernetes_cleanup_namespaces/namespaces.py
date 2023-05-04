@@ -35,10 +35,6 @@ def kctl_client():
     context = config.context
   return Kctl(context)
 
-def unprotected_namespaces(namespaces):
-  ''' given a list of namespaces, return those that are unprotected '''
-  return list_subtract(namespaces, config.protected_namespaces)
-
 def old_namespaces(namespaces, ns_obj):
   ''' given a list of namespaces, return those older than n days '''
   old = []
@@ -47,3 +43,7 @@ def old_namespaces(namespaces, ns_obj):
     if older_than_ndays(created_at, config.ndays):
       old += [name]
   return old
+
+def unprotected_namespaces(namespaces):
+  ''' given a list of namespaces, return those that are unprotected '''
+  return list_subtract(namespaces, config.protected_namespaces)
