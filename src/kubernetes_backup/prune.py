@@ -6,8 +6,10 @@ import sys
 import argparse
 import logging
 
+import kubernetes_backup.context
+from lib.logging import setup_logging
+
 from kubernetes_backup.backup import prune
-from kubernetes_backup.config import setup_logging
 
 def parse_args():
   parser = argparse.ArgumentParser(

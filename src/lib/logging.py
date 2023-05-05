@@ -1,6 +1,6 @@
 import logging
 
 def setup_logging(level):
-  ''' setup app wide logging '''
+  ''' configure root level logging '''
   logging.basicConfig(level=level)
   format = '%(levelname)s: %(message)s'

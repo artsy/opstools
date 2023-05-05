@@ -61,8 +61,6 @@
 **/env/
 **/hokusai
 **/htmlcov/
-**/lib/
-**/lib64/
 **/log
 **/nosetests.xml
 **/parts/
