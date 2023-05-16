@@ -41,3 +41,15 @@ class Kctl():
     output = self._run(cmd)
     data = json.loads(output)
     return data["items"]
+
+  def get_pods(self, namespace):
+    ''' return a list of pod objects '''
+    cmd = f"get pods -n {namespace} -o json"
+    output = self._run(cmd)
+    data = json.loads(output)
+    return data["items"]
+
+  def delete_pod(self, namespace, pod_name):
+    ''' delete a given pod in a given namespace '''
+    cmd = f"delete pod {pod_name} -n {namespace}"
+    self._run(cmd)
