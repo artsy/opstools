@@ -46,7 +46,7 @@ def parse_args():
     help='delete pods older than n hours'
   )
   parser.add_argument(
-    'namespace',
+    '--namespace',
     default='default',
     help='namespace to delete pods from'
   )
