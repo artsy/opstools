@@ -139,3 +139,39 @@ spec:
                     operator: In
                     values:
                     - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-cleanup-pods-by-name
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-cleanup-pods-by-name
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
+              command: ["src/kubernetes_cleanup_pods_by_name/cleanup.py", "hokusai-run", "6", "--force"]
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
