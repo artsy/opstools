@@ -17,6 +17,11 @@ unset $(grep --no-filename --invert-match '^#' .env.shared .env | cut -f1 -d"=" 
 export $(grep --no-filename --invert-match '^#' .env.shared .env | xargs)
 ```
 
+Alternative way to load environment vars using Foreman:
+```
+foreman run --env .env.shared,.env [COMMAND]
+```
+
 # Testing
 
 ```
