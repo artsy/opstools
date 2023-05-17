@@ -9,7 +9,9 @@ from lib.kctl import \
 
 from lib.test.fixtures.kctl import \
   mock_kubectl_get_namespaces_json_object, \
-  mock_kubectl_get_namespaces_json_string
+  mock_kubectl_get_namespaces_json_string, \
+  mock_kubectl_get_pods_json_object, \
+  mock_kubectl_get_pods_json_string
 
 def describe_kctl():
   def describe_no_context():
@@ -61,3 +63,23 @@ def describe_kctl():
         kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
         kctl.delete_namespace('foo')
         kctl_run_spy.assert_has_calls([mocker.call('delete namespace foo')])
+    def describe_get_pods():
+      def it_gets_pods(
+          mocker,
+          mock_kubectl_get_pods_json_object,
+          mock_kubectl_get_pods_json_string
+        ):
+        mocker.patch(
+          'lib.kctl.Kctl._run',
+          return_value=mock_kubectl_get_pods_json_string
+        )
+        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+        data = kctl.get_pods('foo')
+        kctl_run_spy.assert_has_calls([mocker.call('get pods -n foo -o json')])
+        assert data == mock_kubectl_get_pods_json_object['items']
+    def describe_delete_pod():
+      def it_calls_run_with_correct_params(mocker):
+        mocker.patch('lib.kctl.Kctl._run')
+        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+        kctl.delete_pod('foo', 'bar')
+        kctl_run_spy.assert_has_calls([mocker.call('delete pod bar -n foo')])

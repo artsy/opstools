@@ -4,6 +4,8 @@ import pytest
 from lib.k8s_namespaces import \
   Namespaces
 
+# namespace fixtures
+
 @pytest.fixture
 def mock_kctl(mock_kubectl_get_namespaces_json_object):
   class MockKctl():
@@ -41,3 +43,34 @@ def mock_kubectl_get_namespaces_json_string(
 @pytest.fixture
 def namespaces_obj(mock_kctl):
   return Namespaces(mock_kctl)
+
+# pod fixtures
+
+@pytest.fixture
+def mock_kubectl_get_pods_json_object():
+  return {
+    'items': [
+      {
+        'metadata': {
+          'name': 'pod1',
+          'namespace': 'foo'
+        },
+        'status': {
+          'startTime': '2023-05-17T00:00:00Z'
+        }
+      },
+      {
+        'metadata': {
+          'name': 'pod2',
+          'namespace': 'foo'
+        },
+        'status': {
+          'startTime': '2023-05-17T00:00:00Z'
+        }
+      }
+    ]
+  }
+
+@pytest.fixture
+def mock_kubectl_get_pods_json_string(mock_kubectl_get_pods_json_object):
+  return json.dumps(mock_kubectl_get_pods_json_object)
