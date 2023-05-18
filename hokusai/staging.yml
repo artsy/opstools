@@ -144,22 +144,22 @@ spec:
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: opstools-cleanup-pods-by-name
+  name: opstools-cleanup-hokusai-run-pods
 spec:
-  schedule: "0 * * * *"
+  schedule: "30 * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      backoffLimit: 1
+      backoffLimit: 0
       template:
         metadata:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-cleanup-pods-by-name
+            - name: opstools-cleanup-hokusai-run-pods
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["src/kubernetes_cleanup_pods_by_name/cleanup.py", "hokusai-run", "6", "--force"]
+              command: ["src/kubernetes_cleanup_pods_by_name/cleanup.py", "-hokusai-run", "6", "--force"]
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
