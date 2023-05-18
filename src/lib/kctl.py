@@ -53,3 +53,11 @@ class Kctl():
     ''' delete a given pod in a given namespace '''
     cmd = f"delete pod {pod_name} -n {namespace}"
     self._run(cmd)
+
+def kctl_client(context):
+  ''' instantiate a kctl client '''
+  # use None if 'context' is falsey
+  kctl_context = None
+  if context:
+    kctl_context = context
+  return Kctl(kctl_context)

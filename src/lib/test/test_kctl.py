@@ -5,7 +5,8 @@ import lib.kctl
 
 from lib.kctl import \
   check_output, \
-  Kctl
+  Kctl, \
+  kctl_client
 
 from lib.test.fixtures.kctl import \
   mock_kubectl_get_namespaces_json_object, \
@@ -83,3 +84,29 @@ def describe_kctl():
         kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
         kctl.delete_pod('foo', 'bar')
         kctl_run_spy.assert_has_calls([mocker.call('delete pod bar -n foo')])
+
+def describe_kctl_client():
+  def describe_empty_context():
+    def it_instantiates_with_none(mocker):
+      mocker.patch(
+        'lib.kctl.Kctl.__init__'
+      ).side_effect = [None]
+      kctl_init_spy = mocker.spy(
+        lib.kctl.Kctl, '__init__'
+      )
+      kctl = kctl_client('')
+      assert isinstance(kctl, Kctl)
+      kctl_init_spy.call_count == 1
+      kctl_init_spy.assert_has_calls([mocker.call(None)])
+  def describe_context():
+    def it_instantiates_with_context(mocker):
+      mocker.patch(
+        'lib.kctl.Kctl.__init__'
+      ).side_effect = [None]
+      kctl_init_spy = mocker.spy(
+        lib.kctl.Kctl, '__init__'
+      )
+      kctl = kctl_client('foo')
+      assert isinstance(kctl, Kctl)
+      kctl_init_spy.call_count == 1
+      kctl_init_spy.assert_has_calls([mocker.call('foo')])

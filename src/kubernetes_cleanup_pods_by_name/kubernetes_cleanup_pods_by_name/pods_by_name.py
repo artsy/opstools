@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from lib.kctl import Kctl
+from lib.kctl import Kctl, kctl_client
 from lib.logging import logging
 from kubernetes_cleanup_pods_by_name.config import config
 
@@ -14,7 +14,7 @@ def cleanup_pods_by_name():
     .format(config.namespace, config.nhours, config.name)
   )
 
-  kctl = kctl_client()
+  kctl = kctl_client(config.context)
   pods = kctl.get_pods(config.namespace)
 
   for pod in pods:
@@ -45,10 +45,3 @@ def cleanup_pods_by_name():
         )
 
   logging.info("Done.")
-
-def kctl_client():
-  ''' instantiate a kctl client '''
-  context = None
-  if config.context:
-    context = config.context
-  return Kctl(context)
