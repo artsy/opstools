@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 
 from lib.kctl import kctl_client
-from lib.logging import logging
 from kubernetes_cleanup_pods_by_name.config import config
 
 def cleanup_pods_by_name():
