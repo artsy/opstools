@@ -5,7 +5,7 @@ import argparse
 # an alternative to having to add context.py to every module
 # https://stackoverflow.com/a/4383597
 import sys
-sys.path.insert(1, os.path.abspath('src'))
+sys.path.insert(1, os.path.abspath(__file__ + '/../../..'))
 
 from lib.logging import *
 
