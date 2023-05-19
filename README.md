@@ -25,13 +25,14 @@ foreman run --env .env.shared,.env [COMMAND]
 # Testing
 
 ```
-pytest
+make test
 ```
 
 or
 
 ```
-ptw
+pytest <dir>
+ptw <dir>
 ```
 
 [velocity_channel]: https://artsy.slack.com/messages/product-velocity "#product-velocity Slack Channel"

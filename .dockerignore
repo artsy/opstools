@@ -46,7 +46,6 @@
 **/.venv/
 **/Dockerfile
 **/LICENSE
-**/Makefile
 **/README.md
 **/VERSION
 **/__pycache__/
