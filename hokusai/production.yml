@@ -123,7 +123,43 @@ spec:
           containers:
             - name: opstools-cleanup-hokusai-run-pods
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command: ["src/kubernetes_cleanup_pods_by_name/cleanup.py", "--", "-hokusai-run", "6", "--force"]
+              command: ["src/kubernetes_cleanup/cleanup.py", "6", "--name=-hokusai-run", "--force"]
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-cleanup-completed-pods
+spec:
+  schedule: "32 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-cleanup-completed-pods
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+              command: ["src/kubernetes_cleanup/cleanup.py", "48", "--completed", "--force"]
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
