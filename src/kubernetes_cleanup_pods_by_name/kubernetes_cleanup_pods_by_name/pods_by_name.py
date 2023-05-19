@@ -1,47 +1,36 @@
-from datetime import datetime, timedelta
-
-from lib.kctl import Kctl, kctl_client
+from lib.date import date_nhours_ago
+from lib.k8s_pods import Pods
+from lib.kctl import kctl_client
 from lib.logging import logging
+from lib.util import list_intersect, list_match_str
+
 from kubernetes_cleanup_pods_by_name.config import config
 
 def cleanup_pods_by_name():
   """Cleanup pods by name older than NHOURS ago"""
-
   logging.info(
     "Cleaning up pods in {0} namespace " \
     "that are older than {1} hours " \
     "and contain '{2}' in their name"
     .format(config.namespace, config.nhours, config.name)
   )
-
   kctl = kctl_client(config.context)
-  pods = kctl.get_pods(config.namespace)
-
-  for pod in pods:
-    pod_name = pod['metadata']['name']
-    if config.name not in pod_name:
-      logging.debug(
-        f"Skipping pod {pod_name} because it does not contain '{config.name}' in its name"
-      )
-      continue
-
-    if 'startTime' not in pod['status']:
-      logging.debug(
-        f"Skipping pod {pod_name} because it does not have a startTime"
-      )
-      continue
-
-    pod_start_time = datetime.strptime(pod['status']['startTime'], "%Y-%m-%dT%H:%M:%SZ")
-
-    if pod_start_time < datetime.utcnow() - timedelta(hours=config.nhours):
-      if config.force:
-        kctl.delete_pod(config.namespace, pod_name)
-        logging.info(
-          f"Deleted pod {pod_name}"
-        )
-      else:
-        logging.info(
-          f"Would have deleted pod {pod_name}"
-        )
-
+  pods_obj = Pods(kctl, config.namespace)
+  pod_names = pods_obj.names()
+  name_matched_pods = list_match_str(pod_names, config.name)
+  old_datetime = date_nhours_ago(config.nhours)
+  age_matched_pods = pods_obj.old_pods_names(old_datetime)
+  to_delete_pods = list_intersect(
+    name_matched_pods, age_matched_pods
+  )
+  delete_pods(to_delete_pods, pods_obj)
   logging.info("Done.")
+
+def delete_pods(pod_names, pods_obj):
+  ''' delete the given list of pods '''
+  for pod in pod_names:
+    if config.force:
+      pods_obj.delete(pod)
+      logging.info(f"Deleted pod {pod}")
+    else:
+      logging.info(f"Would have deleted pod {pod}")

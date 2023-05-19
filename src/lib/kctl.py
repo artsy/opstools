@@ -6,13 +6,11 @@ from subprocess import check_output, SubprocessError
 
 class Kctl():
   ''' interface with kubectl '''
-  _timeout = 30 # seconds
-
   def __init__(self, context):
     logging.debug(f"Kctl > __init__: context: {context}")
     self._context = context
 
-  def _run(self, command):
+  def _run(self, command, timeout=30):
     ''' kubectl run the given command and return output '''
     if self._context is None:
       # when running in a pod inside kubernetes,
@@ -24,7 +22,7 @@ class Kctl():
       cmd = f"kubectl --context {self._context} {command}"
     try:
       logging.debug(f"Kctl > _run: cmd: {cmd}")
-      data = check_output(cmd, timeout=self._timeout, shell=True)
+      data = check_output(cmd, timeout=timeout, shell=True)
     except SubprocessError as e:
       logging.error(e)
       sys.exit(1)
@@ -52,7 +50,7 @@ class Kctl():
   def delete_pod(self, namespace, pod_name):
     ''' delete a given pod in a given namespace '''
     cmd = f"delete pod {pod_name} -n {namespace}"
-    self._run(cmd)
+    self._run(cmd, timeout=90)
 
 def kctl_client(context):
   ''' instantiate a kctl client '''

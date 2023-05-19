@@ -23,14 +23,24 @@ def describe_kctl():
       def it_instantiates_when_context_none():
         kctl = Kctl(None)
     def describe_run():
-      def it_calls_check_output_with_correct_params(mocker):
-        kctl = Kctl(None)
-        mocker.patch('lib.kctl.check_output')
-        check_output_spy = mocker.spy(lib.kctl, 'check_output')
-        kctl._run('get pods')
-        check_output_spy.assert_has_calls([
-          mocker.call('kubectl get pods', timeout=30, shell=True)
-        ])
+      def describe_no_timeout_supplied():
+        def it_calls_check_output_with_correct_params(mocker):
+          kctl = Kctl(None)
+          mocker.patch('lib.kctl.check_output')
+          check_output_spy = mocker.spy(lib.kctl, 'check_output')
+          kctl._run('get pods')
+          check_output_spy.assert_has_calls([
+            mocker.call('kubectl get pods', timeout=30, shell=True)
+          ])
+      def describe_timeout_supplied():
+        def it_calls_check_output_with_correct_params(mocker):
+          kctl = Kctl(None)
+          mocker.patch('lib.kctl.check_output')
+          check_output_spy = mocker.spy(lib.kctl, 'check_output')
+          kctl._run('get pods', timeout=90)
+          check_output_spy.assert_has_calls([
+            mocker.call('kubectl get pods', timeout=90, shell=True)
+          ])
   def describe_with_context():
     kctl = Kctl('staging')
     def describe_instantiation():
@@ -64,6 +74,14 @@ def describe_kctl():
         kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
         kctl.delete_namespace('foo')
         kctl_run_spy.assert_has_calls([mocker.call('delete namespace foo')])
+    def describe_delete_pod():
+      def it_calls_run_with_correct_params(mocker):
+        mocker.patch('lib.kctl.Kctl._run')
+        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+        kctl.delete_pod('foo', 'bar')
+        kctl_run_spy.assert_has_calls(
+          [mocker.call('delete pod bar -n foo', timeout=90)]
+        )
     def describe_get_pods():
       def it_gets_pods(
           mocker,
@@ -78,12 +96,6 @@ def describe_kctl():
         data = kctl.get_pods('foo')
         kctl_run_spy.assert_has_calls([mocker.call('get pods -n foo -o json')])
         assert data == mock_kubectl_get_pods_json_object['items']
-    def describe_delete_pod():
-      def it_calls_run_with_correct_params(mocker):
-        mocker.patch('lib.kctl.Kctl._run')
-        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
-        kctl.delete_pod('foo', 'bar')
-        kctl_run_spy.assert_has_calls([mocker.call('delete pod bar -n foo')])
 
 def describe_kctl_client():
   def describe_empty_context():

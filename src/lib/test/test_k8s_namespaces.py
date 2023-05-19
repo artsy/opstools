@@ -1,16 +1,14 @@
 from dateutil.parser import parse as parsedatetime
 
-from lib.k8s_namespaces import \
-  Namespaces
+from lib.test.fixtures.kctl import (
+  mock_kctl, # indirect usage
+  mock_kubectl_get_namespaces_json_object,
+  mock_kubectl_get_pods_json_object # indirect usage
+)
 
-# mock_kctl is used by namespaces_obj fixture,
-# but must be imported here 
-from lib.test.fixtures.kctl import \
-  mock_kctl, \
-  mock_kubectl_get_namespaces_json_object
-
-from lib.test.fixtures.k8s_namespaces import \
+from lib.test.fixtures.k8s_namespaces import (
   namespaces_obj as ns
+)
 
 def describe_namespaces():
   def describe_instantiation():
