@@ -1,7 +1,8 @@
+import logging
+
 from lib.date import date_nhours_ago
 from lib.k8s_pods import Pods
 from lib.kctl import kctl_client
-from lib.logging import logging
 from lib.util import list_intersect, list_match_str
 
 from kubernetes_cleanup_pods_by_name.config import config
