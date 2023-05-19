@@ -123,7 +123,7 @@ spec:
           containers:
             - name: opstools-cleanup-hokusai-run-pods
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command: ["src/kubernetes_cleanup_pods_by_name/cleanup.py", "-hokusai-run", "6", "--force"]
+              command: ["src/kubernetes_cleanup_pods_by_name/cleanup.py", "--", "-hokusai-run", "6", "--force"]
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
