@@ -1,13 +1,9 @@
 import os
 import argparse
+import logging
 
-# add /src to sys.path for importing modules in 'lib' dir
-# an alternative to having to add context.py to every module
-# https://stackoverflow.com/a/4383597
-import sys
-sys.path.insert(1, os.path.abspath(__file__ + '/../../..'))
-
-from lib.logging import *
+import kubernetes_cleanup_pods_by_name.context
+from lib.logging import setup_logging
 
 class AppConfig:
   def __init__(self, cmdline_args, env):

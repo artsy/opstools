@@ -9,10 +9,9 @@ from kubernetes_cleanup_pods_by_name.config import config
 def cleanup_pods_by_name():
   """Cleanup pods by name older than NHOURS ago"""
   logging.info(
-    "Cleaning up pods in {0} namespace " \
-    "that are older than {1} hours " \
-    "and contain '{2}' in their name"
-    .format(config.namespace, config.nhours, config.name)
+    f"Cleaning up pods in {config.namespace} namespace "
+    f"that are older than {config.nhours} hours "
+    f"and contain '{config.name}' in their name"
   )
   kctl = kctl_client(config.context)
   pods_obj = Pods(kctl, config.namespace)
