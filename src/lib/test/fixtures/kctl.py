@@ -72,7 +72,8 @@ def mock_kubectl_get_pods_json_object():
           'namespace': 'foo'
         },
         'status': {
-          'startTime': '2023-05-19T00:00:00Z'
+          'startTime': '2023-05-19T00:00:00Z',
+          'phase': 'Succeeded'
         }
       }
     ]

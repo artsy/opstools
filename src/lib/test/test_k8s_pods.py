@@ -29,6 +29,9 @@ def describe_pods():
   def describe_names():
     def it_returns_names_of_pods(pods_obj):
       assert pods_obj.names() == ['pod1', 'pod2']
+  def describe_completed_pods_names():
+    def it_returns_completed_pods_names(pods_obj):
+      assert pods_obj.completed_pods_names() == ['pod2']
   def describe_old_pods_names():
     def it_returns_old_pods(pods_obj):
       old_date = parsedatetime('2023-05-18T00:00:00Z')

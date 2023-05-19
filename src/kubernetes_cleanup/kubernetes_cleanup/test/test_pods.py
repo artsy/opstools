@@ -10,7 +10,7 @@ from lib.test.fixtures.kctl import (
   mock_kubectl_get_pods_json_object # indirect usage
 )
 
-from kubernetes_cleanup_pods_by_name.pods_by_name import (
+from kubernetes_cleanup.pods import (
   config,
   delete_pods
 )

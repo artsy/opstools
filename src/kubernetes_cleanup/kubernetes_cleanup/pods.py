@@ -5,7 +5,7 @@ from lib.k8s_pods import Pods
 from lib.kctl import kctl_client
 from lib.util import list_intersect, list_match_str
 
-from kubernetes_cleanup_pods_by_name.config import config
+from kubernetes_cleanup.config import config
 
 def cleanup_pods_by_name():
   """Cleanup pods by name older than NHOURS ago"""
@@ -23,6 +23,20 @@ def cleanup_pods_by_name():
   to_delete_pods = list_intersect(
     name_matched_pods, age_matched_pods
   )
+  delete_pods(to_delete_pods, pods_obj)
+  logging.info("Done.")
+
+def cleanup_completed_pods():
+  """Cleanup completed pods"""
+  logging.info(
+    f"Cleaning up completed pods in {config.namespace} namespace"
+  )
+  kctl = kctl_client(config.context)
+  pods_obj = Pods(kctl, config.namespace)
+  pod_names = pods_obj.completed_pods_names()
+  old_datetime = date_nhours_ago(config.nhours)
+  age_matched_pods = pods_obj.old_pods_names(old_datetime)
+  to_delete_pods = list_intersect(pod_names, age_matched_pods)
   delete_pods(to_delete_pods, pods_obj)
   logging.info("Done.")
 

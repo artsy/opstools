@@ -2,15 +2,16 @@ import os
 import argparse
 import logging
 
-import kubernetes_cleanup_pods_by_name.context
+import kubernetes_cleanup.context
 from lib.logging import setup_logging
 
 class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
-    name, nhours, namespace, force, loglevel = (
-      cmdline_args.name,
+    nhours, name, completed, namespace, force, loglevel = (
       int(cmdline_args.nhours),
+      cmdline_args.name,
+      cmdline_args.completed,
       cmdline_args.namespace,
       cmdline_args.force,
       cmdline_args.loglevel,
@@ -18,8 +19,9 @@ class AppConfig:
 
     context = env
 
-    self.name = name
     self.nhours = nhours
+    self.name = name
+    self.completed = completed
     self.namespace = namespace
     self.force = force
     self.context = context
@@ -37,12 +39,18 @@ def parse_args():
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
   )
   parser.add_argument(
-    'name',
-    help='delete pods with this name'
-  )
-  parser.add_argument(
     'nhours',
     help='delete pods older than n hours'
+  )
+  group = parser.add_mutually_exclusive_group(required=True)
+  group.add_argument(
+    '--name',
+    help='delete pods with this name'
+  )
+  group.add_argument(
+    '--completed',
+    action='store_true',
+    help='delete completed pods'
   )
   parser.add_argument(
     '--namespace',
