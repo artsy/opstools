@@ -45,6 +45,8 @@ class Kctl():
     cmd = f"get pods -n {namespace} -o json"
     output = self._run(cmd)
     data = json.loads(output)
+    if not data["items"]:
+      logging.debug(f"Kctl > get_pods: no pods found in namespace: {namespace}")
     return data["items"]
 
   def delete_pod(self, namespace, pod_name):

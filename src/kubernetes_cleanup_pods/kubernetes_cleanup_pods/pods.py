@@ -27,7 +27,7 @@ def cleanup_pods_by_name():
   logging.info("Done.")
 
 def cleanup_completed_pods():
-  """Cleanup completed pods"""
+  """Cleanup completed pods older than NHOURS ago"""
   logging.info(
     f"Cleaning up completed pods in {config.namespace} namespace"
   )
