@@ -42,6 +42,7 @@ def parse_args():
   )
   parser.add_argument(
     '--incomplete',
+    action='store_true',
     help='delete incomplete jobs'
   )
   parser.add_argument(

@@ -54,6 +54,20 @@ class Kctl():
     cmd = f"delete pod {pod_name} -n {namespace}"
     self._run(cmd, timeout=90)
 
+  def get_jobs(self, namespace):
+    ''' return a list of job objects '''
+    cmd = f"get jobs -n {namespace} -o json"
+    output = self._run(cmd)
+    data = json.loads(output)
+    if not data["items"]:
+      logging.debug(f"Kctl > get_jobs: no jobs found in namespace: {namespace}")
+    return data["items"]
+
+  def delete_job(self, namespace, job_name):
+    ''' delete a given job in a given namespace '''
+    cmd = f"delete job {job_name} -n {namespace}"
+    self._run(cmd, timeout=90)
+
 def kctl_client(context):
   ''' instantiate a kctl client '''
   # use None if 'context' is falsey
