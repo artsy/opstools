@@ -8,7 +8,7 @@ from lib.util import list_intersect, list_match_str
 from kubernetes_cleanup_pods.config import config
 
 def cleanup_pods_by_name():
-  ''' cleanup pods by name older than NHOURS ago '''
+  ''' cleanup pods by name older than NHOURS '''
   logging.info(
     f"Cleaning up pods in {config.namespace} namespace "
     f"that are older than {config.nhours} hours "
@@ -27,7 +27,7 @@ def cleanup_pods_by_name():
   logging.info("Done.")
 
 def cleanup_completed_pods():
-  ''' cleanup completed pods older than NHOURS ago '''
+  ''' cleanup completed pods older than NHOURS '''
   logging.info(
     f"Cleaning up completed pods in {config.namespace} namespace"
   )

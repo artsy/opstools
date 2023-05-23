@@ -44,7 +44,7 @@ def parse_args():
   group = parser.add_mutually_exclusive_group(required=True)
   group.add_argument(
     '--name',
-    help='delete pods with this name'
+    help='delete pods by name'
   )
   group.add_argument(
     '--completed',

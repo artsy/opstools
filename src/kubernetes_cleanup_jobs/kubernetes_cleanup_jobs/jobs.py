@@ -8,26 +8,24 @@ from lib.util import list_intersect
 from kubernetes_cleanup_jobs.config import config
 
 def cleanup_jobs():
-  ''' cleanup jobs older than NHOURS ago.
+  ''' cleanup jobs older than NHOURS.
       this includes jobs that are still running! '''
   logging.info(
-    f"Cleaning up jobs in {config.namespace} namespace "
-    f"that are older than {config.nhours} hours"
+    f"Cleaning up jobs older than {config.nhours} hours in {config.namespace} namespace"
   )
   kctl = kctl_client(config.context)
   jobs_obj = Jobs(kctl, config.namespace)
   job_names = jobs_obj.names()
   old_datetime = date_nhours_ago(config.nhours)
-  age_matched_jobs = jobs_obj.old_jobs_names(old_datetime, False)
+  age_matched_jobs = jobs_obj.old_jobs_names(old_datetime, True) # include running jobs
   to_delete_jobs = list_intersect(job_names, age_matched_jobs)
   delete_jobs(to_delete_jobs, jobs_obj)
   logging.info("Done.")
 
 def cleanup_completed_jobs():
-  ''' cleanup completed jobs older than NHOURS ago '''
+  ''' cleanup completed jobs older than NHOURS '''
   logging.info(
-    f"Cleaning up completed jobs in {config.namespace} namespace "
-    f"that are older than {config.nhours} hours"
+    f"Cleaning up completed jobs older than {config.nhours} hours in {config.namespace} namespace"
   )
   kctl = kctl_client(config.context)
   jobs_obj = Jobs(kctl, config.namespace)
