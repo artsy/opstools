@@ -5,7 +5,6 @@ from dateutil.parser import parse as parsedatetime
 class Pods():
   ''' manage pods data '''
   def __init__(self, kctl, namespace):
-    # load pods data using the given kctl client
     self._pods_data = kctl.get_pods(namespace)
     self._kctl = kctl
     self._namespace = namespace
