@@ -12,7 +12,9 @@ from lib.test.fixtures.kctl import \
   mock_kubectl_get_namespaces_json_object, \
   mock_kubectl_get_namespaces_json_string, \
   mock_kubectl_get_pods_json_object, \
-  mock_kubectl_get_pods_json_string
+  mock_kubectl_get_pods_json_string, \
+  mock_kubectl_get_jobs_json_object, \
+  mock_kubectl_get_jobs_json_string
 
 def describe_kctl():
   def describe_no_context():
@@ -96,6 +98,28 @@ def describe_kctl():
         data = kctl.get_pods('foo')
         kctl_run_spy.assert_has_calls([mocker.call('get pods -n foo -o json')])
         assert data == mock_kubectl_get_pods_json_object['items']
+    def describe_get_jobs():
+      def it_gets_jobs(
+          mocker,
+          mock_kubectl_get_jobs_json_object,
+          mock_kubectl_get_jobs_json_string
+        ):
+        mocker.patch(
+          'lib.kctl.Kctl._run',
+          return_value=mock_kubectl_get_jobs_json_string
+        )
+        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+        data = kctl.get_jobs('foo')
+        kctl_run_spy.assert_has_calls([mocker.call('get jobs -n foo -o json')])
+        assert data == mock_kubectl_get_jobs_json_object['items']
+    def describe_delete_job():
+      def it_calls_run_with_correct_params(mocker):
+        mocker.patch('lib.kctl.Kctl._run')
+        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+        kctl.delete_job('foo', 'bar')
+        kctl_run_spy.assert_has_calls(
+          [mocker.call('delete job bar -n foo', timeout=90)]
+        )
 
 def describe_kctl_client():
   def describe_empty_context():
