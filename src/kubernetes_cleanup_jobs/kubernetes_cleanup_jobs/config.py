@@ -28,7 +28,6 @@ class AppConfig:
 
   def _init_app(self, loglevel):
     ''' initialize the app '''
-    # initialize logging
     setup_logging(eval('logging.' + loglevel))
 
 def parse_args():
