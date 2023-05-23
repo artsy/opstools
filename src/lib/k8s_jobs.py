@@ -30,13 +30,13 @@ class Jobs():
       job_names += [job_name]
     return job_names
 
-  def old_jobs_names(self, old_date, completed=True):
+  def old_jobs_names(self, old_date, incomplete=False):
     ''' return names of jobs that started before old_date.
         by default, only completed jobs are considered '''
     job_names = []
     for job in self._jobs_data:
       job_name = job['metadata']['name']
-      if completed:
+      if not incomplete:
         if 'completionTime' not in job['status']:
           logging.debug(f"job {job_name} has no completionTime")
           continue

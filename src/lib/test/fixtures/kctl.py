@@ -6,17 +6,22 @@ from lib.k8s_namespaces import Namespaces
 @pytest.fixture
 def mock_kctl(
   mock_kubectl_get_namespaces_json_object,
-  mock_kubectl_get_pods_json_object
+  mock_kubectl_get_pods_json_object,
+  mock_kubectl_get_jobs_json_object
 ):
   class MockKctl():
     def __init__(self):
       pass
     def delete_pod(self, namespace, pod_name):
       pass
+    def delete_job(self, namespace, job_name):
+      pass
     def get_namespaces(self):
       return mock_kubectl_get_namespaces_json_object['items']
     def get_pods(self, namespace):
       return mock_kubectl_get_pods_json_object['items']
+    def get_jobs(self, namespace):
+      return mock_kubectl_get_jobs_json_object['items']
   return MockKctl()
 
 # namespace fixtures
@@ -84,3 +89,47 @@ def mock_kubectl_get_pods_json_string(
   mock_kubectl_get_pods_json_object
 ):
   return json.dumps(mock_kubectl_get_pods_json_object)
+
+# job fixtures
+
+@pytest.fixture
+def mock_kubectl_get_jobs_json_object():
+  return {
+    'items': [
+      {
+        'metadata': {
+          'name': 'job1',
+          'namespace': 'foo'
+        },
+        'status': {
+          'completionTime': '2023-05-17T01:00:00Z',
+          'conditions': [
+            {
+              'lastProbeTime': '2023-05-17T01:00:00Z',
+              'lastTransitionTime': '2023-05-17T01:00:00Z',
+              'status': 'True',
+              'type': 'Complete'
+            }
+          ],
+          'startTime': '2023-05-17T00:00:00Z',
+          'succeeded': 1
+        }
+      },
+      {
+        'metadata': {
+          'name': 'job2',
+          'namespace': 'foo'
+        },
+        'status': {
+          'active': 1,
+          'startTime': '2023-05-17T02:00:00Z'
+        }
+      }
+    ]
+  }
+
+@pytest.fixture
+def mock_kubectl_get_jobs_json_string(
+  mock_kubectl_get_jobs_json_object
+):
+  return json.dumps(mock_kubectl_get_jobs_json_object)

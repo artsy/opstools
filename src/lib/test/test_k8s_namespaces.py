@@ -3,7 +3,8 @@ from dateutil.parser import parse as parsedatetime
 from lib.test.fixtures.kctl import (
   mock_kctl, # indirect usage
   mock_kubectl_get_namespaces_json_object,
-  mock_kubectl_get_pods_json_object # indirect usage
+  mock_kubectl_get_pods_json_object, # indirect usage
+  mock_kubectl_get_jobs_json_object # indirect usage
 )
 
 from lib.test.fixtures.k8s_namespaces import (
