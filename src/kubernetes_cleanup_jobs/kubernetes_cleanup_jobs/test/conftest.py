@@ -12,9 +12,11 @@ if len(sys.argv) == 2:
   # dir path becomes first argument to script
   # over-write it
   sys.argv[1] = '1' # nhours
+  sys.argv += ['--all'] # --all
 else:
   # indicates that pytest is called with no argument
   # add argument
   sys.argv += [
     '1' # nhours
+    '--all' # --all
   ]

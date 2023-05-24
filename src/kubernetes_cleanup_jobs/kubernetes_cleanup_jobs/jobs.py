@@ -7,7 +7,10 @@ from lib.util import list_intersect
 
 from kubernetes_cleanup_jobs.config import config
 
-def cleanup_jobs():
+def cleanup_jobs_by_name():
+  logging.info('Not implemented yet.')
+
+def cleanup_all_jobs():
   ''' cleanup jobs older than NHOURS.
       this includes jobs that are still running! '''
   logging.info(

@@ -8,9 +8,11 @@ from lib.logging import setup_logging
 class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
-    nhours, incomplete, namespace, force, loglevel = (
+    nhours, name, completed, all, namespace, force, loglevel = (
       int(cmdline_args.nhours),
-      cmdline_args.incomplete,
+      cmdline_args.name,
+      cmdline_args.completed,
+      cmdline_args.all,
       cmdline_args.namespace,
       cmdline_args.force,
       cmdline_args.loglevel,
@@ -19,7 +21,9 @@ class AppConfig:
     context = env
 
     self.nhours = nhours
-    self.incomplete = incomplete
+    self.name = name
+    self.completed = completed
+    self.all = all
     self.namespace = namespace
     self.force = force
     self.context = context
@@ -39,10 +43,20 @@ def parse_args():
     'nhours',
     help='delete jobs older than n hours'
   )
-  parser.add_argument(
-    '--incomplete',
+  group = parser.add_mutually_exclusive_group(required=True)
+  group.add_argument(
+    '--name',
+    help='delete jobs by name'
+  )
+  group.add_argument(
+    '--completed',
     action='store_true',
-    help='delete incomplete jobs'
+    help='delete completed jobs'
+  )
+  group.add_argument(
+    '--all',
+    action='store_true',
+    help='delete all jobs'
   )
   parser.add_argument(
     '--namespace',

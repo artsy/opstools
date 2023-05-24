@@ -195,7 +195,7 @@ spec:
           containers:
             - name: opstools-cleanup-jobs
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["src/kubernetes_cleanup_jobs/cleanup.py", "48", "--incomplete", "--force"]
+              command: ["src/kubernetes_cleanup_jobs/cleanup.py", "48", "--all", "--force"]
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
