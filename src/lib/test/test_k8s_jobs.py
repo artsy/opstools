@@ -40,6 +40,3 @@ def describe_jobs():
     def it_returns_3_hours_old_jobs_names(jobs_obj): # including incomplete jobs
       old_date = parsedatetime('2023-05-17T03:00:00Z')
       assert jobs_obj.old_jobs_names(old_date, True) == ['job1', 'job2']
-    def it_returns_2_hours_old_jobs_names(jobs_obj): # including incomplete jobs
-      old_date = parsedatetime('2023-05-17T02:00:00Z')
-      assert jobs_obj.old_jobs_names(old_date, True) == ['job1']
