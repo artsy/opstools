@@ -11,3 +11,9 @@ def older_than_ndays(date, ndays):
     return True
   else:
     return False
+
+def date_nhours_ago(nhours):
+  ''' return the utc datetime that is nhours ago '''
+  now = datetime.utcnow()
+  now_utc = now.replace(tzinfo=pytz.utc)
+  return now_utc - timedelta(hours=nhours)

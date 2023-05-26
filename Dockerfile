@@ -12,7 +12,8 @@ ARG kubectl_version=1.19.16
 
 RUN apk --no-cache --quiet add \
   curl \
-  git
+  git \
+  make
 
 RUN curl https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
   -o /tmp/terraform_${terraform_version}_linux_amd64.zip \
