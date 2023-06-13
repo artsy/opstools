@@ -4,3 +4,4 @@ test:
 	pytest src/kubernetes_cleanup_jobs
 	pytest src/lib
 	pytest src/terraform_drift_detection
+	pytest src/ecr_check_repos_for_terraform
