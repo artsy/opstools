@@ -21,11 +21,8 @@ def check():
   tag = {'Key': 'env', 'Value': 'test'}
   test_repos = ecr_repos.repos_with_tag(tag)
 
-  non_terraform_managed_repos = list_subtract(
-    all_repos, terraform_managed_repos
+  return list_subtract(
+    all_repos,
+    terraform_managed_repos,
+    test_repos
   )
-  final_repos = list_subtract(
-    non_terraform_managed_repos, test_repos
-  )
-
-  return final_repos
