@@ -15,5 +15,6 @@ if __name__ == "__main__":
   repos = check()
   if len(repos) > 0:
     logging.info(f"Repositories found: {repos}")
+    exit(1)
   else:
     logging.info("None found.")

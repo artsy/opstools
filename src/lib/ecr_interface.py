@@ -16,5 +16,4 @@ class ECRInterface(object):
     return repos
 
   def get_repo_tags(self, arn):
-    tags = self.ecr.list_tags_for_resource(resourceArn=arn)
-    return tags
+    return self.ecr.list_tags_for_resource(resourceArn=arn)
