@@ -1,5 +1,3 @@
-import logging
-
 class ECRRepo():
   ''' manage 1 ECR repository's data '''
   def __init__(self, repo_info, tags):
