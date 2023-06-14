@@ -13,10 +13,6 @@ class AppConfig:
       cmdline_args.loglevel
     )
 
-    context = env
-
-    self.context = context
-
     self._init_app(loglevel)
 
   def _init_app(self, loglevel):

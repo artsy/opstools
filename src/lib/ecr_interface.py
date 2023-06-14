@@ -1,6 +1,6 @@
 import boto3
 
-class ECR(object):
+class ECRInterface(object):
   ''' interface with AWS ECR '''
 
   def __init__(self):

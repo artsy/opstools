@@ -1,58 +1,54 @@
 import logging
 
-class EcrRepo():
+class ECRRepo():
   ''' manage 1 ECR repository's data '''
   def __init__(self, repo_info, tags):
+    self.arn = repo_info['repositoryArn']
     self.info = repo_info
     self.name = repo_info['repositoryName']
-    self.arn = repo_info['repositoryArn']
     self.tags = tags
 
-class EcrRepos():
-  ''' manage ECR repositories data '''
-  def __init__(self, ecr_client):
-    self._ecr_client = ecr_client
-    repos_info = ecr_client.get_repos()
-    self._repo_objs = []
-    for repo_info in repos_info:
-      repo_name = repo_info['repositoryName']
-      repo_arn = repo_info['repositoryArn']
-      res = ecr_client.get_repo_tags(repo_arn)
+class ECRRepos():
+  ''' manage all ECR repositories' data '''
+  def __init__(self, ecr_interface):
+    self._ecr_interface = ecr_interface
+    repos = ecr_interface.get_repos()
+    self._repos = []
+    for repo in repos:
+      name = repo['repositoryName']
+      arn = repo['repositoryArn']
+      res = ecr_interface.get_repo_tags(arn)
       tags = res['tags']
-      repo_obj = EcrRepo(repo_info, tags)
-      self._repo_objs += [repo_obj]
+      ecr_repo = ECRRepo(repo, tags)
+      self._repos += [ecr_repo]
 
   def all_repos(self):
     ''' return names of all repos, sorted '''
     return sorted(
-      [obj.name for obj in self._repo_objs]
+      [repo.name for repo in self._repos]
     )
+
+  def get_repo(self, repo_name):
+    ''' return ECRRepo object whose name matches repo_name '''
+    for repo in self._repos:
+      if repo.name == repo_name:
+        return repo
+
+  def get_repo_info(self, repo_name):
+    ''' return info of repo that has repo_name '''
+    for repo in self._repos:
+      if repo.name == repo_name:
+        return repo.info
+
+  def get_repo_tags(self, repo_name):
+    ''' return tags of repo that has repo_name '''
+    for repo in self._repos:
+      if repo.name == repo_name:
+        return repo.tags
 
   def repos_with_tag(self, tag):
     ''' return names of repos that have the specified tag '''
-    repos = []
-    for obj in self._repo_objs:
-      if tag in obj.tags:
-        repos += [obj.name]
-    return repos
-
-  def get_repo(self, repo_name):
-    ''' return EcrRepo object whose name matches repo_name '''
-    for obj in self._repo_objs:
-      if obj.name == repo_name:
-        return obj
-
-  def get_repo_info(self, repo_name):
-    info = None
-    for obj in self._repo_objs:
-      if obj.name == repo_name:
-        info = obj.info
-        break
-    return info
-
-  def get_repo_tags(self, repo_name):
-    tags = None
-    for obj in self._repo_objs:
-      if obj.name == repo_name:
-        tags = obj.tags
-    return tags
+    return sorted([
+      repo.name for repo in self._repos
+      if tag in repo.tags
+    ])
