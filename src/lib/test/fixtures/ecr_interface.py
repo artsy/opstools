@@ -4,7 +4,7 @@ import pytest
 from dateutil.tz import tzlocal
 
 @pytest.fixture
-def mock_boto3_client(
+def mock_ecr_client(
   mock_ecr_describe_repositories_result,
   mock_ecr_list_tags_for_resource_result
 ):
@@ -13,8 +13,11 @@ def mock_boto3_client(
       pass
     def describe_repositories(self, *args):
       return mock_ecr_describe_repositories_result
-    def list_tags_for_resource(self, **kwargs):
-      return mock_ecr_list_tags_for_resource_result
+    def list_tags_for_resource(self, resourceArn):
+      if resourceArn == 'arn:aws:ecr:us-east-1:123:repository/foo1':
+        return mock_ecr_list_tags_for_resource_result
+      else:
+        return { 'tags': [] }
   return MockECRClient()
 
 @pytest.fixture
@@ -64,3 +67,18 @@ def mock_ecr_list_tags_for_resource_result():
     }
   }
   return obj
+
+@pytest.fixture
+def mock_ecr_interface(
+  mock_ecr_client,
+  mock_ecr_describe_repositories_result,
+  mock_ecr_list_tags_for_resource_result
+):
+  class ECRInterface():
+    def __init__(self):
+      pass
+    def get_repos(self):
+      return mock_ecr_describe_repositories_result['repositories']
+    def get_repo_tags(self, arn):
+      return mock_ecr_client.list_tags_for_resource(resourceArn=arn)
+  return ECRInterface()
