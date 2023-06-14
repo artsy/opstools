@@ -211,3 +211,39 @@ spec:
                     operator: In
                     values:
                     - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-ecr-check-repos-for-terraform
+spec:
+  schedule: "13 7 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-ecr-check-repos-for-terraform
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+              command: ["src/ecr_check_repos_for_terraform/check.py"]
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
