@@ -34,18 +34,6 @@ class ECRRepos():
       if repo.name == repo_name:
         return repo
 
-  def get_repo_info(self, repo_name):
-    ''' return info of repo that has repo_name '''
-    for repo in self._repos:
-      if repo.name == repo_name:
-        return repo.info
-
-  def get_repo_tags(self, repo_name):
-    ''' return tags of repo that has repo_name '''
-    for repo in self._repos:
-      if repo.name == repo_name:
-        return repo.tags
-
   def repos_with_tag(self, tag):
     ''' return names of repos that have the specified tag '''
     return sorted([
