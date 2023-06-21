@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # initialize the app
 from kubernetes_cleanup_pods.config import config
 
