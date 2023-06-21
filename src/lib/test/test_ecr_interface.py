@@ -11,16 +11,16 @@ def describe_ecr_interface():
   def describe_instantiation():
     def it_instantiates(mocker, mock_ecr_client):
       mocker.patch(
-        'lib.ecr_interface.boto3client',
+        'lib.ecr_interface.boto3_client',
         return_value=mock_ecr_client
       )
-      spy = mocker.spy(lib.ecr_interface, 'boto3client')
+      spy = mocker.spy(lib.ecr_interface, 'boto3_client')
       ecr_interface = ECRInterface()
       spy.assert_has_calls([mocker.call('ecr')])
   def describe_get_repos():
     def it_gets(mocker, mock_ecr_client):
       mocker.patch(
-        'lib.ecr_interface.boto3client',
+        'lib.ecr_interface.boto3_client',
         return_value=mock_ecr_client
       )
       ecr_interface = ECRInterface()
@@ -30,7 +30,7 @@ def describe_ecr_interface():
   def describe_get_repo_tags():
     def it_gets(mocker, mock_ecr_client):
       mocker.patch(
-        'lib.ecr_interface.boto3client',
+        'lib.ecr_interface.boto3_client',
         return_value=mock_ecr_client
       )
       ecr_interface = ECRInterface()
