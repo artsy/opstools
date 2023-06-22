@@ -4,7 +4,7 @@ import sys
 
 from subprocess import check_output, SubprocessError
 
-class Kctl():
+class Kctl:
   ''' interface with kubectl '''
   def __init__(self, context):
     logging.debug(f"Kctl > __init__: context: {context}")

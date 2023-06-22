@@ -2,7 +2,7 @@ import pytest
 
 @pytest.fixture
 def mock_ns_object(mock_kctl_object):
-  class MockNamespaces():
+  class MockNamespaces:
     def __init__(self):
       pass
     def created_at(self, namespace):
@@ -11,7 +11,7 @@ def mock_ns_object(mock_kctl_object):
 
 @pytest.fixture
 def mock_kctl_object():
-  class MockKctl():
+  class MockKctl:
     def __init__(self):
       pass
     def delete_namespace(self, name):

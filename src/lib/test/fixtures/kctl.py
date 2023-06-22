@@ -9,7 +9,7 @@ def mock_kctl(
   mock_kubectl_get_pods_json_object,
   mock_kubectl_get_jobs_json_object
 ):
-  class MockKctl():
+  class MockKctl:
     def __init__(self):
       pass
     def delete_pod(self, namespace, pod_name):

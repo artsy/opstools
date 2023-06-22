@@ -8,7 +8,7 @@ def mock_ecr_client(
   mock_ecr_describe_repositories_result,
   mock_ecr_list_tags_for_resource_result
 ):
-  class MockECRClient():
+  class MockECRClient:
     def __init__(self):
       pass
     def describe_repositories(self, *args):
@@ -74,7 +74,7 @@ def mock_ecr_interface(
   mock_ecr_describe_repositories_result,
   mock_ecr_list_tags_for_resource_result
 ):
-  class ECRInterface():
+  class ECRInterface:
     def __init__(self):
       pass
     def get_repos(self):
