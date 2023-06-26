@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import logging
 
 from terraform_drift_detection.init import init

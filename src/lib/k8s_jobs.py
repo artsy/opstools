@@ -2,7 +2,7 @@ import logging
 
 from dateutil.parser import parse as parsedatetime
 
-class Jobs():
+class Jobs:
   ''' manage jobs data '''
   def __init__(self, kctl, namespace):
     self._jobs_data = kctl.get_jobs(namespace)

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from kubernetes_cleanup_jobs.config import config
 
 from kubernetes_cleanup_jobs.jobs import (

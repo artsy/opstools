@@ -4,7 +4,7 @@ import logging
 
 import boto3
 
-class S3Interface(object):
+class S3Interface:
   KEY_SUFFIX = '.tar.gz'
 
   def __init__(self, bucket_name, prefix=''):

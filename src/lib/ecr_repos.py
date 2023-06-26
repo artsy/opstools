@@ -1,4 +1,4 @@
-class ECRRepo():
+class ECRRepo:
   ''' manage 1 ECR repository's data '''
   def __init__(self, repo_info, tags):
     self.arn = repo_info['repositoryArn']
@@ -6,7 +6,7 @@ class ECRRepo():
     self.name = repo_info['repositoryName']
     self.tags = tags
 
-class ECRRepos():
+class ECRRepos:
   ''' manage all ECR repositories' data '''
   def __init__(self, ecr_interface):
     self._ecr_interface = ecr_interface
