@@ -1,5 +1,3 @@
-import os
-
 import argparse
 import logging
 
@@ -7,12 +5,11 @@ import ecr_check_repos_for_terraform.context
 from lib.logging import setup_logging
 
 class AppConfig:
-  def __init__(self, cmdline_args, env):
+  def __init__(self, cmdline_args):
     ''' set app-wide configs and initialize the app '''
     loglevel = (
       cmdline_args.loglevel
     )
-
     self._init_app(loglevel)
 
   def _init_app(self, loglevel):
@@ -33,10 +30,6 @@ def parse_args():
   )
   return parser.parse_args()
 
-def parse_env(env):
-  ''' parse and validate env vars '''
-  pass
-
 # import this from main script
 # object will be instantiated only once
-config = AppConfig(parse_args(), parse_env(os.environ))
+config = AppConfig(parse_args())

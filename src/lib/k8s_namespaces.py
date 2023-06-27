@@ -1,6 +1,6 @@
 from dateutil.parser import parse as parsedatetime
 
-class Namespaces():
+class Namespaces:
   ''' manage namespaces data '''
   def __init__(self, kctl):
     # load namespaces data using the given kctl client

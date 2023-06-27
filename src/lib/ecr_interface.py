@@ -1,10 +1,10 @@
-from boto3 import client as boto3client
+from boto3 import client as boto3_client
 
-class ECRInterface(object):
+class ECRInterface:
   ''' interface with AWS ECR '''
 
   def __init__(self):
-    self._ecr = boto3client('ecr')
+    self._ecr = boto3_client('ecr')
 
   def get_repos(self):
     repos = []

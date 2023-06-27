@@ -2,7 +2,7 @@ import logging
 
 from dateutil.parser import parse as parsedatetime
 
-class Pods():
+class Pods:
   ''' manage pods data '''
   def __init__(self, kctl, namespace):
     self._pods_data = kctl.get_pods(namespace)
