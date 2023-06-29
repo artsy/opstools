@@ -10,7 +10,6 @@ from distutils.dir_util import mkpath
 from subprocess import check_output, CalledProcessError
 
 from kubernetes_backup.config import config
-from kubernetes_backup.s3 import S3Interface
 from lib.artsy_s3_backup import ArtsyS3Backup
 
 from lib.kctl import Kctl
