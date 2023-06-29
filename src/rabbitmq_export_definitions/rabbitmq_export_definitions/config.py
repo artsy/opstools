@@ -71,10 +71,6 @@ def parse_env(env):
   s3_prefix = env.get('RABBITMQ_BACKUP_S3_PREFIX', 'dev')
   # local dir to store exported broker definitions
   local_dir = os.environ.get('LOCAL_DIR', '/tmp/rabbitmq_broker_definitions')
-  if not (rabbitmq_host and rabbitmq_user and rabbitmq_pass):
-    sys.exit(
-      "Error: The following environment variables must be specified: RABBITMQ_HOST, RABBITMQ_USER, RABBITMQ_PASS"
-    )
   return local_dir, rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3_bucket, s3_prefix
 
 # import this from main script

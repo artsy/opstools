@@ -68,20 +68,3 @@ def export_and_backup(KUBERNETES_OBJECTS):
       shutil.rmtree(export_dir)
   else:
     logging.info("Skipping backup to S3. Please delete the local files when done!")
-
-def full_s3_prefix(s3_prefix, cluster_label):
-  return f"{s3_prefix}/{cluster_label}"
-
-def prune(context, k8s_cluster, s3_bucket, s3_prefix, keepn, force):
-  ''' keep 'keepn' most recent backups and delete the rest '''
-  cluster_label = determine_cluster_label(context, k8s_cluster)
-  full_prefix = full_s3_prefix(s3_prefix, cluster_label)
-  logging.info(f"Pruning backups in s3://{s3_bucket}/{full_prefix}/ ...")
-  s3 = S3Interface(s3_bucket, prefix=full_prefix)
-  for backup_id in s3.backups()[keepn:]:
-    if force:
-      s3.delete(backup_id)
-      logging.info(f"Deleted {backup_id}")
-    else:
-      logging.info(f"Would have deleted {backup_id}")
-  logging.info("Done.")
