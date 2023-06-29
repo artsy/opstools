@@ -42,7 +42,7 @@ def parse_args():
   return parser.parse_args()
 
 def parse_env(env):
-  ''' parse and validate env vars '''
+  ''' parse env vars '''
 
   # set this if running locally
   context = os.environ.get('KUBECTL_CONTEXT', '')
@@ -62,7 +62,7 @@ def parse_env(env):
   return context, k8s_cluster, local_dir, s3_bucket, s3_prefix
 
 def validate(context, k8s_cluster, s3, s3_bucket):
-  ''' validate params obtained from env and command line '''
+  ''' validate config obtained from env and command line '''
   if not context and not k8s_cluster:
     sys.exit(
       "Error: either KUBECTL_CONTEXT or K8S_CLUSTER must be specified in the environment"

@@ -15,18 +15,29 @@ class AppConfig:
       cmdline_args.s3
     )
     self.local_dir, self.rabbitmq_host, self.rabbitmq_user, self.rabbitmq_pass, self.s3_bucket, self.s3_prefix = env
-
-    if self.s3 and not self.s3_bucket:
-      sys.exit(
-        "Error: The following environment variables must be specified: RABBITMQ_BACKUP_S3_BUCKET"
-      )
-  
+    validate(self.rabbitmq_host, self.rabbitmq_user, self.rabbitmq_pass, self.s3, self.s3_bucket)
     self._init_app(loglevel)
 
   def _init_app(self, loglevel):
     ''' initialize the app '''
     # initialize logging
     setup_logging(eval('logging.' + loglevel))
+
+def validate(rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3, s3_bucket):
+  ''' validate config obtained from env and command line '''
+  if not (rabbitmq_host and rabbitmq_user and rabbitmq_pass):
+    sys.exit(
+      "Error: The following environment variables must be specified: RABBITMQ_HOST, RABBITMQ_USER, RABBITMQ_PASS"
+    )
+  if s3 and not s3_bucket:
+    sys.exit(
+      "Error: The following environment variables must be specified: RABBITMQ_BACKUP_S3_BUCKET"
+    )
+  # sanity check S3 bucket name
+  if s3_bucket and not s3_bucket.startswith('artsy-'):
+    sys.exit(
+      f"Error: It seems {s3_bucket} is not an Artsy S3 bucket."
+    )
 
 def parse_args():
   ''' parse command line args '''
@@ -52,7 +63,7 @@ def parse_args():
   return parser.parse_args()
 
 def parse_env(env):
-  ''' parse and validate env vars '''
+  ''' parse env vars '''
   rabbitmq_host = env.get('RABBITMQ_HOST')
   rabbitmq_user = env.get('RABBITMQ_USER')
   rabbitmq_pass = env.get('RABBITMQ_PASS')
