@@ -21,14 +21,14 @@ def backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix):
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
     tar.add(export_dir, arcname=os.path.basename(export_dir))
-
-  artsy_s3_backup = ArtsyS3Backup(s3_bucket, s3_prefix, 'k8s', cluster_label, 'tar.gz')
-  artsy_s3_backup.backup(archive_file)
-
-  logging.info("Deleting local archive file...")
-  os.remove(archive_file)
-  logging.info(f"Deleting {export_dir} ...")
-  shutil.rmtree(export_dir)
+  try:
+    artsy_s3_backup = ArtsyS3Backup(s3_bucket, s3_prefix, 'k8s', cluster_label, 'tar.gz')
+    artsy_s3_backup.backup(archive_file)
+  except:
+    raise
+  finally:
+    logging.info(f"Deleting {archive_file} ...")
+    os.remove(archive_file)
 
 def determine_cluster_label(context, k8s_cluster):
   ''' determine k8s cluster's name for use as label '''
@@ -74,7 +74,13 @@ def export_and_backup(context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, K
   logging.info("Done exporting")
 
   if s3:
-    backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix)
+    try:
+      backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix)
+    except:
+      raise
+    finally:
+      logging.info(f"Deleting {export_dir} ...")
+      shutil.rmtree(export_dir)
   else:
     logging.info("Skipping backup to S3. Please delete the local files when done!")
 
