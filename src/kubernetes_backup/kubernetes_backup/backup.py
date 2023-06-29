@@ -13,16 +13,16 @@ from kubernetes_backup.config import config
 from kubernetes_backup.s3 import S3Interface
 from lib.artsy_s3_backup import ArtsyS3Backup
 
-def backup_to_s3(export_dir, cluster_label):
+def backup_to_s3(export_dir):
   ''' back up yamls to S3 '''
   archive_file = os.path.join(
-                   config.local_dir, "kubernetes-backup-%s.tar.gz" % cluster_label
+                   config.local_dir, f"kubernetes-backup-{config.artsy_env}.tar.gz"
                  )
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
     tar.add(export_dir, arcname=os.path.basename(export_dir))
   try:
-    artsy_s3_backup = ArtsyS3Backup(config.s3_bucket, config.s3_prefix, 'k8s', cluster_label, 'tar.gz')
+    artsy_s3_backup = ArtsyS3Backup(config.s3_bucket, config.s3_prefix, 'k8s', config.artsy_env, 'tar.gz')
     artsy_s3_backup.backup(archive_file)
   except:
     raise
@@ -30,25 +30,20 @@ def backup_to_s3(export_dir, cluster_label):
     logging.info(f"Deleting {archive_file} ...")
     os.remove(archive_file)
 
-def determine_cluster_label():
-  ''' determine k8s cluster's name for use as label '''
-  if config.context:
-    cluster_label = config.context
-  else:
-    cluster_label = config.k8s_cluster
-  return cluster_label
-
 def export(obj, export_dir):
   ''' export k8s object into a yaml file '''
   logging.info(f"Exporting {obj}...")
 
-  if config.context:
-    # when running locally
-    cmd = "kubectl --context %s get %s -o yaml" % (config.context,obj)
-  else:
-    # when running inside kubernetes, don't use kubeconfig or context
+  if config.in_cluster:
+    # running inside kubernetes, kubectl does not require kubeconfig or context
     # you will have to configure a service account and permissions for the pod
     cmd = "kubectl get %s -o yaml" % obj
+  else:
+    # running locally
+    cmd = f"kubectl --context {config.artsy_env} get {obj} -o yaml"
+
+  logging.debug(f"Running command: {cmd}")
+
   data = check_output(cmd, shell=True)
 
   with open(os.path.join(export_dir, "%s.yaml" % obj), 'w') as f:
@@ -57,12 +52,11 @@ def export(obj, export_dir):
 
 def export_and_backup(KUBERNETES_OBJECTS):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''
-  cluster_label = determine_cluster_label()
-  export_dir = os.path.join(config.local_dir, cluster_label)
+  export_dir = os.path.join(config.local_dir, config.artsy_env)
   mkpath(export_dir)
 
   logging.info(
-    f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {config.local_dir} ..."
+    f"Exporting objects from Kubernetes {config.artsy_env} cluster, default namespace, as yaml files, to {export_dir} ..."
   )
   for obj in KUBERNETES_OBJECTS:
     try:
@@ -75,7 +69,7 @@ def export_and_backup(KUBERNETES_OBJECTS):
 
   if config.s3:
     try:
-      backup_to_s3(export_dir, cluster_label)
+      backup_to_s3(export_dir)
     except:
       raise
     finally:
