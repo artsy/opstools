@@ -9,20 +9,20 @@ from datetime import datetime
 from distutils.dir_util import mkpath
 from subprocess import check_output, CalledProcessError
 
+from kubernetes_backup.config import config
 from kubernetes_backup.s3 import S3Interface
-
 from lib.artsy_s3_backup import ArtsyS3Backup
 
-def backup_to_s3(local_dir, export_dir, cluster_label, s3_bucket, s3_prefix):
+def backup_to_s3(export_dir, cluster_label):
   ''' back up yamls to S3 '''
   archive_file = os.path.join(
-                   local_dir, "kubernetes-backup-%s.tar.gz" % cluster_label
+                   config.local_dir, "kubernetes-backup-%s.tar.gz" % cluster_label
                  )
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
     tar.add(export_dir, arcname=os.path.basename(export_dir))
   try:
-    artsy_s3_backup = ArtsyS3Backup(s3_bucket, s3_prefix, 'k8s', cluster_label, 'tar.gz')
+    artsy_s3_backup = ArtsyS3Backup(config.s3_bucket, config.s3_prefix, 'k8s', cluster_label, 'tar.gz')
     artsy_s3_backup.backup(archive_file)
   except:
     raise
@@ -30,21 +30,21 @@ def backup_to_s3(local_dir, export_dir, cluster_label, s3_bucket, s3_prefix):
     logging.info(f"Deleting {archive_file} ...")
     os.remove(archive_file)
 
-def determine_cluster_label(context, k8s_cluster):
+def determine_cluster_label():
   ''' determine k8s cluster's name for use as label '''
-  if context:
-    cluster_label = context
+  if config.context:
+    cluster_label = config.context
   else:
-    cluster_label = k8s_cluster
+    cluster_label = config.k8s_cluster
   return cluster_label
 
-def export(obj, export_dir, context):
+def export(obj, export_dir):
   ''' export k8s object into a yaml file '''
   logging.info(f"Exporting {obj}...")
 
-  if context:
+  if config.context:
     # when running locally
-    cmd = "kubectl --context %s get %s -o yaml" % (context,obj)
+    cmd = "kubectl --context %s get %s -o yaml" % (config.context,obj)
   else:
     # when running inside kubernetes, don't use kubeconfig or context
     # you will have to configure a service account and permissions for the pod
@@ -55,27 +55,27 @@ def export(obj, export_dir, context):
     f.write('---\n')
     f.write(data.decode("utf-8"))
 
-def export_and_backup(context, k8s_cluster, local_dir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS):
+def export_and_backup(KUBERNETES_OBJECTS):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''
-  cluster_label = determine_cluster_label(context, k8s_cluster)
-  export_dir = os.path.join(local_dir, cluster_label)
+  cluster_label = determine_cluster_label()
+  export_dir = os.path.join(config.local_dir, cluster_label)
   mkpath(export_dir)
 
   logging.info(
-    f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {local_dir} ..."
+    f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {config.local_dir} ..."
   )
   for obj in KUBERNETES_OBJECTS:
     try:
-      export(obj, export_dir, context)
+      export(obj, export_dir)
     except CalledProcessError as e:
       logging.critical(f"Failed to export {obj} to yaml: {e} Aborting.")
       shutil.rmtree(export_dir)
       sys.exit(1)
   logging.info("Done exporting")
 
-  if s3:
+  if config.s3:
     try:
-      backup_to_s3(local_dir, export_dir, cluster_label, s3_bucket, s3_prefix)
+      backup_to_s3(export_dir, cluster_label)
     except:
       raise
     finally:

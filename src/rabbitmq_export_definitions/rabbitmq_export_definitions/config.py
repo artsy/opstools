@@ -53,18 +53,13 @@ def parse_args():
 
 def parse_env(env):
   ''' parse and validate env vars '''
-  # set this var if running locally
-  # omit it if running inside a kubernetes cluster
   rabbitmq_host = env.get('RABBITMQ_HOST')
   rabbitmq_user = env.get('RABBITMQ_USER')
   rabbitmq_pass = env.get('RABBITMQ_PASS')
-
   s3_bucket = env.get('RABBITMQ_BACKUP_S3_BUCKET', '')
   s3_prefix = env.get('RABBITMQ_BACKUP_S3_PREFIX', 'dev')
-
   # local dir to store exported broker definitions
   local_dir = os.environ.get('LOCAL_DIR', '/tmp/rabbitmq_broker_definitions')
-
   if not (rabbitmq_host and rabbitmq_user and rabbitmq_pass):
     sys.exit(
       "Error: The following environment variables must be specified: RABBITMQ_HOST, RABBITMQ_USER, RABBITMQ_PASS"
