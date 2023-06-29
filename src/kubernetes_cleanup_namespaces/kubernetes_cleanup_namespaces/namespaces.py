@@ -10,7 +10,7 @@ from kubernetes_cleanup_namespaces.config import config
 
 def cleanup_namespaces():
   ''' delete unprotected namespaces older than n days '''
-  kctl = kctl_client()
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   ns_obj = Namespaces(kctl)
   namespaces = ns_obj.names()
   unprotected = unprotected_namespaces(namespaces)
@@ -31,13 +31,6 @@ def delete_namespaces(namespaces, ns_obj, kctl):
         f"Would have deleted namespace {name} created at {created_at}"
       )
   logging.info("Done.")
-
-def kctl_client():
-  ''' instantiate a kctl client '''
-  context = None
-  if config.context:
-    context = config.context
-  return Kctl(context)
 
 def old_namespaces(namespaces, ns_obj):
   ''' given a list of namespaces, return those older than n days '''

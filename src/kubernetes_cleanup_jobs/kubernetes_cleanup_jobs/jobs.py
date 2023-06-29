@@ -2,7 +2,7 @@ import logging
 
 from lib.k8s_jobs import Jobs
 from lib.date import date_nhours_ago
-from lib.kctl import kctl_client
+from lib.kctl import Kctl
 from lib.util import list_intersect
 
 from kubernetes_cleanup_jobs.config import config
@@ -16,7 +16,7 @@ def cleanup_all_jobs():
   logging.info(
     f"Cleaning up jobs older than {config.nhours} hours in {config.namespace} namespace"
   )
-  kctl = kctl_client(config.context)
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   jobs_obj = Jobs(kctl, config.namespace)
   job_names = jobs_obj.names()
   old_datetime = date_nhours_ago(config.nhours)
@@ -30,7 +30,7 @@ def cleanup_completed_jobs():
   logging.info(
     f"Cleaning up completed jobs older than {config.nhours} hours in {config.namespace} namespace"
   )
-  kctl = kctl_client(config.context)
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   jobs_obj = Jobs(kctl, config.namespace)
   job_names = jobs_obj.completed_jobs_names()
   old_datetime = date_nhours_ago(config.nhours)

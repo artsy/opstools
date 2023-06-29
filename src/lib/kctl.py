@@ -6,13 +6,14 @@ from subprocess import check_output, SubprocessError
 
 class Kctl:
   ''' interface with kubectl '''
-  def __init__(self, context):
-    logging.debug(f"Kctl > __init__: context: {context}")
+  def __init__(self, in_cluster, context):
+    logging.debug(f"Kctl > __init__: in_cluster: {in_cluster}, context: {context}")
+    self._in_cluster = in_cluster
     self._context = context
 
   def _run(self, command, timeout=30):
     ''' kubectl run the given command and return output '''
-    if self._context is None:
+    if self._in_cluster:
       # when running in a pod inside kubernetes,
       # don't use kubeconfig or context
       # configure a service account with the permissions
@@ -68,10 +69,12 @@ class Kctl:
     cmd = f"delete job {job_name} -n {namespace}"
     self._run(cmd, timeout=90)
 
-def kctl_client(context):
-  ''' instantiate a kctl client '''
-  # use None if 'context' is falsey
-  kctl_context = None
-  if context:
-    kctl_context = context
-  return Kctl(kctl_context)
+  def get_default_namespace_objects(self, type, output_format):
+    ''' get objects of type, from default namespace '''
+    return self.get_objects('default', type, output_format)
+
+  def get_objects(self, namespace, type, output_format):
+    ''' get objects of type, from namespace '''
+    cmd = f"get {type} -o {output_format} -n {namespace}"
+    output = self._run(cmd)
+    return output

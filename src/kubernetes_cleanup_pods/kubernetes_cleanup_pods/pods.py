@@ -2,7 +2,7 @@ import logging
 
 from lib.date import date_nhours_ago
 from lib.k8s_pods import Pods
-from lib.kctl import kctl_client
+from lib.kctl import Kctl
 from lib.util import list_intersect, list_match_str
 
 from kubernetes_cleanup_pods.config import config
@@ -14,7 +14,7 @@ def cleanup_pods_by_name():
     f"that are older than {config.nhours} hours "
     f"and contain '{config.name}' in their name"
   )
-  kctl = kctl_client(config.context)
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   pods_obj = Pods(kctl, config.namespace)
   pod_names = pods_obj.names()
   name_matched_pods = list_match_str(pod_names, config.name)
@@ -31,7 +31,7 @@ def cleanup_completed_pods():
   logging.info(
     f"Cleaning up completed pods in {config.namespace} namespace"
   )
-  kctl = kctl_client(config.context)
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   pods_obj = Pods(kctl, config.namespace)
   pod_names = pods_obj.completed_pods_names()
   old_datetime = date_nhours_ago(config.nhours)
