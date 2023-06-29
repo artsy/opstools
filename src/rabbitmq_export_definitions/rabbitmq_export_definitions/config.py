@@ -5,6 +5,7 @@ import sys
 
 import rabbitmq_export_definitions.context
 from lib.logging import setup_logging
+from lib.util import is_artsy_s3_bucket
 
 class AppConfig:
   def __init__(self, cmdline_args, env):
@@ -33,8 +34,7 @@ def validate(rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3, s3_bucket):
     sys.exit(
       "Error: The following environment variables must be specified: RABBITMQ_BACKUP_S3_BUCKET"
     )
-  # sanity check S3 bucket name
-  if s3_bucket and not s3_bucket.startswith('artsy-'):
+  if s3 and not is_artsy_s3_bucket(s3_bucket):
     sys.exit(
       f"Error: It seems {s3_bucket} is not an Artsy S3 bucket."
     )

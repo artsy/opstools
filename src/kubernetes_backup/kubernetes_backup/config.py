@@ -6,6 +6,7 @@ import logging
 
 import kubernetes_backup.context
 from lib.logging import setup_logging
+from lib.util import is_artsy_s3_bucket
 
 class AppConfig:
   def __init__(self, cmdline_args, env):
@@ -78,8 +79,7 @@ def validate(context, k8s_cluster, s3, s3_bucket):
       "Error: K8S_BACKUP_S3_BUCKET must be specified in the environment"
     )
 
-  # sanity check S3 bucket name
-  if s3_bucket and not s3_bucket.startswith('artsy-'):
+  if s3 and not is_artsy_s3_bucket(s3_bucket):
     sys.exit(
       f"Error: It seems {s3_bucket} is not an Artsy S3 bucket."
     )
