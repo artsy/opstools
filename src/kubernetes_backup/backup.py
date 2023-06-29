@@ -38,10 +38,10 @@ def get_env():
   s3_bucket = os.environ.get('K8S_BACKUP_S3_BUCKET', '')
 
   # S3 prefix to backup under
-  s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev/backups')
+  s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev')
 
   # local dir to store yamls exported from Kubernetes
-  basedir = os.environ.get('BASEDIR', '/tmp/kubernetes-backups')
+  basedir = os.environ.get('BASEDIR', '/tmp/kubernetes_resources')
 
   return context, k8s_cluster, basedir, s3_bucket, s3_prefix
 
