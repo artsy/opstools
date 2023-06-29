@@ -41,9 +41,9 @@ def get_env():
   s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev')
 
   # local dir to store yamls exported from Kubernetes
-  basedir = os.environ.get('BASEDIR', '/tmp/kubernetes_resources')
+  local_dir = os.environ.get('LOCAL_DIR', '/tmp/kubernetes_resources')
 
-  return context, k8s_cluster, basedir, s3_bucket, s3_prefix
+  return context, k8s_cluster, local_dir, s3_bucket, s3_prefix
 
 def validate(context, k8s_cluster, s3, s3_bucket):
   ''' validate params obtained from env and command line '''
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
   setup_logging(eval('logging.' + loglevel))
 
-  context, k8s_cluster, basedir, s3_bucket, s3_prefix = get_env()
+  context, k8s_cluster, local_dir, s3_bucket, s3_prefix = get_env()
 
   validate(context, k8s_cluster, s3, s3_bucket)
 
@@ -98,5 +98,5 @@ if __name__ == "__main__":
   ]
 
   export_and_backup(
-    context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS
+    context, k8s_cluster, local_dir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS
   )

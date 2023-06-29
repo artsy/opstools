@@ -13,10 +13,10 @@ from kubernetes_backup.s3 import S3Interface
 
 from lib.artsy_s3_backup import ArtsyS3Backup
 
-def backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix):
+def backup_to_s3(local_dir, export_dir, cluster_label, s3_bucket, s3_prefix):
   ''' back up yamls to S3 '''
   archive_file = os.path.join(
-                   basedir, "kubernetes-backup-%s.tar.gz" % cluster_label
+                   local_dir, "kubernetes-backup-%s.tar.gz" % cluster_label
                  )
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
@@ -55,14 +55,14 @@ def export(obj, export_dir, context):
     f.write('---\n')
     f.write(data.decode("utf-8"))
 
-def export_and_backup(context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS):
+def export_and_backup(context, k8s_cluster, local_dir, s3, s3_bucket, s3_prefix, KUBERNETES_OBJECTS):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''
   cluster_label = determine_cluster_label(context, k8s_cluster)
-  export_dir = os.path.join(basedir, cluster_label)
+  export_dir = os.path.join(local_dir, cluster_label)
   mkpath(export_dir)
 
   logging.info(
-    f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {basedir} ..."
+    f"Exporting objects from Kubernetes cluster {cluster_label}, default namespace, as yaml files, to {local_dir} ..."
   )
   for obj in KUBERNETES_OBJECTS:
     try:
@@ -75,7 +75,7 @@ def export_and_backup(context, k8s_cluster, basedir, s3, s3_bucket, s3_prefix, K
 
   if s3:
     try:
-      backup_to_s3(basedir, export_dir, cluster_label, s3_bucket, s3_prefix)
+      backup_to_s3(local_dir, export_dir, cluster_label, s3_bucket, s3_prefix)
     except:
       raise
     finally:

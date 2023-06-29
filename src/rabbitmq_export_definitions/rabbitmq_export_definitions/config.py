@@ -9,13 +9,12 @@ from lib.logging import setup_logging
 class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
-    loglevel, self.artsy_env, self.local_dir, self.s3 = (
+    loglevel, self.artsy_env, self.s3 = (
       cmdline_args.loglevel,
       cmdline_args.artsy_env,
-      cmdline_args.local_dir,
       cmdline_args.s3
     )
-    self.rabbitmq_host, self.rabbitmq_user, self.rabbitmq_pass, self.s3_bucket, self.s3_prefix = env
+    self.local_dir, self.rabbitmq_host, self.rabbitmq_user, self.rabbitmq_pass, self.s3_bucket, self.s3_prefix = env
 
     if self.s3 and not self.s3_bucket:
       sys.exit(
@@ -46,11 +45,6 @@ def parse_args():
     help='log level'
   )
   parser.add_argument(
-    '--local_dir',
-    default='/tmp/rabbitmq_broker_definitions',
-    help='local directory to store exported RabbitMQ broker definitions'
-  )
-  parser.add_argument(
     '--s3',
     action='store_true',
     help='whether to save broker definition to s3'
@@ -68,12 +62,14 @@ def parse_env(env):
   s3_bucket = env.get('RABBITMQ_BACKUP_S3_BUCKET', '')
   s3_prefix = env.get('RABBITMQ_BACKUP_S3_PREFIX', 'dev')
 
+  # local dir to store exported broker definitions
+  local_dir = os.environ.get('LOCAL_DIR', '/tmp/rabbitmq_broker_definitions')
 
   if not (rabbitmq_host and rabbitmq_user and rabbitmq_pass):
     sys.exit(
       "Error: The following environment variables must be specified: RABBITMQ_HOST, RABBITMQ_USER, RABBITMQ_PASS"
     )
-  return rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3_bucket, s3_prefix
+  return local_dir, rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3_bucket, s3_prefix
 
 # import this from main script
 # object will be instantiated only once
