@@ -1,8 +1,7 @@
-import os
 import argparse
-import logging
 
 import kubernetes_cleanup_jobs.context
+
 from lib.logging import setup_logging
 
 class AppConfig:
@@ -10,22 +9,16 @@ class AppConfig:
     ''' set app-wide configs and initialize the app '''
     (
       loglevel,
-      self.all,
       self.artsy_env,
-      self.completed,
       self.force,
       self.in_cluster,
-      self.name,
       self.namespace,
       self.nhours
     ) = (
       cmdline_args.loglevel,
-      cmdline_args.all,
       cmdline_args.artsy_env,
-      cmdline_args.completed,
       cmdline_args.force,
       cmdline_args.in_cluster,
-      cmdline_args.name,
       cmdline_args.namespace,
       int(cmdline_args.nhours)
     )
@@ -49,11 +42,6 @@ def parse_args():
     'nhours',
     help='delete jobs older than n hours'
   )
-  group.add_argument(
-    '--completed',
-    action='store_true',
-    help='delete completed jobs'
-  )
   parser.add_argument(
     '--force',
     action='store_true',
@@ -74,16 +62,6 @@ def parse_args():
     '--namespace',
     default='default',
     help='namespace to delete jobs in'
-  )
-  group = parser.add_mutually_exclusive_group(required=True)
-  group.add_argument(
-    '--all',
-    action='store_true',
-    help='delete all jobs'
-  )
-  group.add_argument(
-    '--name',
-    help='delete jobs by name'
   )
   return parser.parse_args()
 
