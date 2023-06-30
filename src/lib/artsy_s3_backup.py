@@ -9,6 +9,7 @@ from lib.date import older_than_ndays
 from lib.s3_interface import S3Interface
 
 class ArtsyS3Backup:
+  ''' manage backing up to Artsy S3 buckets '''
   def __init__(
     self, s3_bucket, s3_prefix, artsy_app, artsy_env, filename_suffix
   ):
@@ -47,17 +48,22 @@ class ArtsyS3Backup:
   def backups(self):
     ''' return backups, most recent first '''
     logging.info(
-      f"ArtsyS3Backup: listing backups in s3://{self.s3_bucket}/{self._full_prefix}/"
+      f"ArtsyS3Backup: listing backups in " +
+      "s3://{self.s3_bucket}/{self._full_prefix}/"
     )
     objects = self._s3_interface.list_objects(
       self.s3_bucket, self._full_prefix
     )
-    keys = [o['Key'] for o in objects['Contents']]
-    are_backups = [k for k in keys if self._is_backup(k)]
-    ids = [self._s3_key_to_backup_id(k) for k in are_backups]
-    sorted_backups = sorted(ids, reverse=True)
-    logging.debug("ArtsyS3Backup: Found backups: {sorted_backups}")
-    return sorted_backups
+    backups_found = []
+    if 'Contents' in objects:
+      keys = [o['Key'] for o in objects['Contents']]
+      are_backups = [k for k in keys if self._is_backup(k)]
+      ids = [self._s3_key_to_backup_id(k) for k in are_backups]
+      backups_found = sorted(ids, reverse=True)
+      logging.debug("ArtsyS3Backup: Found backups: {backups_found}")
+    else:
+      logging.info("ArtsyS3Backup: No backups found.")
+    return backups_found
 
   def created_at(self, id):
     ''' return creation date of given backup id, as datetime object '''

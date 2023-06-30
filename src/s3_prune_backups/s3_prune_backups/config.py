@@ -10,13 +10,13 @@ from lib.logging import setup_logging
 class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
-    loglevel, self.app, self.artsy_env, self.ndays, self.suffix, self.force = (
+    loglevel, self.app, self.artsy_env, self.force, self.ndays, self.suffix = (
       cmdline_args.loglevel,
       cmdline_args.app,
       cmdline_args.artsy_env,
+      cmdline_args.force,
       int(cmdline_args.ndays),
-      cmdline_args.suffix,
-      cmdline_args.force
+      cmdline_args.suffix
     )
     self.s3_bucket, self.s3_prefix = env
     self._init_app(loglevel)
@@ -38,11 +38,11 @@ def parse_args():
   parser.add_argument(
     'artsy_env',
     choices=['staging', 'production'],
-    help='the artsy environment of the RabbitMQ instance'
+    help='the artsy environment to prune backups in'
   )
   parser.add_argument(
     'ndays',
-    help='number of days worth of backups to keep'
+    help='backups older than ndays will be pruned'
   )
   parser.add_argument(
     'suffix',
@@ -51,7 +51,7 @@ def parse_args():
   parser.add_argument(
     '--force',
     action='store_true',
-    help='to actually delete'
+    help='really delete the backups'
   )
   parser.add_argument(
     '--loglevel',
@@ -63,8 +63,8 @@ def parse_args():
 
 def parse_env(env):
   ''' parse env vars '''
-  s3_bucket = env.get('RABBITMQ_BACKUP_S3_BUCKET', '')
-  s3_prefix = env.get('RABBITMQ_BACKUP_S3_PREFIX', 'dev')
+  s3_bucket = env.get('BACKUP_S3_BUCKET', '')
+  s3_prefix = env.get('BACKUP_S3_PREFIX', 'dev')
   return s3_bucket, s3_prefix
 
 # import this from main script
