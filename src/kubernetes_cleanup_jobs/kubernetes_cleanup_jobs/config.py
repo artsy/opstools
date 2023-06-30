@@ -62,7 +62,7 @@ def parse_args():
   parser.add_argument(
     '--in_cluster',
     action='store_true',
-    help='indicates the script is being run inside the k8s cluster to be cleaned up'
+    help='indicates the script is being run inside the target k8s cluster'
   )
   parser.add_argument(
     '--loglevel',
