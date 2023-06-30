@@ -15,7 +15,7 @@ class Jobs:
     ''' delete the given job '''
     self._kctl.delete_job(self._namespace, job_name)
 
-  def old_jobs_names(self, nhours):
+  def old_jobs(self, nhours):
     ''' return names of jobs that started before nhours ago '''
     job_names = []
     for job in self._jobs_data:

@@ -18,7 +18,7 @@ def cleanup_jobs():
   )
   kctl = Kctl(config.in_cluster, config.artsy_env)
   jobs_obj = Jobs(kctl, config.namespace)
-  old_jobs = jobs_obj.old_jobs_names(config.nhours)
+  old_jobs = jobs_obj.old_jobs(config.nhours)
   delete_jobs(old_jobs, jobs_obj)
   logging.info("Done deleting jobs.")
 
