@@ -1,20 +1,26 @@
-import os
-
 import argparse
 import logging
+import os
 
 import kubernetes_cleanup_namespaces.context
+
 from lib.logging import setup_logging
 
 class AppConfig:
   def __init__(self, cmdline_args):
     ''' set app-wide configs and initialize the app '''
-    self.force, loglevel, self.ndays, self.artsy_env, self.in_cluster = (
-      cmdline_args.force,
+    (
+      loglevel,
+      self.artsy_env,
+      self.force,
+      self.in_cluster,
+      self.ndays
+    )= (
       cmdline_args.loglevel,
-      int(cmdline_args.ndays),
       cmdline_args.artsy_env,
-      cmdline_args.in_cluster
+      cmdline_args.force,
+      cmdline_args.in_cluster,
+      int(cmdline_args.ndays)
     )
     self.protected_namespaces = [
       'cert-manager',
@@ -44,18 +50,18 @@ def parse_args():
     help='the artsy environment of the Kubernetes cluster'
   )
   parser.add_argument(
-    '--in_cluster',
-    action='store_true',
-    help='whether the script is run from within the k8s cluster itself'
-  )
-  parser.add_argument(
     'ndays',
     help='delete namespaces older than n days'
   )
   parser.add_argument(
     '--force',
     action='store_true',
-    help='to actually delete'
+    help='to really delete'
+  )
+  parser.add_argument(
+    '--in_cluster',
+    action='store_true',
+    help='indicates the script is being run inside the k8s cluster to be backed up'
   )
   parser.add_argument(
     '--loglevel',

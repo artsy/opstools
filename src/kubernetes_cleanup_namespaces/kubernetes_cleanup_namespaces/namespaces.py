@@ -1,12 +1,13 @@
 import logging
 
 import kubernetes_cleanup_namespaces.context
+
+from kubernetes_cleanup_namespaces.config import config
+
 from lib.date import older_than_ndays
 from lib.k8s_namespaces import Namespaces
 from lib.kctl import Kctl
 from lib.util import list_subtract
-
-from kubernetes_cleanup_namespaces.config import config
 
 def cleanup_namespaces():
   ''' delete unprotected namespaces older than n days '''
