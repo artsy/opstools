@@ -35,7 +35,7 @@ def export(object_type, export_dir):
   ''' export object_type of k8s objects into a yaml file '''
   logging.info(f"Exporting {object_type}...")
   kctl = Kctl(config.in_cluster, config.artsy_env)
-  data = kctl.get_default_namespace_objects(object_type, 'yaml')
+  data = kctl.get_namespaced_object(object_type, 'yaml', 'default')
   with open(os.path.join(export_dir, f"{object_type}.yaml"), 'w') as f:
     f.write('---\n')
     f.write(data.decode("utf-8"))

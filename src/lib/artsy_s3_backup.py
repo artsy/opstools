@@ -25,6 +25,10 @@ class ArtsyS3Backup:
     )
     return key
 
+  def _is_backup(self, key):
+    ''' return true if key is a backup '''
+    return self.filename_suffix in key
+
   def _s3_key_to_backup_id(self, key):
     ''' convert s3 key to backup id '''
     file_name = key.replace(f"{self._full_prefix}/", '')
@@ -34,7 +38,7 @@ class ArtsyS3Backup:
   def backup(self, source_file):
     ''' backup a file to S3 '''
     backup_id = str(datetime.utcnow()).replace(' ', '_')
-    key = _backup_id_to_s3_key(backup_id)
+    key = self._backup_id_to_s3_key(backup_id)
     logging.info(
       f"Copying {source_file} to s3://{self.s3_bucket}/{key} ..."
     )
@@ -49,7 +53,7 @@ class ArtsyS3Backup:
       self.s3_bucket, self._full_prefix
     )
     keys = [o['Key'] for o in objects['Contents']]
-    are_backups = [k for k in keys if is_backup(k)]
+    are_backups = [k for k in keys if self._is_backup(k)]
     ids = [self._s3_key_to_backup_id(k) for k in are_backups]
     sorted_backups = sorted(ids, reverse=True)
     logging.debug("ArtsyS3Backup: Found backups: {sorted_backups}")
@@ -67,16 +71,12 @@ class ArtsyS3Backup:
     key = self._backup_id_to_s3_key(id)
     self._s3_interface.delete_object(self.s3_bucket, key)
 
-  def is_backup(self, key):
-    ''' return true if key is a backup '''
-    return self.filename_suffix in key
-
   def old_backups(self, ndays):
     ''' return backups older than ndays '''
     backups = self.backups()
     old = []
     for id in backups:
-      created_at = self.create_at(id)
+      created_at = self.created_at(id)
       logging.debug(
         f"ArtsyS3Backup: backup with id {id} was created at {created_at}"
       )

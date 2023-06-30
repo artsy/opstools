@@ -48,7 +48,7 @@ class Kctl:
 
   def get_jobs(self, namespace='default'):
     ''' return jobs in the given namespace'''
-    output = self.get_namespaced_object('jobs', 'json', namespace):
+    output = self.get_namespaced_object('jobs', 'json', namespace)
     data = json.loads(output)
     if not data["items"]:
       logging.debug(f"Kctl: no jobs found in {namespace} namespace.")
@@ -69,7 +69,7 @@ class Kctl:
 
   def get_pods(self, namespace='default'):
     ''' return pods in the given namespace '''
-    output = self.get_namespaced_objects('pods', 'json', namespace):
+    output = self.get_namespaced_objects('pods', 'json', namespace)
     data = json.loads(output)
     if not data["items"]:
       logging.debug(f"Kctl: no pods found in {namespace} namespace.")
