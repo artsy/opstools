@@ -9,73 +9,77 @@ from lib.date import older_than_ndays
 from lib.s3_interface import S3Interface
 
 class ArtsyS3Backup:
-  def __init__(self, s3_bucket, s3_prefix, artsy_app, artsy_env, filename_suffix):
-    self.s3_bucket = s3_bucket
+  def __init__(
+    self, s3_bucket, s3_prefix, artsy_app, artsy_env, filename_suffix
+  ):
     self._full_prefix = os.path.join(s3_prefix, artsy_app, artsy_env)
     self._s3_interface = S3Interface()
-    self._key_suffix = filename_suffix
+    self.filename_suffix = filename_suffix
+    self.s3_bucket = s3_bucket
 
-  def _backup_name_to_s3_key(self, name):
-    ''' given name of backup, return s3 key of backup '''
-    key = os.path.join(self._full_prefix, f"{name}.{self._key_suffix}")
+  def _backup_id_to_s3_key(self, id):
+    ''' convert backup id to s3 key '''
+    key = os.path.join(
+      self._full_prefix,
+      f"{id}.{self.filename_suffix}"
+    )
     return key
 
-  def _s3_key_to_backup_name(self, key):
-    ''' given s3 key of backup, return name of backup '''
-    object = key.replace(f"{self._full_prefix}/", '')
-    name = object.replace(f".{self._key_suffix}", '')
-    return name
+  def _s3_key_to_backup_id(self, key):
+    ''' convert s3 key to backup id '''
+    file_name = key.replace(f"{self._full_prefix}/", '')
+    id = file_name.replace(f".{self.filename_suffix}", '')
+    return id
 
-  def backup(self, source_path):
+  def backup(self, source_file):
     ''' backup a file to S3 '''
     backup_id = str(datetime.utcnow()).replace(' ', '_')
-    key = f"{self._full_prefix}/{backup_id}.{self._key_suffix}"
+    key = _backup_id_to_s3_key(backup_id)
     logging.info(
-      f"Copying {source_path} to s3://{self.s3_bucket}/{key} ..."
+      f"Copying {source_file} to s3://{self.s3_bucket}/{key} ..."
     )
-    self._s3_interface.put_file(source_path, self.s3_bucket, key)
+    self._s3_interface.put_file(source_file, self.s3_bucket, key)
 
-  def backup_time(self, id):
-    ''' return date encoded in id of a backup '''
+  def backups(self):
+    ''' return backups, most recent first '''
+    logging.info(
+      f"ArtsyS3Backup: listing backups in s3://{self.s3_bucket}/{self._full_prefix}/"
+    )
+    objects = self._s3_interface.list_objects(
+      self.s3_bucket, self._full_prefix
+    )
+    keys = [o['Key'] for o in objects['Contents']]
+    are_backups = [k for k in keys if is_backup(k)]
+    ids = [self._s3_key_to_backup_id(k) for k in are_backups]
+    sorted_backups = sorted(ids, reverse=True)
+    logging.debug("ArtsyS3Backup: Found backups: {sorted_backups}")
+    return sorted_backups
+
+  def created_at(self, id):
+    ''' return creation date of given backup id, as datetime object '''
     timestamp = id.replace('_', ' ')
     date_obj = parsedatetime(timestamp)
-    return date_obj.replace(tzinfo=pytz.utc)
+    utc_date_obj = date_obj.replace(tzinfo=pytz.utc)
+    return utc_date_obj
+
+  def delete(self, id):
+    ''' delete the backup identified by id '''
+    key = self._backup_id_to_s3_key(id)
+    self._s3_interface.delete_object(self.s3_bucket, key)
+
+  def is_backup(self, key):
+    ''' return true if key is a backup '''
+    return self.filename_suffix in key
 
   def old_backups(self, ndays):
     ''' return backups older than ndays '''
     backups = self.backups()
     old = []
     for id in backups:
-      backup_date = self.backup_time(id)
+      created_at = self.create_at(id)
       logging.debug(
-        f"ArtsyS3Backup: backup with id {id} has timestamp {backup_date}"
+        f"ArtsyS3Backup: backup with id {id} was created at {created_at}"
       )
-      if older_than_ndays(backup_date, ndays):
+      if older_than_ndays(created_at, ndays):
         old += [id]
     return old
-
-  def backups(self):
-    ''' return backups, ordered from most recent to oldest '''
-    logging.info(
-      f"ArtsyS3Backup: listing backups in s3://{self.s3_bucket}/{self._full_prefix}/"
-    )
-    data = self._s3_interface.list_objects(self.s3_bucket, self._full_prefix)
-    files = sorted(
-      map(lambda o: o['Key'], data['Contents']),
-      reverse=True
-    )
-    backups = []
-    for k in files:
-      if self._key_suffix not in k:
-        continue
-      backups.append(self._s3_key_to_backup_name(k))
-    logging.debug("Found backups:")
-    logging.debug(backups)
-    return backups
-
-  def delete(self, name):
-    ''' delete the backup identified by name '''
-    self._s3_interface.delete_object(
-      self.s3_bucket,
-      self._backup_name_to_s3_key(name)
-    )
