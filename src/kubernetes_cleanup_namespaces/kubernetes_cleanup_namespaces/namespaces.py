@@ -35,4 +35,3 @@ def delete_namespaces(namespaces, ns_obj):
       logging.info(
         f"Would have deleted namespace {ns} created at {created_at}"
       )
-  logging.info("Done.")

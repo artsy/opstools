@@ -12,7 +12,7 @@ class Kctl:
     self._in_cluster = in_cluster
     self._context = context
 
-  def _run(self, command, timeout=30, expect_sucess=False):
+  def _run(self, command, timeout=30, expect_success=False):
     ''' run command using kubectl and return result '''
     if self._in_cluster:
       # being run inside kubernetes cluster
@@ -31,7 +31,7 @@ class Kctl:
       text=True,
       timeout=timeout
     )
-    if expect_sucess and resp.returncode != 0:
+    if expect_success and resp.returncode != 0:
       error_exit(
         f"Command failed: {command}\n" +
         f"Stderr from Command: {resp.stderr}"
@@ -45,7 +45,7 @@ class Kctl:
   def delete_namespace(self, namespace):
     ''' delete given namespace '''
     cmd = f"delete namespace {namespace}"
-    resp = self._run(cmd, expect_success=True)
+    resp = self._run(cmd, timeout=90, expect_success=True)
 
   def delete_namespaced_object(self, type, name, namespace):
     ''' delete the given object in the given namespace '''
@@ -80,7 +80,7 @@ class Kctl:
   def get_namespaces(self):
     ''' return namespaces '''
     cmd = "get namespaces -o json"
-    resp = self._run(cmd, expect_success)
+    resp = self._run(cmd, expect_success=True)
     data = json.loads(resp.stdout)
     return data["items"]
 
