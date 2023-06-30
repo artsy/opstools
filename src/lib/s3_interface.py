@@ -20,7 +20,7 @@ class S3Interface:
     logging.debug(
       f"S3Interface: listing objects in s3://{bucket}/{prefix}/"
     )
-    # returns up to 1000 objects only
+    # returns up to 1000 objects by default
     objects = self._s3.list_objects(Bucket=bucket, Prefix=prefix)
     return objects
 

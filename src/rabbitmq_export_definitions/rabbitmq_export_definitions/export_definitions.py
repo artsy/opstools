@@ -20,15 +20,15 @@ def export_and_backup():
   file_name = f"{config.rabbitmq_host}.json"
   output_file = os.path.join(export_dir, file_name)
   export_broker_definition(output_file)
-  artsy_s3_backup = ArtsyS3Backup(
-    config.s3_bucket,
-    config.s3_prefix,
-    'rabbitmq',
-    config.artsy_env,
-    'json'
-  )
   if config.s3:
     try:
+      artsy_s3_backup = ArtsyS3Backup(
+        config.s3_bucket,
+        config.s3_prefix,
+        'rabbitmq',
+        config.artsy_env,
+        'json'
+      )
       artsy_s3_backup.backup(output_file)
     except:
       raise

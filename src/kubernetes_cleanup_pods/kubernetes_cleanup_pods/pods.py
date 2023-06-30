@@ -14,8 +14,7 @@ def cleanup_pods():
     f"Deleting pods that are older than {config.nhours} hours."
   )
   pods_obj = Pods(kctl, config.namespace)
-  old_pods = pods_obj.old_pods(config.nhours)
-  to_delete_pods = old_pods
+  to_delete_pods = pods_obj.old_pods(config.nhours)
   if config.completed:
     logging.info(
       f"Limiting deletion to only completed pods."
