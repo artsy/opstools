@@ -1,12 +1,3 @@
-import os
-import sys
-
-import argparse
-import logging
-
-import kubernetes_backup.context
-from lib.logging import setup_logging
-
 from kubernetes_backup.backup import export_and_backup
 
 if __name__ == "__main__":

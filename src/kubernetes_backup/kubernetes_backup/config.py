@@ -1,10 +1,10 @@
+import argparse
+import logging
 import os
 import sys
 
-import argparse
-import logging
-
 import kubernetes_backup.context
+
 from lib.logging import setup_logging
 from lib.util import is_artsy_s3_bucket
 
@@ -39,7 +39,7 @@ def parse_args():
   parser.add_argument(
     '--in_cluster',
     action='store_true',
-    help='whether the script is run from within the k8s cluster itself'
+    help='indicates the script is being run inside the k8s cluster to be backed up'
   )
   parser.add_argument(
     '--loglevel',
@@ -50,22 +50,16 @@ def parse_args():
   parser.add_argument(
     '--s3',
     action='store_true',
-    help='whether to backup to s3'
+    help='indicates to save backup to S3'
   )
   return parser.parse_args()
 
 def parse_env(env):
   ''' parse env vars '''
-
-  # S3 bucket to backup to
   s3_bucket = os.environ.get('K8S_BACKUP_S3_BUCKET', '')
-
-  # S3 prefix to backup under
   s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev')
-
   # local dir to store yamls exported from Kubernetes
   local_dir = os.environ.get('LOCAL_DIR', '/tmp/kubernetes_resources')
-
   return local_dir, s3_bucket, s3_prefix
 
 def validate(s3, s3_bucket):
@@ -74,7 +68,6 @@ def validate(s3, s3_bucket):
     sys.exit(
       "Error: K8S_BACKUP_S3_BUCKET must be specified in the environment"
     )
-
   if s3 and not is_artsy_s3_bucket(s3_bucket):
     sys.exit(
       f"Error: It seems {s3_bucket} is not an Artsy S3 bucket."
