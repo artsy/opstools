@@ -1,8 +1,11 @@
 import logging
 import os
+import pytz
 
 from datetime import datetime
+from dateutil.parser import parse as parsedatetime
 
+from lib.date import older_than_ndays
 from lib.s3_interface import S3Interface
 
 class ArtsyS3Backup:
@@ -32,15 +35,27 @@ class ArtsyS3Backup:
     )
     self._s3_interface.put_file(source_path, self.s3_bucket, key)
 
-  def delete(self, name):
-    ''' delete the backup identified by name '''
-    self._s3_interface.delete_object(
-      self.s3_bucket,
-      self._backup_name_to_s3_key(name)
-    )
+  def backup_time(self, id):
+    ''' return date encoded in id of a backup '''
+    timestamp = id.replace('_', ' ')
+    date_obj = parsedatetime(timestamp)
+    return date_obj.replace(tzinfo=pytz.utc)
+
+  def old_backups(self, ndays):
+    ''' return backups older than ndays '''
+    backups = self.backups()
+    old = []
+    for id in backups:
+      backup_date = self.backup_time(id)
+      logging.debug(
+        f"ArtsyS3Backup: backup with id {id} has timestamp {backup_date}"
+      )
+      if older_than_ndays(backup_date, ndays):
+        old += [id]
+    return old
 
   def backups(self):
-    ''' return a list of backups, ordered from most recent to oldest '''
+    ''' return backups, ordered from most recent to oldest '''
     logging.info(
       f"ArtsyS3Backup: listing backups in s3://{self.s3_bucket}/{self._full_prefix}/"
     )
@@ -57,3 +72,10 @@ class ArtsyS3Backup:
     logging.debug("Found backups:")
     logging.debug(backups)
     return backups
+
+  def delete(self, name):
+    ''' delete the backup identified by name '''
+    self._s3_interface.delete_object(
+      self.s3_bucket,
+      self._backup_name_to_s3_key(name)
+    )

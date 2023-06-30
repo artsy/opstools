@@ -17,7 +17,7 @@ class S3Interface:
 
   def list_objects(self, bucket, prefix):
     ''' list objects in bucket prefix '''
-    logging.debug(f"S3Interface: listing objects in {bucket} bucket {prefix} prefix")
+    logging.debug(f"S3Interface: listing objects in s3://{bucket}/{prefix}/")
     return self._s3.list_objects(Bucket=bucket, Prefix=prefix)
 
   def put_file(self, source_file, bucket, key):
