@@ -8,16 +8,26 @@ from lib.logging import setup_logging
 class AppConfig:
   def __init__(self, cmdline_args):
     ''' set app-wide configs and initialize the app '''
-    self.nhours, self.name, self.completed, self.all, self.namespace, self.force, loglevel, self.artsy_env, self.in_cluster = (
-      int(cmdline_args.nhours),
-      cmdline_args.name,
-      cmdline_args.completed,
-      cmdline_args.all,
-      cmdline_args.namespace,
-      cmdline_args.force,
+    (
+      loglevel,
+      self.all,
+      self.artsy_env,
+      self.completed,
+      self.force,
+      self.in_cluster,
+      self.name,
+      self.namespace,
+      self.nhours
+    ) = (
       cmdline_args.loglevel,
+      cmdline_args.all,
       cmdline_args.artsy_env,
-      cmdline_args.in_cluster
+      cmdline_args.completed,
+      cmdline_args.force,
+      cmdline_args.in_cluster,
+      cmdline_args.name,
+      cmdline_args.namespace,
+      int(cmdline_args.nhours)
     )
     self._init_app(loglevel)
 
@@ -36,44 +46,44 @@ def parse_args():
     help='the artsy environment of the Kubernetes cluster'
   )
   parser.add_argument(
-    '--in_cluster',
-    action='store_true',
-    help='whether the script is run from within the k8s cluster itself'
-  )
-  parser.add_argument(
     'nhours',
     help='delete jobs older than n hours'
-  )
-  group = parser.add_mutually_exclusive_group(required=True)
-  group.add_argument(
-    '--name',
-    help='delete jobs by name'
   )
   group.add_argument(
     '--completed',
     action='store_true',
     help='delete completed jobs'
   )
-  group.add_argument(
-    '--all',
-    action='store_true',
-    help='delete all jobs'
-  )
-  parser.add_argument(
-    '--namespace',
-    default='default',
-    help='namespace to delete jobs from'
-  )
   parser.add_argument(
     '--force',
     action='store_true',
-    help='to actually cleanup'
+    help='to really delete'
+  )
+  parser.add_argument(
+    '--in_cluster',
+    action='store_true',
+    help='indicates the script is being run inside the k8s cluster to be cleaned up'
   )
   parser.add_argument(
     '--loglevel',
     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
     default='INFO',
     help='log level'
+  )
+  parser.add_argument(
+    '--namespace',
+    default='default',
+    help='namespace to delete jobs in'
+  )
+  group = parser.add_mutually_exclusive_group(required=True)
+  group.add_argument(
+    '--all',
+    action='store_true',
+    help='delete all jobs'
+  )
+  group.add_argument(
+    '--name',
+    help='delete jobs by name'
   )
   return parser.parse_args()
 

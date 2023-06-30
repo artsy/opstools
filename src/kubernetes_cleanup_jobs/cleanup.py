@@ -1,9 +1,9 @@
 from kubernetes_cleanup_jobs.config import config
 
 from kubernetes_cleanup_jobs.jobs import (
-  cleanup_jobs_by_name,
-  cleanup_completed_jobs,
   cleanup_all_jobs,
+  cleanup_completed_jobs,
+  cleanup_jobs_by_name
 )
 
 if __name__ == "__main__":
