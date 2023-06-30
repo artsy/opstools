@@ -2,7 +2,7 @@ import logging
 import json
 import sys
 
-from subprocess import run, check_output, SubprocessError
+from subprocess import run
 
 from lib.util import error_exit
 
@@ -12,8 +12,8 @@ class Kctl:
     self._in_cluster = in_cluster
     self._context = context
 
-  def _run(self, command, timeout=30):
-    ''' return output of the given kubectl command '''
+  def _run(self, command, timeout=30, expect_sucess=False):
+    ''' run command using kubectl and return result '''
     if self._in_cluster:
       # being run inside kubernetes cluster
       # don't use kubeconfig or context
@@ -23,7 +23,7 @@ class Kctl:
       # being run outside kubernetes cluster, specify context
       cmd = f"kubectl --context {self._context} {command}"
     logging.debug(f"Kctl: running kubectl cmd: {cmd}")
-    # exception not raised if cmd fails
+    # exception not raised if run fails
     resp = run(
       cmd,
       capture_output=True,
@@ -31,6 +31,11 @@ class Kctl:
       text=True,
       timeout=timeout
     )
+    if expect_sucess and resp.returncode != 0:
+      error_exit(
+        f"Command failed: {command}\n" +
+        f"Stderr from Command: {resp.stderr}"
+      )
     return resp
 
   def delete_job(self, job_name, namespace='default'):
@@ -40,12 +45,7 @@ class Kctl:
   def delete_namespace(self, namespace):
     ''' delete given namespace '''
     cmd = f"delete namespace {namespace}"
-    resp = self._run(cmd)
-    if resp.returncode != 0:
-      error_exit(
-        f"Command failed: {cmd}\n" +
-        f"Stderr from Command: {resp.stderr}"
-      )
+    resp = self._run(cmd, expect_success=True)
 
   def delete_namespaced_object(self, type, name, namespace):
     ''' delete the given object in the given namespace '''
@@ -55,7 +55,7 @@ class Kctl:
       logging.warning(f"Command failed: {cmd}")
       # ignore 'not found' errors
       if 'not found' in resp.stderr:
-        logging.info(f"Ignoring error from command: {resp.stderr}")
+        logging.info(f"Ignoring Stderr from command: {resp.stderr}")
       else:
         error_exit(f"Stderr from Command: {resp.stderr}")
 
@@ -74,19 +74,13 @@ class Kctl:
   def get_namespaced_object(self, type, output_format, namespace):
     ''' return objects of the given type in the given namespace '''
     cmd = f"-n {namespace} get {type} -o {output_format}"
-    resp = self._run(cmd)
-    # get should always succeed
-    if resp.returncode != 0:
-      error_exit(
-        f"Command failed: {cmd}\n" +
-        f"Stderr from Command: {resp.stderr}"
-      )
+    resp = self._run(cmd, expect_success=True)
     return resp.stdout
 
   def get_namespaces(self):
     ''' return namespaces '''
     cmd = "get namespaces -o json"
-    resp = self._run(cmd)
+    resp = self._run(cmd, expect_success)
     data = json.loads(resp.stdout)
     return data["items"]
 

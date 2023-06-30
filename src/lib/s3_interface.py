@@ -4,7 +4,6 @@ from boto3 import client as boto3_client
 
 class S3Interface:
   ''' interface with AWS S3 '''
-
   def __init__(self):
     self._s3 = boto3_client('s3')
 

@@ -8,7 +8,7 @@ class Namespaces:
     self._ns_data = kctl.get_namespaces()
 
   def created_at(self, namespace_name):
-    ''' given the name of a namespace, return its creation time '''
+    ''' return creation time of the given namespace '''
     for ns in self._ns_data:
       if ns['metadata']['name'] == namespace_name:
         timestamp = ns['metadata']['creationTimestamp']

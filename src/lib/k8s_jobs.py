@@ -1,7 +1,5 @@
 import logging
 
-from dateutil.parser import parse as parsedatetime
-
 from lib.date import older_than_nhours
 
 class Jobs:
@@ -21,7 +19,7 @@ class Jobs:
     for job in self._jobs_data:
       # skip jobs that oddly have no startTime
       if 'startTime' not in job['status']:
-        logging.debug(f"job {job_name} has no startTime")
+        logging.debug(f"Skipping {job_name} as it has no startTime")
         continue
       # utc with timezone info
       timestamp = job['status']['startTime']

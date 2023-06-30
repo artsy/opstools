@@ -3,7 +3,6 @@ import os
 import pytz
 
 from datetime import datetime
-from dateutil.parser import parse as parsedatetime
 
 from lib.date import older_than_ndays
 from lib.s3_interface import S3Interface
@@ -26,6 +25,15 @@ class ArtsyS3Backup:
     )
     return key
 
+  def _backup_id(self):
+    ''' generate and return a backup id '''
+    backup_date = datetime.utcnow()
+    # include timezone info
+    backup_date_with_tz = backup_date.replace(tzinfo=pytz.utc)
+    backup_date_str = str(backup_date_with_tz)
+    backup_id = backup_date_str.replace(' ', '_')
+    return backup_id
+
   def _is_backup(self, key):
     ''' return true if key is a backup '''
     return self.filename_suffix in key
@@ -38,12 +46,8 @@ class ArtsyS3Backup:
 
   def backup(self, source_file):
     ''' backup a file to S3 '''
-    backup_date = datetime.utcnow()
-    # include timezone info
-    backup_date_with_tz = backup_date.replace(tzinfo=pytz.utc)
-    backup_date_str = str(backup_date_with_tz)
-    backup_id = backup_date_str.replace(' ', '_')
-    key = self._backup_id_to_s3_key(backup_id)
+    id = self._backup_id()
+    key = self._backup_id_to_s3_key(id)
     logging.info(
       f"Copying {source_file} to s3://{self.s3_bucket}/{key} ..."
     )

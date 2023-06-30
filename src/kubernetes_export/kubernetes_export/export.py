@@ -40,7 +40,7 @@ def export(object_type, export_dir, kctl):
     os.path.join(export_dir, f"{object_type}.yaml"), 'w'
   ) as f:
     f.write('---\n')
-    f.write(data.decode("utf-8"))
+    f.write(data)
 
 def export_and_backup(KUBERNETES_OBJECTS):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''

@@ -1,22 +1,20 @@
 import logging
 
-from dateutil.parser import parse as parsedatetime
-
 from lib.date import older_than_nhours
 
 class Pods:
-  ''' manage pods data '''
+  ''' manage k8s pods data for a namespace '''
   def __init__(self, kctl, namespace):
-    self._pods_data = kctl.get_pods(namespace)
     self._kctl = kctl
     self._namespace = namespace
+    self._pods_data = kctl.get_pods(namespace)
 
   def completed_pods(self):
     ''' return names of completed pods '''
     pod_names = []
     for pod in self._pods_data:
       if 'phase' not in pod['status']:
-        logging.debug(f"Skipping pod {pod_name} as it has no phase")
+        logging.debug(f"Skipping {pod_name} as it has no phase.")
         continue
       if pod['status']['phase'] == 'Succeeded':
         pod_name = pod['metadata']['name']
@@ -32,7 +30,7 @@ class Pods:
     pod_names = []
     for pod in self._pods_data:
       if 'startTime' not in pod['status']:
-        logging.debug(f"Skipping pod {pod_name} as it has no startTime")
+        logging.debug(f"Skipping {pod_name} as it has no startTime.")
         continue
       # utc with timezone info
       timestamp = pod['status']['startTime']

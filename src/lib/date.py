@@ -8,7 +8,7 @@ def date1_older(date1, date2):
   return date1 < date2
 
 def now_utc():
-  ''' return uct time now with timezone info, as datetime object '''
+  ''' return now datetime object with utc timezone '''
   now = datetime.utcnow()
   now_utc = now.replace(tzinfo=pytz.utc)
   return now_utc
@@ -16,7 +16,7 @@ def now_utc():
 def older_than_ndays(date_str, ndays):
   '''
   return true if date_str is more than ndays ago,
-  assume date_str is in utc.
+  assume date_str has utc timezone info.
   '''
   date_obj = parsedatetime(date_str)
   ndays_ago_date = now_utc() - timedelta(days=ndays)
@@ -25,7 +25,7 @@ def older_than_ndays(date_str, ndays):
 def older_than_nhours(date_str, nhours):
   '''
   return true if date_str is more than nhours ago,
-  assume date_str is in utc.
+  assume date_str has utc timezone info.
   '''
   date_obj = parsedatetime(date_str)
   nhours_ago_date = now_utc() - timedelta(hours=nhours)
