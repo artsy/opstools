@@ -38,7 +38,11 @@ class ArtsyS3Backup:
 
   def backup(self, source_file):
     ''' backup a file to S3 '''
-    backup_id = str(datetime.utcnow()).replace(' ', '_')
+    backup_date = datetime.utcnow()
+    # include timezone info
+    backup_date_with_tz = backup_date.replace(tzinfo=pytz.utc)
+    backup_date_str = str(backup_date_with_tz)
+    backup_id = backup_date_str.replace(' ', '_')
     key = self._backup_id_to_s3_key(backup_id)
     logging.info(
       f"Copying {source_file} to s3://{self.s3_bucket}/{key} ..."
@@ -66,11 +70,9 @@ class ArtsyS3Backup:
     return backups_found
 
   def created_at(self, id):
-    ''' return creation date of given backup id, as datetime object '''
+    ''' return creation date string of given backup id '''
     timestamp = id.replace('_', ' ')
-    date_obj = parsedatetime(timestamp)
-    utc_date_obj = date_obj.replace(tzinfo=pytz.utc)
-    return utc_date_obj
+    return timestamp
 
   def delete(self, id):
     ''' delete the backup identified by id '''

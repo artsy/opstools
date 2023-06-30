@@ -11,37 +11,29 @@ from lib.util import list_subtract
 
 def cleanup_namespaces():
   ''' delete unprotected namespaces older than n days '''
+  logging.info(
+    f"Deleting namespaces older than {config.ndays} days"
+  )
   kctl = Kctl(config.in_cluster, config.artsy_env)
   ns_obj = Namespaces(kctl)
-  namespaces = ns_obj.names()
-  unprotected = unprotected_namespaces(namespaces)
-  to_delete = old_namespaces(unprotected, ns_obj)
+  old_namespaces = ns_obj.old_namespaces(config.ndays)
+  to_delete = list_subtract(old_namespaces, config.protected_namespaces)
   delete_namespaces(to_delete, ns_obj, kctl)
+  logging.info(
+    f"Done deleting namespaces."
+  )
 
-def delete_namespaces(namespaces, ns_obj, kctl):
+def delete_namespaces(namespaces, ns_obj):
   ''' delete the given list of namespaces '''
-  for name in namespaces:
-    created_at = ns_obj.created_at(name)
+  for ns in namespaces:
+    created_at = ns_obj.created_at(ns)
     if config.force:
       logging.info(
-        f"Deleting namespace {name} created at {created_at}"
+        f"Deleting namespace {ns} created at {created_at}"
       )
-      kctl.delete_namespace(name)
+      ns_obj.delete(ns)
     else:
       logging.info(
-        f"Would have deleted namespace {name} created at {created_at}"
+        f"Would have deleted namespace {ns} created at {created_at}"
       )
   logging.info("Done.")
-
-def old_namespaces(namespaces, ns_obj):
-  ''' given a list of namespaces, return those older than n days '''
-  old = []
-  for name in namespaces:
-    created_at = ns_obj.created_at(name)
-    if older_than_ndays(created_at, config.ndays):
-      old += [name]
-  return old
-
-def unprotected_namespaces(namespaces):
-  ''' given a list of namespaces, return those that are unprotected '''
-  return list_subtract(namespaces, config.protected_namespaces)

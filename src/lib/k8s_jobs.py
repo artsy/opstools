@@ -2,7 +2,7 @@ import logging
 
 from dateutil.parser import parse as parsedatetime
 
-from lib.date import date_nhours_ago
+from lib.date import older_than_nhours
 
 class Jobs:
   ''' manage Kubernetes jobs data '''
@@ -19,14 +19,13 @@ class Jobs:
     ''' return names of jobs that started before nhours ago '''
     job_names = []
     for job in self._jobs_data:
-      job_name = job['metadata']['name']
       # skip jobs that oddly have no startTime
       if 'startTime' not in job['status']:
         logging.debug(f"job {job_name} has no startTime")
         continue
+      # utc with timezone info
       timestamp = job['status']['startTime']
-      start_time = parsedatetime(timestamp)
-      old_date = date_nhours_ago(config.nhours)
-      if start_time < old_date:
+      if older_than_nhours(timestamp, nhours):
+        job_name = job['metadata']['name']
         job_names += [job_name]
     return job_names

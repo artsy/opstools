@@ -4,7 +4,6 @@ import shutil
 import sys
 import tarfile
 
-from datetime import datetime
 from distutils.dir_util import mkpath
 from subprocess import check_output, CalledProcessError
 

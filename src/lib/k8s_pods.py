@@ -2,7 +2,7 @@ import logging
 
 from dateutil.parser import parse as parsedatetime
 
-from lib.date import date_nhours_ago
+from lib.date import older_than_nhours
 
 class Pods:
   ''' manage pods data '''
@@ -15,11 +15,11 @@ class Pods:
     ''' return names of completed pods '''
     pod_names = []
     for pod in self._pods_data:
-      pod_name = pod['metadata']['name']
       if 'phase' not in pod['status']:
         logging.debug(f"Skipping pod {pod_name} as it has no phase")
         continue
       if pod['status']['phase'] == 'Succeeded':
+        pod_name = pod['metadata']['name']
         pod_names += [pod_name]
     return pod_names
 
@@ -31,14 +31,13 @@ class Pods:
     ''' return names of pods that started before nhours ago '''
     pod_names = []
     for pod in self._pods_data:
-      pod_name = pod['metadata']['name']
       if 'startTime' not in pod['status']:
         logging.debug(f"Skipping pod {pod_name} as it has no startTime")
         continue
+      # utc with timezone info
       timestamp = pod['status']['startTime']
-      start_time = parsedatetime(timestamp)
-      old_date = date_nhours_ago(config.nhours)
-      if start_time < old_date:
+      if older_than_nhours(timestamp, nhours):
+        pod_name = pod['metadata']['name']
         pod_names += [pod_name]
     return pod_names
 
