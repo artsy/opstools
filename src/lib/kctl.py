@@ -2,7 +2,7 @@ import logging
 import json
 import sys
 
-from subprocess import check_output, SubprocessError
+from subprocess import run, check_output, SubprocessError
 
 class Kctl:
   ''' interface with kubectl '''
@@ -20,13 +20,16 @@ class Kctl:
     else:
       # being run outside kubernetes cluster, specify context
       cmd = f"kubectl --context {self._context} {command}"
-    try:
-      logging.debug(f"Kctl: running kubectl cmd: {cmd}")
-      output = check_output(cmd, timeout=timeout, shell=True)
-    except SubprocessError as e:
-      logging.error(e)
-      sys.exit(1)
-    return output
+    logging.debug(f"Kctl: running kubectl cmd: {cmd}")
+    # exception not raised if cmd fails
+    resp = run(
+      cmd,
+      capture_output=True,
+      shell=True,
+      text=True,
+      timeout=timeout
+    )
+    return resp
 
   def delete_job(self, job_name, namespace='default'):
     ''' delete the given job in the given namespace '''
@@ -35,12 +38,24 @@ class Kctl:
   def delete_namespace(self, namespace):
     ''' delete given namespace '''
     cmd = f"delete namespace {namespace}"
-    self._run(cmd)
+    resp = self._run(cmd)
+    if resp.returncode != 0:
+      logging.error(f"Command failed: {cmd}")
+      logging.error(f"Stderr from Command: {resp.stderr}")
+      sys.exit(1)
 
   def delete_namespaced_object(self, type, name, namespace):
     ''' delete the given object in the given namespace '''
     cmd = f"-n {namespace} delete {type} {name}"
-    self._run(cmd, timeout=90)
+    resp = self._run(cmd, timeout=90)
+    if resp.returncode != 0:
+      logging.warning(f"Command failed: {cmd}")
+      # ignore 'not found' errors
+      if 'not found' in resp.stderr:
+        logging.info('Object not found, ignoring.')
+      else:
+        logging.error(f"Stderr from Command: {resp.stderr}")
+        sys.exit(1)
 
   def delete_pod(self, pod_name, namespace='default'):
     ''' delete the given pod in the given namespace '''
@@ -57,8 +72,13 @@ class Kctl:
   def get_namespaced_object(self, type, output_format, namespace):
     ''' return objects of the given type in the given namespace '''
     cmd = f"-n {namespace} get {type} -o {output_format}"
-    output = self._run(cmd)
-    return output
+    resp = self._run(cmd)
+    # get should always succeed
+    if resp.returncode != 0:
+      logging.error(f"Command failed: {cmd}")
+      logging.error(f"Stderr from Command: {resp.stderr}")
+      sys.exit(1)
+    return resp.stdout
 
   def get_namespaces(self):
     ''' return namespaces '''

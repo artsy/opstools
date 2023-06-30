@@ -5,7 +5,7 @@ from dateutil.parser import parse as parsedatetime
 from lib.date import older_than_nhours
 
 class Jobs:
-  ''' manage Kubernetes jobs data '''
+  ''' manage Kubernetes jobs data from a given namespace '''
   def __init__(self, kctl, namespace):
     self._jobs_data = kctl.get_jobs(namespace)
     self._kctl = kctl
@@ -13,7 +13,7 @@ class Jobs:
 
   def delete(self, job_name):
     ''' delete the given job '''
-    self._kctl.delete_job(self._namespace, job_name)
+    self._kctl.delete_job(job_name, self._namespace)
 
   def old_jobs(self, nhours):
     ''' return names of jobs that started before nhours ago '''
