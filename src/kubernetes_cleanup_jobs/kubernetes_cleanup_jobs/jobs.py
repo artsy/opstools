@@ -26,7 +26,7 @@ def delete_jobs(job_names, jobs_obj):
   ''' delete the given list of jobs '''
   for job in job_names:
     if config.force:
-      logging.info(f"Deleting job {job} ...")
+      logging.info(f"Deleting {job} ...")
       jobs_obj.delete(job)
     else:
       logging.info(f"Would have deleted job {job}")

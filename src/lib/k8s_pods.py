@@ -25,7 +25,7 @@ class Pods:
 
   def delete(self, pod_name):
     ''' delete the given pod '''
-    self._kctl.delete_pod(self._namespace, pod_name)
+    self._kctl.delete_pod(pod_name, self._namespace)
 
   def old_pods(self, nhours):
     ''' return names of pods that started before nhours ago '''

@@ -13,6 +13,7 @@ def cleanup_pods():
   logging.info(
     f"Deleting pods that are older than {config.nhours} hours."
   )
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   pods_obj = Pods(kctl, config.namespace)
   to_delete_pods = pods_obj.old_pods(config.nhours)
   if config.completed:
@@ -25,15 +26,15 @@ def cleanup_pods():
     logging.info(
       f"Limiting deletion to only pods whose names contain {config.name}."
     )
-    name_matched_pods = pods_obj.pods_with_name()
+    name_matched_pods = pods_obj.pods_with_name(config.name)
     to_delete_pods = list_intersect(to_delete_pods, name_matched_pods)
   delete_pods(to_delete_pods, pods_obj)
   logging.info("Done deleting pods.")
 
-def delete_pods(pod_names, pods_obj)
+def delete_pods(pod_names, pods_obj):
   ''' delete the given list of pods '''
   # prevent accidentally deleting all pods of a k8s cluster!
-  if len(pods_names) > 30:
+  if len(pod_names) > 30:
     error_exit(f"Deleting more than 30 pods not allowed.")
   for pod in pod_names:
     if config.force:

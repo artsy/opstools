@@ -6,23 +6,23 @@ import kubernetes_cleanup_pods.context
 from lib.logging import setup_logging
 
 class AppConfig:
-  def __init__(self, cmdline_args, env):
+  def __init__(self, cmdline_args):
     ''' set app-wide configs and initialize the app '''
     (
+      loglevel,
       self.artsy_env,
       self.completed,
       self.force,
       self.in_cluster,
-      self.loglevel,
       self.name,
       self.namespace,
       self.nhours
     ) = (
+      cmdline_args.loglevel,
       cmdline_args.artsy_env,
       cmdline_args.completed,
       cmdline_args.force,
       cmdline_args.in_cluster,
-      cmdline_args.loglevel,
       cmdline_args.name,
       cmdline_args.namespace,
       int(cmdline_args.nhours)

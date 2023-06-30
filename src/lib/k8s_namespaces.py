@@ -1,3 +1,5 @@
+from lib.date import older_than_ndays
+
 class Namespaces:
   ''' manage k8s namespaces data '''
   def __init__(self, kctl):

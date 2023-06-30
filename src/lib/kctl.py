@@ -4,6 +4,8 @@ import sys
 
 from subprocess import run, check_output, SubprocessError
 
+from lib.util import error_exit
+
 class Kctl:
   ''' interface with kubectl '''
   def __init__(self, in_cluster, context):
@@ -40,9 +42,10 @@ class Kctl:
     cmd = f"delete namespace {namespace}"
     resp = self._run(cmd)
     if resp.returncode != 0:
-      logging.error(f"Command failed: {cmd}")
-      logging.error(f"Stderr from Command: {resp.stderr}")
-      sys.exit(1)
+      error_exit(
+        f"Command failed: {cmd}\n" +
+        f"Stderr from Command: {resp.stderr}"
+      )
 
   def delete_namespaced_object(self, type, name, namespace):
     ''' delete the given object in the given namespace '''
@@ -52,10 +55,9 @@ class Kctl:
       logging.warning(f"Command failed: {cmd}")
       # ignore 'not found' errors
       if 'not found' in resp.stderr:
-        logging.info('Object not found, ignoring.')
+        logging.info(f"Ignoring error from command: {resp.stderr}")
       else:
-        logging.error(f"Stderr from Command: {resp.stderr}")
-        sys.exit(1)
+        error_exit(f"Stderr from Command: {resp.stderr}")
 
   def delete_pod(self, pod_name, namespace='default'):
     ''' delete the given pod in the given namespace '''
@@ -75,21 +77,22 @@ class Kctl:
     resp = self._run(cmd)
     # get should always succeed
     if resp.returncode != 0:
-      logging.error(f"Command failed: {cmd}")
-      logging.error(f"Stderr from Command: {resp.stderr}")
-      sys.exit(1)
+      error_exit(
+        f"Command failed: {cmd}\n" +
+        f"Stderr from Command: {resp.stderr}"
+      )
     return resp.stdout
 
   def get_namespaces(self):
     ''' return namespaces '''
     cmd = "get namespaces -o json"
-    output = self._run(cmd)
-    data = json.loads(output)
+    resp = self._run(cmd)
+    data = json.loads(resp.stdout)
     return data["items"]
 
   def get_pods(self, namespace='default'):
     ''' return pods in the given namespace '''
-    output = self.get_namespaced_objects('pods', 'json', namespace)
+    output = self.get_namespaced_object('pods', 'json', namespace)
     data = json.loads(output)
     if not data["items"]:
       logging.debug(f"Kctl: no pods found in {namespace} namespace.")

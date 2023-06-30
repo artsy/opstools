@@ -17,7 +17,7 @@ def cleanup_namespaces():
   ns_obj = Namespaces(kctl)
   old_namespaces = ns_obj.old_namespaces(config.ndays)
   to_delete = list_subtract(old_namespaces, config.protected_namespaces)
-  delete_namespaces(to_delete, ns_obj, kctl)
+  delete_namespaces(to_delete, ns_obj)
   logging.info(
     f"Done deleting namespaces."
   )
@@ -28,7 +28,7 @@ def delete_namespaces(namespaces, ns_obj):
     created_at = ns_obj.created_at(ns)
     if config.force:
       logging.info(
-        f"Deleting namespace {ns} created at {created_at}"
+        f"Deleting {ns} created at {created_at}"
       )
       ns_obj.delete(ns)
     else:

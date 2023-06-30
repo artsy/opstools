@@ -55,11 +55,8 @@ def export_and_backup(KUBERNETES_OBJECTS):
     try:
       export(object_type, export_dir, kctl)
     except CalledProcessError as e:
-      logging.critical(
-        f"Failed to export {object_type} to yaml: {e} Aborting."
-      )
       shutil.rmtree(export_dir)
-      sys.exit(1)
+      error_exit(f"Failed to export {object_type} to yaml: {e} Aborting.")
   logging.info("Done exporting")
 
   if config.s3:
