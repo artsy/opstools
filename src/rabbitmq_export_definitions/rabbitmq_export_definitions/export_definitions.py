@@ -12,22 +12,36 @@ from lib.artsy_s3_backup import ArtsyS3Backup
 from rabbitmq_export_definitions.config import config
 
 def export_and_backup():
-  full_dir = os.path.join(config.local_dir, config.artsy_env)
-  mkpath(full_dir)
+  logging.info(
+    'Exporting and backing up RabbitMQ broker definitions...'
+  )
+  export_dir = os.path.join(config.local_dir, config.artsy_env)
+  mkpath(export_dir)
   file_name = f"{config.rabbitmq_host}.json"
-  output_file = os.path.join(full_dir, file_name)
+  output_file = os.path.join(export_dir, file_name)
   export_broker_definition(output_file)
+  artsy_s3_backup = ArtsyS3Backup(
+    config.s3_bucket,
+    config.s3_prefix,
+    'rabbitmq',
+    config.artsy_env,
+    'json'
+  )
   if config.s3:
     try:
-      artsy_s3_backup = ArtsyS3Backup(config.s3_bucket, config.s3_prefix, 'rabbitmq', config.artsy_env, 'json')
       artsy_s3_backup.backup(output_file)
     except:
       raise
     finally:
-      logging.info(f"Deleting {config.local_dir} ...")
-      shutil.rmtree(config.local_dir)
+      logging.info(f"Deleting {export_dir} ...")
+      shutil.rmtree(export_dir)
   else:
-    logging.info("Skipping backup to S3. Please delete the local files when done!")
+    logging.info(
+      "Skipping backup to S3. Please delete the local files when done!"
+    )
+  logging.info(
+    'Done exporting and backing up RabbitMQ broker definitions...'
+  )
 
 def export_broker_definition(output_file):
   scheme = 'https://'
@@ -40,7 +54,8 @@ def export_broker_definition(output_file):
     )
     resp = requests.get(url)
   except Exception as e:
-    # print custom error message to prevent username/password from being printed
+    # print custom error message
+    # to prevent username/password from being printed
     sys.exit(
       f"Error: Exception encountered"
     )

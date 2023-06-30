@@ -49,7 +49,7 @@ class ArtsyS3Backup:
     ''' return backups, most recent first '''
     logging.info(
       f"ArtsyS3Backup: listing backups in " +
-      "s3://{self.s3_bucket}/{self._full_prefix}/"
+      f"s3://{self.s3_bucket}/{self._full_prefix}/"
     )
     objects = self._s3_interface.list_objects(
       self.s3_bucket, self._full_prefix
