@@ -8,15 +8,24 @@ from lib.logging import setup_logging
 class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
-    self.nhours, self.name, self.completed, self.namespace, self.force, self.loglevel, self.artsy_env, self.in_cluster = (
-      int(cmdline_args.nhours),
-      cmdline_args.name,
-      cmdline_args.completed,
-      cmdline_args.namespace,
-      cmdline_args.force,
-      cmdline_args.loglevel,
+    (
+      self.artsy_env,
+      self.completed,
+      self.force,
+      self.in_cluster,
+      self.loglevel,
+      self.name,
+      self.namespace,
+      self.nhours
+    ) = (
       cmdline_args.artsy_env,
-      cmdline_args.in_cluster
+      cmdline_args.completed,
+      cmdline_args.force,
+      cmdline_args.in_cluster,
+      cmdline_args.loglevel,
+      cmdline_args.name,
+      cmdline_args.namespace,
+      int(cmdline_args.nhours)
     )
     self._init_app(loglevel)
 
@@ -35,39 +44,38 @@ def parse_args():
     help='the artsy environment of the Kubernetes cluster'
   )
   parser.add_argument(
-    '--in_cluster',
-    action='store_true',
-    help='whether the script is run from within the k8s cluster itself'
+    'nhours',
+    help='limit deletion to pods older than n hours'
   )
   parser.add_argument(
-    'nhours',
-    help='delete pods older than n hours'
-  )
-  group = parser.add_mutually_exclusive_group(required=True)
-  group.add_argument(
-    '--name',
-    help='delete pods by name'
-  )
-  group.add_argument(
     '--completed',
     action='store_true',
-    help='delete completed pods'
-  )
-  parser.add_argument(
-    '--namespace',
-    default='default',
-    help='namespace to delete pods from'
+    help='limit deletion to completed pods'
   )
   parser.add_argument(
     '--force',
     action='store_true',
-    help='to actually cleanup'
+    help='to really delete'
+  )
+  parser.add_argument(
+    '--in_cluster',
+    action='store_true',
+    help='indicates the script is being run inside the target k8s cluster'
   )
   parser.add_argument(
     '--loglevel',
     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
     default='INFO',
     help='log level'
+  )
+  parser.add_argument(
+    '--name',
+    help='limit deletion to this pod name'
+  )
+  parser.add_argument(
+    '--namespace',
+    default='default',
+    help='namespace to delete pods from'
   )
   return parser.parse_args()
 
