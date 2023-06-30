@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 
-import kubernetes_backup.context
+import kubernetes_export.context
 
 from lib.logging import setup_logging
 from lib.util import is_artsy_s3_bucket

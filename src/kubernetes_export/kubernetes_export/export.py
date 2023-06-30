@@ -8,9 +8,9 @@ from datetime import datetime
 from distutils.dir_util import mkpath
 from subprocess import check_output, CalledProcessError
 
-import kubernetes_backup.context
+import kubernetes_export.context
 
-from kubernetes_backup.config import config
+from kubernetes_export.config import config
 from lib.artsy_s3_backup import ArtsyS3Backup
 from lib.kctl import Kctl
 
