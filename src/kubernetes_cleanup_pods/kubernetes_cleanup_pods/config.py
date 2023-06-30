@@ -1,8 +1,8 @@
-import os
 import argparse
 import logging
 
 import kubernetes_cleanup_pods.context
+
 from lib.logging import setup_logging
 
 class AppConfig:

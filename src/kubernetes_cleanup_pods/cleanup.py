@@ -2,8 +2,8 @@
 from kubernetes_cleanup_pods.config import config
 
 from kubernetes_cleanup_pods.pods import (
-  cleanup_pods_by_name,
   cleanup_completed_pods,
+  cleanup_pods_by_name
 )
 
 if __name__ == "__main__":

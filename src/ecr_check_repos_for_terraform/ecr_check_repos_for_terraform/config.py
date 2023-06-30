@@ -2,6 +2,7 @@ import argparse
 import logging
 
 import ecr_check_repos_for_terraform.context
+
 from lib.logging import setup_logging
 
 class AppConfig:
