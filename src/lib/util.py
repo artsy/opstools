@@ -1,3 +1,11 @@
+import logging
+import sys
+
+def error_exit(error_msg):
+  ''' log error message and exit with 1 '''
+  logging.error(error_msg)
+  sys.exit(1)
+
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
   return name.startswith('artsy-')

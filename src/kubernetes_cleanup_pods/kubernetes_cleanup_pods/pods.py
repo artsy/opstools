@@ -6,7 +6,7 @@ from kubernetes_cleanup_pods.config import config
 
 from lib.k8s_pods import Pods
 from lib.kctl import Kctl
-from lib.util import list_intersect
+from lib.util import error_exit, list_intersect
 
 def cleanup_pods():
   ''' delete pods that match age, name, and completion status '''
@@ -34,9 +34,7 @@ def delete_pods(pod_names, pods_obj)
   ''' delete the given list of pods '''
   # prevent accidentally deleting all pods of a k8s cluster!
   if len(pods_names) > 30:
-    sys.exit(
-      f"Error: deleting more than 30 pods not allowed."
-    )
+    error_exit(f"Deleting more than 30 pods not allowed.")
   for pod in pod_names:
     if config.force:
       pods_obj.delete(pod)

@@ -9,6 +9,7 @@ from distutils.dir_util import mkpath
 import rabbitmq_export_definitions.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
+from lib.util import error_exit
 from rabbitmq_export_definitions.config import config
 
 def export_and_backup():
@@ -56,13 +57,9 @@ def export_broker_definition(output_file):
   except Exception as e:
     # print custom error message
     # to prevent username/password from being printed
-    sys.exit(
-      f"Error: Exception encountered"
-    )
+    error_exit(f"Exception encountered.")
   if resp.status_code != 200:
-    sys.exit(
-      f"Error: RabbitMQ returned HTTP status: {resp}"
-    )
+    error_exit(f"RabbitMQ returned HTTP status: {resp}")
   logging.info(
     f"Saving RabbitMQ broker definitions to {output_file} ..."
   )
