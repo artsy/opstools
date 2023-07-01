@@ -6,16 +6,15 @@ import sys
 # set env
 os.environ['KUBECTL_CONTEXT'] = 'foo'
 
-# set ndays command line argument
 if len(sys.argv) == 2:
   # indicates that pytest is called with a dir path as argument
   # dir path becomes first argument to script
-  # over-write it
+  # remove it
   sys.argv.pop()
-  sys.argv += ['staging']
-  sys.argv += ['10']
 else:
   # indicates that pytest is called with no argument
-  # add argument
-  sys.argv += ['staging']
-  sys.argv += [10]
+  pass
+
+# add required command line args
+sys.argv += ['staging'] # artsy_env
+sys.argv += ['1'] # ndays

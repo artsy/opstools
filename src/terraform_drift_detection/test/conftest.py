@@ -7,9 +7,11 @@ import sys
 os.environ['GITHUB_TOKEN'] = 'footoken'
 os.environ['REPOSDIRS'] = 'foorepo:foodir'
 
-# set command line arguments
 if len(sys.argv) == 2:
   # indicates that pytest is called with a dir path as argument
   # dir path becomes first argument to script
-  # delete it
+  # remove it
   sys.argv.pop()
+else:
+  # indicates that pytest is called with no argument
+  pass
