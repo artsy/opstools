@@ -1,6 +1,5 @@
 import logging
 import json
-import sys
 
 from subprocess import run
 

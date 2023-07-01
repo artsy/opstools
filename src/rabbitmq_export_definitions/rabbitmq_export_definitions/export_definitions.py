@@ -2,7 +2,6 @@ import logging
 import os
 import requests
 import shutil
-import sys
 
 from distutils.dir_util import mkpath
 
