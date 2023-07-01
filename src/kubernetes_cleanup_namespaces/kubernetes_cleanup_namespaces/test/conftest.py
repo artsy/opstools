@@ -11,8 +11,11 @@ if len(sys.argv) == 2:
   # indicates that pytest is called with a dir path as argument
   # dir path becomes first argument to script
   # over-write it
-  sys.argv[1] = '10'
+  sys.argv.pop()
+  sys.argv += ['staging']
+  sys.argv += ['10']
 else:
   # indicates that pytest is called with no argument
   # add argument
-  sys.argv += ['10']
+  sys.argv += ['staging']
+  sys.argv += [10]
