@@ -1,6 +1,6 @@
 import logging
 
-from lib.date import older_than_nhours
+from lib.date import over_nhours_ago
 
 class Pods:
   ''' manage k8s pods data for a namespace '''
@@ -34,7 +34,7 @@ class Pods:
         continue
       # utc with timezone info
       timestamp = pod['status']['startTime']
-      if older_than_nhours(timestamp, nhours):
+      if over_nhours_ago(timestamp, nhours):
         pod_name = pod['metadata']['name']
         pod_names += [pod_name]
     return pod_names

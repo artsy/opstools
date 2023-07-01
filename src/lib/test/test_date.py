@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from lib.date import (
   date1_older,
   now_utc,
-  older_than_ndays,
-  older_than_nhours
+  over_ndays_ago,
+  over_nhours_ago
 )
 
 def describe_date1_older():
@@ -36,26 +36,26 @@ def describe_now_utc():
     # comparison works only when both sides are utc
     assert date1_utc < now_utc()
 
-def describe_older_than_ndays():
+def describe_over_ndays_ago():
   def it_returns_true_correctly():
     now = datetime.utcnow()
     now_utc = now.replace(tzinfo=pytz.utc)
     two_days_ago = now_utc - timedelta(days=2)
-    assert older_than_ndays(str(two_days_ago), 1)
+    assert over_ndays_ago(str(two_days_ago), 1)
   def it_returns_false_correctly():
     now = datetime.utcnow()
     now_utc = now.replace(tzinfo=pytz.utc)
     two_days_ago = now_utc - timedelta(days=2)
-    assert not older_than_ndays(str(two_days_ago), 3)
+    assert not over_ndays_ago(str(two_days_ago), 3)
 
-def describe_older_than_nhours():
+def describe_over_nhours_ago():
   def it_returns_true_correctly():
     now = datetime.utcnow()
     now_utc = now.replace(tzinfo=pytz.utc)
     two_hours_ago = now_utc - timedelta(hours=2)
-    assert older_than_nhours(str(two_hours_ago), 1)
+    assert over_nhours_ago(str(two_hours_ago), 1)
   def it_returns_false_correctly():
     now = datetime.utcnow()
     now_utc = now.replace(tzinfo=pytz.utc)
     two_hours_ago = now_utc - timedelta(hours=2)
-    assert not older_than_nhours(str(two_hours_ago), 3)
+    assert not over_nhours_ago(str(two_hours_ago), 3)

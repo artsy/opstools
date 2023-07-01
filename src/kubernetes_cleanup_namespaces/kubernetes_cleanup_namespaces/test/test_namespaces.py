@@ -6,7 +6,7 @@ from kubernetes_cleanup_namespaces.namespaces import \
   kctl_client, \
   list_subtract, \
   old_namespaces, \
-  older_than_ndays, \
+  over_ndays_ago, \
   unprotected_namespaces, \
   Kctl
 
@@ -68,17 +68,17 @@ def describe_old_namespaces():
       'ns2_created_at'
     ]
     mocker.patch(
-      'kubernetes_cleanup_namespaces.namespaces.older_than_ndays'
+      'kubernetes_cleanup_namespaces.namespaces.over_ndays_ago'
     ).side_effect = [
       True,
       False
     ]
-    older_than_ndays_spy = mocker.spy(
-      kubernetes_cleanup_namespaces.namespaces, 'older_than_ndays'
+    ona_spy = mocker.spy(
+      kubernetes_cleanup_namespaces.namespaces, 'over_ndays_ago'
     )
     assert old_namespaces(['ns1', 'ns2'], mock_ns_object) == ['ns1']
-    assert older_than_ndays_spy.call_count == 2
-    older_than_ndays_spy.assert_has_calls([
+    assert ona_spy.call_count == 2
+    ona_spy.assert_has_calls([
       mocker.call('ns1_created_at', 2),
       mocker.call('ns2_created_at', 2)
     ])

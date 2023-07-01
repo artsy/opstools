@@ -1,6 +1,6 @@
 import logging
 
-from lib.date import older_than_nhours
+from lib.date import over_nhours_ago
 
 class Jobs:
   ''' manage Kubernetes jobs data from a given namespace '''
@@ -23,7 +23,7 @@ class Jobs:
         continue
       # utc with timezone info
       timestamp = job['status']['startTime']
-      if older_than_nhours(timestamp, nhours):
+      if over_nhours_ago(timestamp, nhours):
         job_name = job['metadata']['name']
         job_names += [job_name]
     return job_names

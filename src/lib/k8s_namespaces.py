@@ -1,4 +1,4 @@
-from lib.date import older_than_ndays
+from lib.date import over_ndays_ago
 
 class Namespaces:
   ''' manage k8s namespaces data '''
@@ -24,7 +24,7 @@ class Namespaces:
     for ns in self._ns_data:
       # utc with timezone info
       timestamp = ns['metadata']['creationTimestamp']
-      if older_than_ndays(timestamp, ndays):
+      if over_ndays_ago(timestamp, ndays):
         name = ns['metadata']['name']
         names += [name]
     return names

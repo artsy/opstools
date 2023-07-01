@@ -40,7 +40,7 @@ def describe_namespaces():
       def it_returns_old_namespaces(mocker, mock_kctl):
         obj = Namespaces(mock_kctl)
         mocker.patch(
-          'lib.k8s_namespaces.older_than_ndays'
+          'lib.k8s_namespaces.over_ndays_ago'
         ).side_effect = [True, False]
         names = obj.old_namespaces(10)
         assert names == ['namespace1']

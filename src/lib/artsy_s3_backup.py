@@ -4,7 +4,7 @@ import pytz
 
 from datetime import datetime
 
-from lib.date import older_than_ndays
+from lib.date import over_ndays_ago
 from lib.s3_interface import S3Interface
 
 class ArtsyS3Backup:
@@ -92,6 +92,6 @@ class ArtsyS3Backup:
       logging.debug(
         f"ArtsyS3Backup: backup with id {id} was created at {created_at}"
       )
-      if older_than_ndays(created_at, ndays):
+      if over_ndays_ago(created_at, ndays):
         old += [id]
     return old
