@@ -5,15 +5,20 @@ import pytz
 from datetime import datetime
 
 from lib.date import over_ndays_ago
-from lib.s3_interface import S3Interface
 
 class ArtsyS3Backup:
   ''' manage backing up to Artsy S3 buckets '''
   def __init__(
-    self, s3_bucket, s3_prefix, artsy_app, artsy_env, filename_suffix
+    self,
+    s3_bucket,
+    s3_prefix,
+    artsy_app,
+    artsy_env,
+    filename_suffix,
+    s3_interface
   ):
     self._full_prefix = os.path.join(s3_prefix, artsy_app, artsy_env)
-    self._s3_interface = S3Interface()
+    self._s3_interface = s3_interface
     self.filename_suffix = filename_suffix
     self.s3_bucket = s3_bucket
 

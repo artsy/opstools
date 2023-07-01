@@ -8,6 +8,7 @@ from distutils.dir_util import mkpath
 import rabbitmq_export_definitions.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
+from lib.s3_interface import S3Interface
 from rabbitmq_export_definitions.config import config
 
 def export_and_backup():
@@ -21,12 +22,14 @@ def export_and_backup():
   export_broker_definition(output_file)
   if config.s3:
     try:
+      s3_interface = S3Interface()
       artsy_s3_backup = ArtsyS3Backup(
         config.s3_bucket,
         config.s3_prefix,
         'rabbitmq',
         config.artsy_env,
-        'json'
+        'json',
+        s3_interface
       )
       artsy_s3_backup.backup(output_file)
     except:
