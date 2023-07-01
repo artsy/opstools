@@ -22,6 +22,8 @@ def mock_kctl(
       return mock_kubectl_get_pods_json_object['items']
     def get_jobs(self, namespace):
       return mock_kubectl_get_jobs_json_object['items']
+    def delete_namespace(self, namespace):
+      pass
   return MockKctl()
 
 # namespace fixtures
