@@ -1,6 +1,6 @@
 import os
-
 import sys
+
 sys.path.insert(1, os.path.abspath(__file__ + '/../../../..'))
 
 from lib.test.fixtures.k8s_jobs import jobs_obj
