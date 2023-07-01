@@ -13,11 +13,11 @@ class Pods:
     ''' return names of completed pods '''
     pod_names = []
     for pod in self._pods_data:
+      pod_name = pod['metadata']['name']
       if 'phase' not in pod['status']:
         logging.debug(f"Skipping {pod_name} as it has no phase.")
         continue
       if pod['status']['phase'] == 'Succeeded':
-        pod_name = pod['metadata']['name']
         pod_names += [pod_name]
     return pod_names
 
@@ -29,13 +29,13 @@ class Pods:
     ''' return names of pods that started before nhours ago '''
     pod_names = []
     for pod in self._pods_data:
+      pod_name = pod['metadata']['name']
       if 'startTime' not in pod['status']:
         logging.debug(f"Skipping {pod_name} as it has no startTime.")
         continue
       # utc with timezone info
       timestamp = pod['status']['startTime']
       if over_nhours_ago(timestamp, nhours):
-        pod_name = pod['metadata']['name']
         pod_names += [pod_name]
     return pod_names
 
