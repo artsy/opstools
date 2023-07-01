@@ -6,7 +6,7 @@ import sys
 import kubernetes_export.context
 
 from lib.logging import setup_logging
-from lib.util import error_exit, is_artsy_s3_bucket
+from lib.util import is_artsy_s3_bucket
 
 class AppConfig:
   def __init__(self, cmdline_args, env):
@@ -65,9 +65,9 @@ def parse_env(env):
 def validate(s3, s3_bucket):
   ''' validate config obtained from env and command line '''
   if s3 and not s3_bucket:
-    error_exit("K8S_BACKUP_S3_BUCKET must be specified in the environment.")
+    raise Exception("K8S_BACKUP_S3_BUCKET must be specified in the environment.")
   if s3 and not is_artsy_s3_bucket(s3_bucket):
-    error_exit(f"{s3_bucket} seems not an Artsy S3 bucket.")
+    raise Exception(f"{s3_bucket} seems not an Artsy S3 bucket.")
 
 # import this from main script
 # object will be instantiated only once

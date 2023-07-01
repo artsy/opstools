@@ -4,8 +4,6 @@ import sys
 
 from subprocess import run
 
-from lib.util import error_exit
-
 class Kctl:
   ''' interface with kubectl '''
   def __init__(self, in_cluster, context):
@@ -32,7 +30,7 @@ class Kctl:
       timeout=timeout
     )
     if expect_success and resp.returncode != 0:
-      error_exit(
+      raise Exception(
         f"Command failed: {command}\n" +
         f"Stderr from Command: {resp.stderr}"
       )
@@ -57,7 +55,7 @@ class Kctl:
       if 'not found' in resp.stderr:
         logging.info(f"Ignoring Stderr from command: {resp.stderr}")
       else:
-        error_exit(f"Stderr from Command: {resp.stderr}")
+        raise Exception(f"Stderr from Command: {resp.stderr}")
 
   def delete_pod(self, pod_name, namespace='default'):
     ''' delete the given pod in the given namespace '''
