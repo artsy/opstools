@@ -7,13 +7,14 @@ from cerberus import Validator
 import terraform_drift_detection.context
 
 from lib.logging import setup_sensitive_logging
+from lib.util import parse_string_of_key_value_pairs
 
 class AppConfig:
   def __init__(self, cmdline_args, env):
     ''' set app-wide configs and initialize the app '''
     loglevel = cmdline_args.loglevel
     self.github_token, reposdirs = env
-    self.repos_dirs = parse_reposdirs(reposdirs)
+    self.repos_dirs = parse_string_of_key_value_pairs(reposdirs)
     validate(self.github_token, reposdirs, self.repos_dirs)
     self._init_app(loglevel)
 
@@ -39,21 +40,7 @@ def parse_env(env):
   ''' parse env vars '''
   github_token = env.get('GITHUB_TOKEN', '')
   reposdirs = env.get('REPOSDIRS', '')
-  return (
-    github_token,
-    reposdirs
-  )
-
-def parse_reposdirs(reposdirs):
-  '''
-  given 'repo1:dir1,repo1:dir2,repo2:dir1',
-  return {'repo1': ['dir1', 'dir2'], 'repo2': ['dir1']}
-  '''
-  repos_dirs = {}
-  for repodir in reposdirs.split(','):
-    repo, dir = repodir.split(':')
-    repos_dirs[repo] = repos_dirs.get(repo, []) + [dir]
-  return repos_dirs
+  return github_token, reposdirs
 
 def validate(github_token, reposdirs, repos_dirs):
   ''' validate input data '''
