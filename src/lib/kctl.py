@@ -1,7 +1,7 @@
 import logging
 import json
 
-from subprocess import run
+from subprocess import run as subprocess_run
 
 class Kctl:
   ''' interface with kubectl '''
@@ -21,7 +21,7 @@ class Kctl:
       cmd = f"kubectl --context {self._context} {command}"
     logging.debug(f"Kctl: running kubectl cmd: {cmd}")
     # exception not raised if run fails
-    resp = run(
+    resp = subprocess_run(
       cmd,
       capture_output=True,
       shell=True,
