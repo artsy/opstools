@@ -1,11 +1,9 @@
 import logging
 import os
 import shutil
-import sys
 import tarfile
 
 from distutils.dir_util import mkpath
-from subprocess import check_output, CalledProcessError
 
 import kubernetes_export.context
 
@@ -52,11 +50,7 @@ def export_and_backup(KUBERNETES_OBJECTS):
   )
   kctl = Kctl(config.in_cluster, config.artsy_env)
   for object_type in KUBERNETES_OBJECTS:
-    try:
-      export(object_type, export_dir, kctl)
-    except CalledProcessError as e:
-      shutil.rmtree(export_dir)
-      error_exit(f"Failed to export {object_type} to yaml: {e} Aborting.")
+    export(object_type, export_dir, kctl)
   logging.info("Done exporting")
 
   if config.s3:

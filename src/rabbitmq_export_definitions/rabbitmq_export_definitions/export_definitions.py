@@ -54,7 +54,7 @@ def export_broker_definition(output_file):
       f"Sending request to {scheme}<FILTERED>:<FILTERED>@{host_path} ..."
     )
     resp = requests.get(url)
-  except Exception as e:
+  except:
     # print custom error message
     # to prevent username/password from being printed
     error_exit(f"Exception encountered.")

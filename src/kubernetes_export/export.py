@@ -1,3 +1,6 @@
+# initialize the app
+from kubernetes_export.config import config
+
 from kubernetes_export.export import export_and_backup
 
 if __name__ == "__main__":
