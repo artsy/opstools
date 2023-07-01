@@ -1,6 +1,7 @@
 import os
-
+import pytest
 import sys
+
 sys.path.insert(1, os.path.abspath(__file__ + '/../../../..'))
 
 from lib.test.fixtures.k8s_pods import pods_obj
@@ -27,6 +28,11 @@ def describe_delete_pods():
         mocker.call('pod1'),
         mocker.call('pod2')
       ])
+    def it_refuses_to_delete_more_than_30_pods(mocker, pods_obj):
+      mocker.patch.object(config, 'force', True)
+      with pytest.raises(Exception):
+        delete_pods(['pod']*31, pods_obj)
+
   def describe_force_unset():
     def it_does_not_call_pods_obj_delete(mocker, pods_obj):
       mocker.patch.object(config, 'force', False)
