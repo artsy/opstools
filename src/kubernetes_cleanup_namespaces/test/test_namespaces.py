@@ -5,7 +5,7 @@ from kubernetes_cleanup_namespaces.namespaces import (
   delete_namespaces
 )
 
-from kubernetes_cleanup_namespaces.test.fixtures.namespaces import (
+from test.fixtures.namespaces import (
   mock_kctl_object,
   mock_ns_object
 )

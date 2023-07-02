@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.insert(1, os.path.abspath(__file__ + '/../../../..'))
+import kubernetes_cleanup_jobs.context
 
 from lib.test.fixtures.k8s_jobs import jobs_obj
 from lib.test.fixtures.kctl import (

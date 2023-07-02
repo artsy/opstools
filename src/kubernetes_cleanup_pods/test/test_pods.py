@@ -2,7 +2,7 @@ import os
 import pytest
 import sys
 
-sys.path.insert(1, os.path.abspath(__file__ + '/../../../..'))
+import kubernetes_cleanup_pods.context
 
 from lib.test.fixtures.k8s_pods import pods_obj
 from lib.test.fixtures.kctl import (
