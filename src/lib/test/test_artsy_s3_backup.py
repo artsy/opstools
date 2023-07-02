@@ -4,8 +4,8 @@ import re
 from datetime import datetime
 from dateutil.parser import parse as parsedatetime
 
-from lib.test.fixtures.artsy_s3_backup import backup_obj
-from lib.test.fixtures.s3_interface import (
+from lib.test.fixtures.artsy_s3_backup import (
+  backup_obj,
   mock_s3_interface, # indirect usage
   mock_s3_list_objects_result # indirect usage
 )
