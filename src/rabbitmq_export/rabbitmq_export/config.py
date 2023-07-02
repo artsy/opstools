@@ -40,7 +40,7 @@ class AppConfig:
 def validate(rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3, s3_bucket):
   ''' validate config obtained from env and command line '''
   if not (rabbitmq_host and rabbitmq_user and rabbitmq_pass):
-    error.exit(
+    raise Exception(
       "The following environment variables must be specified: " +
       "RABBITMQ_HOST, RABBITMQ_USER, RABBITMQ_PASS"
     )
@@ -82,7 +82,7 @@ def parse_env(env):
   s3_bucket = env.get('RABBITMQ_BACKUP_S3_BUCKET', '')
   s3_prefix = env.get('RABBITMQ_BACKUP_S3_PREFIX', 'dev')
   # local dir to store exported broker definitions
-  local_dir = os.environ.get(
+  local_dir = env.get(
     'LOCAL_DIR', '/tmp/rabbitmq_broker_definitions'
   )
   return (

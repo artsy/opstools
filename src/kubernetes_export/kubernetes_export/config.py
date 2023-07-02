@@ -55,10 +55,10 @@ def parse_args():
 
 def parse_env(env):
   ''' parse env vars '''
-  s3_bucket = os.environ.get('K8S_BACKUP_S3_BUCKET', '')
-  s3_prefix = os.environ.get('K8S_BACKUP_S3_PREFIX', 'dev')
+  s3_bucket = env.get('K8S_BACKUP_S3_BUCKET', '')
+  s3_prefix = env.get('K8S_BACKUP_S3_PREFIX', 'dev')
   # local dir to store yamls exported from Kubernetes
-  local_dir = os.environ.get('LOCAL_DIR', '/tmp/kubernetes_resources')
+  local_dir = env.get('LOCAL_DIR', '/tmp/kubernetes_resources')
   return local_dir, s3_bucket, s3_prefix
 
 def validate(s3, s3_bucket):

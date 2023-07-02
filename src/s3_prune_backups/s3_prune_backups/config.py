@@ -18,6 +18,7 @@ class AppConfig:
       cmdline_args.suffix
     )
     self.s3_bucket, self.s3_prefix = env
+    validate(self.s3_bucket)
     self._init_app(loglevel)
 
   def _init_app(self, loglevel):
@@ -65,6 +66,11 @@ def parse_env(env):
   s3_bucket = env.get('BACKUP_S3_BUCKET', '')
   s3_prefix = env.get('BACKUP_S3_PREFIX', 'dev')
   return s3_bucket, s3_prefix
+
+def validate(s3_bucket):
+  ''' validate config obtained from env and command line '''
+  if not s3_bucket:
+    raise Exception("BACKUP_S3_BUCKET must be specified in the environment.")
 
 # import this from main script
 # object will be instantiated only once
