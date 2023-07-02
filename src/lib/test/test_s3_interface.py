@@ -1,5 +1,3 @@
-from lib.s3_interface import S3Interface
-
 from lib.test.fixtures.s3_interface import (
   mock_s3_client, # indirect usage
   s3_interface_obj

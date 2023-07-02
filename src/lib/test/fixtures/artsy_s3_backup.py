@@ -9,12 +9,17 @@ from lib.test.fixtures.s3_interface import mock_s3_interface
 
 @pytest.fixture
 def backup_obj(mock_s3_interface, mocker):
-  mocker.patch('lib.artsy_s3_backup.ArtsyS3Backup.__init__', return_value=None)
-  obj = ArtsyS3Backup()
-  obj._full_prefix = os.path.join('fooprefix', 'fooapp', 'fooenv')
-  obj._s3_interface = mock_s3_interface
-  obj.filename_suffix = 'tar.gz'
-  obj.s3_bucket = 'foobucket'
+  mocker.patch(
+    'lib.artsy_s3_backup.S3Interface',
+    return_value=mock_s3_interface
+  )
+  obj = ArtsyS3Backup(
+    'foobucket',
+    'fooprefix',
+    'fooapp',
+    'fooenv',
+    'tar.gz'
+  )
   return obj
 
 @pytest.fixture

@@ -7,9 +7,11 @@ from lib.s3_interface import S3Interface
 
 @pytest.fixture
 def s3_interface_obj(mocker, mock_s3_client):
-  mocker.patch('lib.s3_interface.S3Interface.__init__', return_value=None)
+  mocker.patch(
+    'lib.s3_interface.boto3_client',
+    return_value=mock_s3_client
+  )
   obj = S3Interface()
-  obj._s3 = mock_s3_client
   return obj
 
 @pytest.fixture
