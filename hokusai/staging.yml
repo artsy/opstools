@@ -309,7 +309,7 @@ spec:
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
               command:
               - python
-              - src/rabbitmq_export_definitions/export.py
+              - src/rabbitmq_export/export.py
               - staging
               - --s3
               imagePullPolicy: Always

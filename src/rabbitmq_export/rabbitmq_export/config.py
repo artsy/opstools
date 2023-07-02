@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-import rabbitmq_export_definitions.context
+import rabbitmq_export.context
 
 from lib.logging import setup_logging
 from lib.util import is_artsy_s3_bucket

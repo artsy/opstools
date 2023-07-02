@@ -5,10 +5,10 @@ import shutil
 
 from distutils.dir_util import mkpath
 
-import rabbitmq_export_definitions.context
+import rabbitmq_export.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
-from rabbitmq_export_definitions.config import config
+from rabbitmq_export.config import config
 
 def export_and_backup():
   logging.info(
