@@ -3,6 +3,28 @@ import pytest
 
 from dateutil.tz import tzutc
 
+from lib.s3_interface import S3Interface
+
+@pytest.fixture
+def s3_interface_obj(mocker, mock_s3_client):
+  mocker.patch('lib.s3_interface.S3Interface.__init__', return_value=None)
+  obj = S3Interface()
+  obj._s3 = mock_s3_client
+  return obj
+
+@pytest.fixture
+def mock_s3_client():
+  class MockS3Client:
+    def __init__(self):
+      self.foo = 'bar'
+    def delete_object(self, Bucket, Key):
+      pass
+    def list_objects(self, Bucket, Prefix):
+      return 'objects'
+    def upload_fileobj(data, bucket, key):
+      pass
+  return MockS3Client()
+
 @pytest.fixture
 def mock_s3_interface(mock_s3_list_objects_result):
   class MockS3Interface:
@@ -40,7 +62,7 @@ def mock_s3_list_objects_result():
       {
         'Key': 'fooprefix/fooapp/fooenv/2023-07-01_00:22:49.920207+00:00.tar.gz',
         'LastModified': datetime.datetime(2023, 7, 1, 0, 22, 51, tzinfo=tzutc()),
-        'ETag': '"e48f2b44f3c684f8a3fe97501f1fa8b3"',
+        'ETag': '"123"',
         'Size': 123,
         'StorageClass': 'STANDARD',
         'Owner': {
