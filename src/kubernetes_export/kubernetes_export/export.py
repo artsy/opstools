@@ -10,7 +10,6 @@ import kubernetes_export.context
 from kubernetes_export.config import config
 from lib.artsy_s3_backup import ArtsyS3Backup
 from lib.kctl import Kctl
-from lib.s3_interface import S3Interface
 
 def backup_to_s3(export_dir):
   ''' back up yamls to S3 '''
@@ -20,14 +19,12 @@ def backup_to_s3(export_dir):
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
     tar.add(export_dir, arcname=os.path.basename(export_dir))
-  s3_interface = S3Interface()
   artsy_s3_backup = ArtsyS3Backup(
     config.s3_bucket,
     config.s3_prefix,
     'k8s',
     config.artsy_env,
-    'tar.gz',
-    s3_interface
+    'tar.gz'
   )
   try:
     artsy_s3_backup.backup(archive_file)
