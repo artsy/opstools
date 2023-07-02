@@ -6,5 +6,5 @@ test:
 	# pytest src/kubernetes_export
 	pytest src/lib
 	# pytest src/rabbitmq_export_definitions
-	# pytest src/s3_prune_backups
+	pytest src/s3_prune_backups
 	pytest src/terraform_drift_detection
