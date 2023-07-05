@@ -1,11 +1,18 @@
 import pytest
 
 from subprocess import CompletedProcess
-from terraform_drift_detection.util import Drift
+from terraform_drift_detection.terraform import Drift
 
 @pytest.fixture
 def expected_results():
-  return  [Drift.NODRIFT, Drift.NODRIFT, Drift.DRIFT, Drift.NODRIFT, Drift.DRIFT, Drift.UNKNOWN]
+  return [
+    Drift.NODRIFT,
+    Drift.NODRIFT,
+    Drift.DRIFT,
+    Drift.NODRIFT,
+    Drift.DRIFT,
+    Drift.UNKNOWN
+  ]
 
 @pytest.fixture
 def mock_clone_failed():

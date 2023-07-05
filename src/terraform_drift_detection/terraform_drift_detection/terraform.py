@@ -1,20 +1,33 @@
-import glob
 import logging
 import os
 import tempfile
 
+from enum import Enum
+
+import terraform_drift_detection.context
+
+from lib.util import run_cmd, search_dirs_by_suffix
 from terraform_drift_detection.config import config
-from terraform_drift_detection.util import Drift, run_cmd
+
+class Drift(Enum):
+  ''' enumerate terraform drift detection results '''
+  NODRIFT = 0
+  DRIFT = 1
+  UNKNOWN = 2
 
 def check_dir(dirx):
   ''' return drift detection result for a dir '''
-  tf_dirs = find_tf_dirs(dirx)
+  tf_dirs = search_dirs_by_suffix(dirx, 'tf')
   results = [check_tf_dir(tf_dir) for tf_dir in tf_dirs]
   return results
 
 def check_repo(repo, basedir):
   ''' return drift detection result for repo '''
-  clone_cmd = 'git clone https://github:' + config.github_token + '@github.com/artsy/' + repo + '.git'
+  clone_cmd = (
+    'git clone https://github:' +
+    config.github_token +
+    '@github.com/artsy/' + repo + '.git'
+  )
   output = run_cmd(clone_cmd, basedir)
   if output.returncode != 0:
     return [Drift.UNKNOWN]
@@ -47,16 +60,6 @@ def check_tf_dir(tf_dir):
     return Drift.DRIFT
   else:
     return Drift.UNKNOWN
-
-def find_tf_dirs(dirx):
-  ''' return sub dirs that house terraform plans '''
-  globstr = dirx + '/**/*.tf'
-  tf_files = [
-    path for path in glob.glob(globstr, recursive=True)
-    if os.path.isfile(path)
-  ]
-  tf_dirs = [os.path.dirname(path) for path in tf_files]
-  return sorted(list(set(tf_dirs)))
 
 def log_the_drift(tf_output):
   ''' log resources mentioned in terraform plan output showing changes '''

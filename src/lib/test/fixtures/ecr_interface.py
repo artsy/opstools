@@ -3,6 +3,17 @@ import pytest
 
 from dateutil.tz import tzlocal
 
+from lib.ecr_interface import ECRInterface
+
+@pytest.fixture
+def ecr_interface_object(mock_ecr_client, mocker):
+  mocker.patch(
+    'lib.ecr_interface.boto3_client',
+    return_value=mock_ecr_client
+  )
+  ecr_interface = ECRInterface()
+  return ecr_interface
+
 @pytest.fixture
 def mock_ecr_client(
   mock_ecr_describe_repositories_result,
