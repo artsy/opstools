@@ -100,7 +100,7 @@ spec:
               - src/s3_prune_backups/prune.py
               - k8s
               - staging
-              - 10
+              - "10"
               - tar.gz
               - --force
               imagePullPolicy: Always
@@ -141,7 +141,7 @@ spec:
               - python
               - src/kubernetes_cleanup_namespaces/cleanup.py
               - staging
-              - 30
+              - "30"
               - --force
               - --in_cluster
               imagePullPolicy: Always
@@ -183,7 +183,7 @@ spec:
               - python
               - src/kubernetes_cleanup_pods/cleanup.py
               - staging
-              - 6
+              - "6"
               - --force
               - --in_cluster
               - --name=-hokusai-run
@@ -226,7 +226,7 @@ spec:
               - python
               - src/kubernetes_cleanup_jobs/cleanup.py
               - staging
-              - 48
+              - "48"
               - --force
               - --in_cluster
               imagePullPolicy: Always
@@ -268,7 +268,7 @@ spec:
               - python
               - src/kubernetes_cleanup_pods/cleanup.py
               - staging
-              - 48
+              - "48"
               - --completed
               - --force
               - --in_cluster
@@ -352,7 +352,7 @@ spec:
               - src/s3_prune_backups/prune.py
               - rabbitmq
               - staging
-              - 10
+              - "10"
               - json
               - --force
               imagePullPolicy: Always
