@@ -100,7 +100,7 @@ spec:
               - src/s3_prune_backups/prune.py
               - k8s
               - production
-              - 30
+              - "30"
               - tar.gz
               - --force
               imagePullPolicy: Always
@@ -141,7 +141,7 @@ spec:
               - python
               - src/kubernetes_cleanup_pods/cleanup.py
               - production
-              - 6
+              - "6"
               - --force
               - --in_cluster
               - --name=-hokusai-run
@@ -184,7 +184,7 @@ spec:
               - python
               - src/kubernetes_cleanup_jobs/cleanup.py
               - production
-              - 48
+              - "48"
               - --force
               - --in_cluster
               imagePullPolicy: Always
@@ -226,7 +226,7 @@ spec:
               - python
               - src/kubernetes_cleanup_pods/cleanup.py
               - production
-              - 48
+              - "48"
               - --completed
               - --force
               - --in_cluster
@@ -272,7 +272,6 @@ spec:
               envFrom:
                 - configMapRef:
                     name: opstools-environment
-          serviceAccountName: opstools
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -312,7 +311,6 @@ spec:
               envFrom:
                 - configMapRef:
                     name: opstools-environment
-          serviceAccountName: opstools
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -348,7 +346,7 @@ spec:
               - src/s3_prune_backups/prune.py
               - rabbitmq
               - production
-              - 30
+              - "30"
               - json
               - --force
               imagePullPolicy: Always
