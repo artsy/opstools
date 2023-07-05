@@ -50,6 +50,11 @@ def run_cmd(cmd, dirx, timeout=300):
   logging.info(
     f"{cmd} command exited with code {resp.returncode}"
   )
+  # this might print sensitive info so please use only locally
+  logging.debug(
+    f"{cmd} stdout:\n{resp.stdout}"
+    f"{cmd} stderr:\n{resp.stderr}"
+  )
   return resp
 
 def search_dirs_by_suffix(dirx, suffix):
