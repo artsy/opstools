@@ -272,7 +272,6 @@ spec:
               envFrom:
                 - configMapRef:
                     name: opstools-environment
-          serviceAccountName: opstools
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -312,7 +311,6 @@ spec:
               envFrom:
                 - configMapRef:
                     name: opstools-environment
-          serviceAccountName: opstools
           restartPolicy: Never
           affinity:
             nodeAffinity:
