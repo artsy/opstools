@@ -1,8 +1,9 @@
 # initialize the app
 from kubernetes_cleanup_namespaces.config import config
 
-from kubernetes_cleanup_namespaces.namespaces import \
+from kubernetes_cleanup_namespaces.namespaces import (
   cleanup_namespaces
+)
 
 if __name__ == "__main__":
 

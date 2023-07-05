@@ -1,53 +1,37 @@
 import logging
 
 import kubernetes_cleanup_namespaces.context
-from lib.date import older_than_ndays
+
+from kubernetes_cleanup_namespaces.config import config
+
 from lib.k8s_namespaces import Namespaces
 from lib.kctl import Kctl
 from lib.util import list_subtract
 
-from kubernetes_cleanup_namespaces.config import config
-
 def cleanup_namespaces():
   ''' delete unprotected namespaces older than n days '''
-  kctl = kctl_client()
+  logging.info(
+    f"Deleting namespaces older than {config.ndays} days"
+  )
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   ns_obj = Namespaces(kctl)
-  namespaces = ns_obj.names()
-  unprotected = unprotected_namespaces(namespaces)
-  to_delete = old_namespaces(unprotected, ns_obj)
-  delete_namespaces(to_delete, ns_obj, kctl)
+  old_namespaces = ns_obj.old_namespaces(config.ndays)
+  to_delete = list_subtract(old_namespaces, config.protected_namespaces)
+  delete_namespaces(to_delete, ns_obj)
+  logging.info(
+    f"Done deleting namespaces."
+  )
 
-def delete_namespaces(namespaces, ns_obj, kctl):
+def delete_namespaces(namespaces, ns_obj):
   ''' delete the given list of namespaces '''
-  for name in namespaces:
-    created_at = ns_obj.created_at(name)
+  for ns in namespaces:
+    created_at = ns_obj.created_at(ns)
     if config.force:
       logging.info(
-        f"Deleting namespace {name} created at {created_at}"
+        f"Deleting {ns} created at {created_at}"
       )
-      kctl.delete_namespace(name)
+      ns_obj.delete(ns)
     else:
       logging.info(
-        f"Would have deleted namespace {name} created at {created_at}"
+        f"Would have deleted namespace {ns} created at {created_at}"
       )
-  logging.info("Done.")
-
-def kctl_client():
-  ''' instantiate a kctl client '''
-  context = None
-  if config.context:
-    context = config.context
-  return Kctl(context)
-
-def old_namespaces(namespaces, ns_obj):
-  ''' given a list of namespaces, return those older than n days '''
-  old = []
-  for name in namespaces:
-    created_at = ns_obj.created_at(name)
-    if older_than_ndays(created_at, config.ndays):
-      old += [name]
-  return old
-
-def unprotected_namespaces(namespaces):
-  ''' given a list of namespaces, return those that are unprotected '''
-  return list_subtract(namespaces, config.protected_namespaces)

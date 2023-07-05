@@ -15,4 +15,4 @@ if __name__ == "__main__":
     logging.info(f"Repositories found: {repos}")
     exit(1)
   else:
-    logging.info("None found.")
+    logging.info("No repositories found.")

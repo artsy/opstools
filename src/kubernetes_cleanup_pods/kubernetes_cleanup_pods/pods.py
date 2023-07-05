@@ -1,47 +1,41 @@
 import logging
 
-from lib.date import date_nhours_ago
-from lib.k8s_pods import Pods
-from lib.kctl import kctl_client
-from lib.util import list_intersect, list_match_str
+import kubernetes_cleanup_pods.context
 
 from kubernetes_cleanup_pods.config import config
 
-def cleanup_pods_by_name():
-  ''' cleanup pods by name older than NHOURS '''
-  logging.info(
-    f"Cleaning up pods in {config.namespace} namespace "
-    f"that are older than {config.nhours} hours "
-    f"and contain '{config.name}' in their name"
-  )
-  kctl = kctl_client(config.context)
-  pods_obj = Pods(kctl, config.namespace)
-  pod_names = pods_obj.names()
-  name_matched_pods = list_match_str(pod_names, config.name)
-  old_datetime = date_nhours_ago(config.nhours)
-  age_matched_pods = pods_obj.old_pods_names(old_datetime)
-  to_delete_pods = list_intersect(
-    name_matched_pods, age_matched_pods
-  )
-  delete_pods(to_delete_pods, pods_obj)
-  logging.info("Done.")
+from lib.k8s_pods import Pods
+from lib.kctl import Kctl
+from lib.util import list_intersect
 
-def cleanup_completed_pods():
-  ''' cleanup completed pods older than NHOURS '''
+def cleanup_pods():
+  ''' delete pods that match age, name, and completion status '''
   logging.info(
-    f"Cleaning up completed pods in {config.namespace} namespace"
+    f"Deleting pods that are older than {config.nhours} hours."
   )
-  kctl = kctl_client(config.context)
+  kctl = Kctl(config.in_cluster, config.artsy_env)
   pods_obj = Pods(kctl, config.namespace)
-  pod_names = pods_obj.completed_pods_names()
-  old_datetime = date_nhours_ago(config.nhours)
-  age_matched_pods = pods_obj.old_pods_names(old_datetime)
-  to_delete_pods = list_intersect(pod_names, age_matched_pods)
+  to_delete_pods = pods_obj.old_pods(config.nhours)
+  if config.completed:
+    logging.info(
+      f"Limiting deletion to only completed pods."
+    )
+    completed_pods = pods_obj.completed_pods()
+    to_delete_pods = list_intersect(to_delete_pods, completed_pods)
+  if config.name:
+    logging.info(
+      f"Limiting deletion to only pods whose names contain {config.name}."
+    )
+    name_matched_pods = pods_obj.pods_with_name(config.name)
+    to_delete_pods = list_intersect(to_delete_pods, name_matched_pods)
   delete_pods(to_delete_pods, pods_obj)
-  logging.info("Done.")
+  logging.info("Done deleting pods.")
 
 def delete_pods(pod_names, pods_obj):
   ''' delete the given list of pods '''
+  # prevent accidentally deleting all pods of a k8s cluster!
+  if len(pod_names) > 30:
+    raise Exception(f"Deleting more than 30 pods not allowed.")
   for pod in pod_names:
     if config.force:
       pods_obj.delete(pod)

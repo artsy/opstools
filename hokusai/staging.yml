@@ -17,7 +17,9 @@ spec:
           containers:
             - name: opstools-terraform-drift-detection
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/terraform_drift_detection/detect.py"]
+              command:
+              - python
+              - src/terraform_drift_detection/detect.py
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
@@ -37,7 +39,7 @@ spec:
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: opstools-k8s-create-backup
+  name: opstools-k8s-export
 spec:
   schedule: "20 8 * * *"
   concurrencyPolicy: Forbid
@@ -50,9 +52,14 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-k8s-create-backup
+            - name: opstools-k8s-export
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/kubernetes_backup/backup.py", "--s3"]
+              command:
+              - python
+              - src/kubernetes_export/export.py
+              - staging
+              - --in_cluster
+              - --s3
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
@@ -73,7 +80,7 @@ spec:
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: opstools-k8s-prune-backup
+  name: opstools-s3-prune-backups-k8s
 spec:
   schedule: "20 9 * * *"
   concurrencyPolicy: Forbid
@@ -86,9 +93,16 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-k8s-prune-backup
+            - name: opstools-s3-prune-backups-k8s
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/kubernetes_backup/prune.py", "--force"]
+              command:
+              - python
+              - src/s3_prune_backups/prune.py
+              - k8s
+              - staging
+              - 10
+              - tar.gz
+              - --force
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
@@ -123,7 +137,13 @@ spec:
           containers:
             - name: opstools-cleanup-review-apps
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/kubernetes_cleanup_namespaces/cleanup.py", "--force", "30"]
+              command:
+              - python
+              - src/kubernetes_cleanup_namespaces/cleanup.py
+              - staging
+              - 30
+              - --force
+              - --in_cluster
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
@@ -159,7 +179,14 @@ spec:
           containers:
             - name: opstools-cleanup-hokusai-run-pods
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/kubernetes_cleanup_pods/cleanup.py", "6", "--name=-hokusai-run", "--force"]
+              command:
+              - python
+              - src/kubernetes_cleanup_pods/cleanup.py
+              - staging
+              - 6
+              - --force
+              - --in_cluster
+              - --name=-hokusai-run
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
@@ -195,7 +222,13 @@ spec:
           containers:
             - name: opstools-cleanup-jobs
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/kubernetes_cleanup_jobs/cleanup.py", "48", "--all", "--force"]
+              command:
+              - python
+              - src/kubernetes_cleanup_jobs/cleanup.py
+              - staging
+              - 48
+              - --force
+              - --in_cluster
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
@@ -231,12 +264,101 @@ spec:
           containers:
             - name: opstools-cleanup-completed-pods
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
-              command: ["python", "src/kubernetes_cleanup_pods/cleanup.py", "48", "--completed", "--force"]
+              command:
+              - python
+              - src/kubernetes_cleanup_pods/cleanup.py
+              - staging
+              - 48
+              - --completed
+              - --force
+              - --in_cluster
               imagePullPolicy: Always
               envFrom:
                 - configMapRef:
                     name: opstools-environment
           serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-rabbitmq-export
+spec:
+  schedule: "32 8 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-rabbitmq-export
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
+              command:
+              - python
+              - src/rabbitmq_export/export.py
+              - staging
+              - --s3
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-s3-prune-backups-rabbitmq
+spec:
+  schedule: "32 9 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-s3-prune-backups-rabbitmq
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
+              command:
+              - python
+              - src/s3_prune_backups/prune.py
+              - rabbitmq
+              - staging
+              - 10
+              - json
+              - --force
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
