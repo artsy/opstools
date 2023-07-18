@@ -38,5 +38,5 @@ def scan():
               results[configmap['metadata']['name']] = {}
             results[configmap['metadata']['name']][key] = details
   if results:
-    raise SystemExit('Some tokens are expiring!')
+    raise Exception('Some tokens are expiring!')
   logging.info("Done")
