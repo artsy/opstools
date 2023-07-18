@@ -1,9 +1,5 @@
 import datetime
 import logging
-import os
-import re
-import shutil
-import tarfile
 import jwt
 
 from distutils.dir_util import mkpath
