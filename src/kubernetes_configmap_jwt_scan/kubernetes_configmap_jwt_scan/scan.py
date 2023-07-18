@@ -11,20 +11,10 @@ from distutils.dir_util import mkpath
 import kubernetes_configmap_jwt_scan.context
 
 from kubernetes_configmap_jwt_scan.config import config
+from lib.k8s_configmap_jwt_scan import is_jwt
 from lib.kctl import Kctl
 
 WARN_THRESHOLD = 30 # warn if expiring within 30 days
-JWT_REGEX = re.compile(r'^(?:[\w-]*\.){2}[\w-]*$')
-
-def is_jwt(str):
-  if not JWT_REGEX.match(str):
-    return False
-  header = None
-  try:
-    header = jwt.get_unverified_header(str)
-  except jwt.DecodeError as e:
-    return False
-  return header is not None
 
 def scan():
   logging.info(f"Scanning {config.artsy_env}...")
