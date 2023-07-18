@@ -14,7 +14,7 @@ from kubernetes_configmap_jwt_scan.config import config
 from lib.kctl import Kctl
 
 WARN_THRESHOLD = 30 # warn if expiring within 30 days
-JWT_REGEX = re.compile('^(?:[\w-]*\.){2}[\w-]*$')
+JWT_REGEX = re.compile(r'^(?:[\w-]*\.){2}[\w-]*$')
 
 def is_jwt(str):
   if not JWT_REGEX.match(str):

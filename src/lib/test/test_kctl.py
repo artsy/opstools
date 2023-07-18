@@ -11,6 +11,8 @@ from lib.kctl import (
 )
 
 from lib.test.fixtures.kctl import (
+  mock_kubectl_get_configmaps_json_object,
+  mock_kubectl_get_configmaps_json_string,
   mock_kubectl_get_namespaces_json_object,
   mock_kubectl_get_namespaces_json_string,
   mock_kubectl_get_pods_json_object,
@@ -232,3 +234,21 @@ def describe_kctl():
           mocker.call('pods', 'json', 'foonamespace')
         ])
         assert data == mock_kubectl_get_pods_json_object['items']
+
+    def describe_get_configmaps():
+      def it_gets_configmaps(
+          mocker,
+          mock_kubectl_get_configmaps_json_object,
+          mock_kubectl_get_configmaps_json_string
+        ):
+        kctl = Kctl(False, 'staging')
+        mocker.patch(
+          'lib.kctl.Kctl.get_namespaced_object',
+          return_value=mock_kubectl_get_configmaps_json_string
+        )
+        gno_spy = mocker.spy(lib.kctl.Kctl, 'get_namespaced_object')
+        data = kctl.get_configmaps('foo')
+        gno_spy.assert_has_calls([
+          mocker.call('configmaps', 'json', 'foo')
+        ])
+        assert data == mock_kubectl_get_configmaps_json_object['items']
