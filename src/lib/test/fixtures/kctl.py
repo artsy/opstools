@@ -135,3 +135,34 @@ def mock_kubectl_get_jobs_json_string(
   mock_kubectl_get_jobs_json_object
 ):
   return json.dumps(mock_kubectl_get_jobs_json_object)
+
+# configmap fixtures
+
+@pytest.fixture
+def mock_kubectl_get_configmaps_json_object():
+  return {
+    'items': [
+      {
+        'metadata': {
+          'name': 'configmap1'
+        },
+        'data': {
+          'foo': 'bar'
+        }
+      },
+      {
+        'metadata': {
+          'name': 'configmap2',
+        },
+        'data': {
+          'foo2': 'bar2'
+        }
+      }
+    ]
+  }
+
+@pytest.fixture
+def mock_kubectl_get_configmaps_json_string(
+  mock_kubectl_get_configmaps_json_object
+):
+  return json.dumps(mock_kubectl_get_configmaps_json_object)
