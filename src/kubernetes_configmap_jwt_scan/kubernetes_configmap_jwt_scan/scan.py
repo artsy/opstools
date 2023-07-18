@@ -7,7 +7,7 @@ from distutils.dir_util import mkpath
 import kubernetes_configmap_jwt_scan.context
 
 from kubernetes_configmap_jwt_scan.config import config
-from lib.k8s_configmap_jwt_scan import is_jwt
+from lib.jwt import is_jwt
 from lib.kctl import Kctl
 
 WARN_THRESHOLD = 30 # warn if expiring within 30 days

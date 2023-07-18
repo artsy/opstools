@@ -1,4 +1,4 @@
-from lib.k8s_configmap_jwt_scan import is_jwt
+from lib.jwt import is_jwt
 
 def describe_is_jwt():
   def it_returns_false_if_not_jwt():
