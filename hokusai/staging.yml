@@ -164,6 +164,46 @@ spec:
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
+  name: opstools-k8s-configmap-jwt-scan
+spec:
+  schedule: "38 1 * * 1"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-k8s-configmap-jwt-scan
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
+              command:
+              - python
+              - src/kubernetes_configmap_jwt_scan/scan.py
+              - staging
+              - --in_cluster
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          serviceAccountName: opstools
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
   name: opstools-cleanup-hokusai-run-pods
 spec:
   schedule: "30 * * * *"
