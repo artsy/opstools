@@ -24,13 +24,14 @@ class AppConfig:
     )
     self.protected_namespaces = [
       'cert-manager',
-      'data-application',
       'default',
+      'external-secrets',
       'ingress-nginx',
       'kube-node-lease',
       'kube-public',
       'kubernetes-dashboard',
-      'kube-system'
+      'kube-system',
+      'vault'
     ]
     self._init_app(loglevel)
 

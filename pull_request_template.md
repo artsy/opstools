@@ -5,7 +5,7 @@ The type of this PR is: **TYPE**
 <!-- If applicable, write the Jira ticket number in square brackets e.g. `[PLATFORM-123]`
      The Jira integration will turn it into a clickable link for you. -->
 
-This PR solves [PLATFORM-1234]
+This PR solves [PHIRE-1234]
 
 ### Description
 
