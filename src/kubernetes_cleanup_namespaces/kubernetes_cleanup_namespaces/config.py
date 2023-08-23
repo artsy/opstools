@@ -24,6 +24,7 @@ class AppConfig:
     )
     self.protected_namespaces = [
       'cert-manager',
+      'circleci',
       'default',
       'external-secrets',
       'ingress-nginx',
