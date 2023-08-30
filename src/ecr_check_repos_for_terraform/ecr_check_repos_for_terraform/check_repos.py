@@ -19,10 +19,13 @@ def check():
   terraform_managed_repos = ecr_repos.repos_with_tag(tag)
 
   tag = {'Key': 'env', 'Value': 'test'}
-  test_repos = ecr_repos.repos_with_tag(tag)
+  repos_tagged_test = ecr_repos.repos_with_tag(tag)
+
+  repos_named_test = ecr_repos.repos_with_name('test')
 
   return list_subtract(
     all_repos,
     terraform_managed_repos,
-    test_repos
+    repos_tagged_test,
+    repos_named_test
   )

@@ -28,17 +28,17 @@ def describe_ecr_repos():
     def it_instantiates(mock_ecr_interface):
       ecr_repos = ECRRepos(mock_ecr_interface)
       repo1 = ecr_repos._repos[0]
-      assert len(ecr_repos._repos) == 2
+      assert len(ecr_repos._repos) == 3
       assert isinstance(repo1, ECRRepo)
   def describe_all_repos():
     def it_returns_all_repos(mock_ecr_interface):
       ecr_repos = ECRRepos(mock_ecr_interface)
-      assert set(ecr_repos.all_repos()) == set(['foo2', 'foo1'])
-  def describe_get_repo():
+      assert set(ecr_repos.all_repos()) == set(['foo1', 'foo2', 'bar1'])
+  def describe_repos_with_name():
     def it_gets_correct_repo(mock_ecr_interface):
       ecr_repos = ECRRepos(mock_ecr_interface)
-      repo = ecr_repos.get_repo('foo1')
-      assert repo.name == 'foo1'
+      repos = ecr_repos.repos_with_name('foo')
+      assert set(repos) == set(['foo1', 'foo2'])
   def describe_repos_wit_tag():
     def it_gets_correct_repos(mock_ecr_interface):
       ecr_repos = ECRRepos(mock_ecr_interface)

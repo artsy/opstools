@@ -26,11 +26,23 @@ class ECRRepos:
       [repo.name for repo in self._repos]
     )
 
-  def get_repo(self, repo_name):
-    ''' return ECRRepo object whose name matches repo_name '''
+  def repos_with_name(self, str1, exact_match=False):
+    '''
+    return names of ECR repos whose names match,
+    if exact_match is True, a repo matches if name == str1,
+    if exact_match is False, a repo matches if name contains str1,
+    always return a list
+    '''
+    repos = []
     for repo in self._repos:
-      if repo.name == repo_name:
-        return repo
+      if exact_match:
+        if repo.name == str1:
+          repos += [repo.name]
+          break
+      else:
+        if str1 in repo.name:
+          repos += [repo.name]
+    return repos
 
   def repos_with_tag(self, tag):
     ''' return names of repos that have the specified tag '''
