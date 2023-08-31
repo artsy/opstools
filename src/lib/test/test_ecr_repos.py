@@ -35,10 +35,24 @@ def describe_ecr_repos():
       ecr_repos = ECRRepos(mock_ecr_interface)
       assert set(ecr_repos.all_repos()) == set(['foo1', 'foo2', 'bar1'])
   def describe_repos_with_name():
-    def it_gets_correct_repo(mock_ecr_interface):
-      ecr_repos = ECRRepos(mock_ecr_interface)
-      repos = ecr_repos.repos_with_name('foo')
-      assert set(repos) == set(['foo1', 'foo2'])
+    def partial_match():
+      def it_matches(mock_ecr_interface):
+        ecr_repos = ECRRepos(mock_ecr_interface)
+        repos = ecr_repos.repos_with_name('foo')
+        assert set(repos) == set(['foo1', 'foo2'])
+      def it_does_not_match(mock_ecr_interface):
+        ecr_repos = ECRRepos(mock_ecr_interface)
+        repos = ecr_repos.repos_with_name('fin')
+        assert repos == []
+    def exact_match():
+      def it_matches(mock_ecr_interface):
+        ecr_repos = ECRRepos(mock_ecr_interface)
+        repos = ecr_repos.repos_with_name('foo1')
+        assert repos == ['foo1']
+      def it_does_not_match(mock_ecr_interface):
+        ecr_repos = ECRRepos(mock_ecr_interface)
+        repos = ecr_repos.repos_with_name('foo')
+        assert repos == []
   def describe_repos_wit_tag():
     def it_gets_correct_repos(mock_ecr_interface):
       ecr_repos = ECRRepos(mock_ecr_interface)
