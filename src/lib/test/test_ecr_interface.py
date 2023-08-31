@@ -14,7 +14,7 @@ def describe_ecr_interface():
   def describe_get_repos():
     def it_gets(mocker, ecr_interface_object):
       repos = ecr_interface_object.get_repos()
-      assert len(repos) == 2
+      assert len(repos) == 3
       assert repos[0]['repositoryName'] == 'foo1'
 
   def describe_get_repo_tags():

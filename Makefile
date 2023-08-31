@@ -1,5 +1,4 @@
 test:
-	pytest src/ecr_check_repos_for_terraform
 	pytest src/kubernetes_cleanup_jobs
 	pytest src/kubernetes_cleanup_namespaces
 	pytest src/kubernetes_cleanup_pods

@@ -54,6 +54,16 @@ def mock_ecr_describe_repositories_result():
         'imageTagMutability': 'MUTABLE',
         'imageScanningConfiguration': {'scanOnPush': False},
         'encryptionConfiguration': {'encryptionType': 'AES256'}
+      },
+      {
+        'repositoryArn': 'arn:aws:ecr:us-east-1:123:repository/bar1',
+        'registryId': '123',
+        'repositoryName': 'bar1',
+        'repositoryUri': '123.dkr.ecr.us-east-1.amazonaws.com/bar1',
+        'createdAt': datetime.datetime(2023, 6, 13, 16, 50, 21, tzinfo=tzlocal()),
+        'imageTagMutability': 'MUTABLE',
+        'imageScanningConfiguration': {'scanOnPush': False},
+        'encryptionConfiguration': {'encryptionType': 'AES256'}
       }
     ]
   }
