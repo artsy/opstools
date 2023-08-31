@@ -53,7 +53,7 @@ def describe_ecr_repos():
         ecr_repos = ECRRepos(mock_ecr_interface)
         repos = ecr_repos.repos_with_name('foo')
         assert repos == []
-  def describe_repos_wit_tag():
+  def describe_repos_with_tag():
     def it_gets_correct_repos(mock_ecr_interface):
       ecr_repos = ECRRepos(mock_ecr_interface)
       tag = {'Key': 'env', 'Value': 'test'}
