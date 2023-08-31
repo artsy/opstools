@@ -26,17 +26,17 @@ class ECRRepos:
       [repo.name for repo in self._repos]
     )
 
-  def repos_with_name(self, str1, exact_match=False):
+  def repos_with_name(self, string_to_match, exact_match=False):
     '''
     return names of ECR repos whose names match,
-    if exact_match is True, a repo matches if name == str1,
-    if exact_match is False, a repo matches if name contains str1,
+    if exact_match is True, a repo matches if name == string_to_match,
+    if exact_match is False, a repo matches if name contains string_to_match,
     always return a list
     '''
     if exact_match:
-        return [repo.name for repo in self._repos if repo.name == str1]
+        return [repo.name for repo in self._repos if repo.name == string_to_match]
     else:
-        return [repo.name for repo in self._repos if str1 in repo.name]
+        return [repo.name for repo in self._repos if string_to_match in repo.name]
     return repos
 
   def repos_with_tag(self, tag):
