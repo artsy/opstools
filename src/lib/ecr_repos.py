@@ -33,15 +33,10 @@ class ECRRepos:
     if exact_match is False, a repo matches if name contains str1,
     always return a list
     '''
-    repos = []
-    for repo in self._repos:
-      if exact_match:
-        if repo.name == str1:
-          repos += [repo.name]
-          break
-      else:
-        if str1 in repo.name:
-          repos += [repo.name]
+    if exact_match:
+        return [repo.name for repo in self._repos if repo.name == str1]
+    else:
+        return [repo.name for repo in self._repos if str1 in repo.name]
     return repos
 
   def repos_with_tag(self, tag):
