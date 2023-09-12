@@ -74,6 +74,7 @@ if __name__ == "__main__":
     'cronjobs',
     'daemonsets',
     'deployments',
+    'externalsecrets',
     'horizontalpodautoscalers',
     'ingresses',
     'persistentvolumeclaims',
