@@ -7,23 +7,22 @@ from distutils.dir_util import mkpath
 
 import kubernetes_export.context
 
-from kubernetes_export.config import config
 from lib.artsy_s3_backup import ArtsyS3Backup
 from lib.kctl import Kctl
 
-def backup_to_s3(export_dir):
+def backup_to_s3(artsy_env, export_dir, local_dir, s3_bucket, s3_prefix):
   ''' back up yamls to S3 '''
   archive_file = os.path.join(
-    config.local_dir, f"kubernetes-backup-{config.artsy_env}.tar.gz"
+    local_dir, f"kubernetes-backup-{artsy_env}.tar.gz"
   )
   logging.info(f"Writing local archive file: {archive_file} ...")
   with tarfile.open(archive_file, "w:gz") as tar:
     tar.add(export_dir, arcname=os.path.basename(export_dir))
   artsy_s3_backup = ArtsyS3Backup(
-    config.s3_bucket,
-    config.s3_prefix,
+    s3_bucket,
+    s3_prefix,
     'k8s',
-    config.artsy_env,
+    artsy_env,
     'tar.gz'
   )
   try:
@@ -44,22 +43,22 @@ def export(object_type, export_dir, kctl):
     f.write('---\n')
     f.write(data)
 
-def export_and_backup(KUBERNETES_OBJECTS):
+def export_and_backup(KUBERNETES_OBJECTS, artsy_env, in_cluster, local_dir, s3, s3_bucket, s3_prefix):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''
-  export_dir = os.path.join(config.local_dir, config.artsy_env)
+  export_dir = os.path.join(local_dir, artsy_env)
   mkpath(export_dir)
   logging.info(
-    f"Exporting objects from {config.artsy_env} Kubernetes cluster," +
+    f"Exporting objects from {artsy_env} Kubernetes cluster," +
     f" default namespace, as yaml files, to {export_dir} ..."
   )
-  kctl = Kctl(config.in_cluster, config.artsy_env)
+  kctl = Kctl(in_cluster, artsy_env)
   for object_type in KUBERNETES_OBJECTS:
     export(object_type, export_dir, kctl)
   logging.info("Done exporting")
 
-  if config.s3:
+  if s3:
     try:
-      backup_to_s3(export_dir)
+      backup_to_s3(artsy_env, export_dir, local_dir, s3_bucket, s3_prefix)
     except:
       raise
     finally:
