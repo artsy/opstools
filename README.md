@@ -45,9 +45,12 @@ When you test run the script locally, your `kubectl` authenticates to Kubernetes
 
 To make local testing accurate, we have created a `KubernetesOpstools` IAM role which ultimately maps to the same permissions that `opstools` service account has. So before testing, switch your `kubectl` to `KubernetesOpstools` role as follows:
 
-- Download `config-opstools` Kubeconfig file from S3 to `~/.kube` directory.
+- Download `config-opstools` Kubeconfig file from S3 to `~/.kube` directory. See [setup script](./bin/setup).
 - Symlink `~/.kube/config` to `~/.kube/config-opstools`.
-
-When done with testing, switch it back.
+- Run the script that you wish to test, for example:
+  ```
+  python src/kubernetes_export/export.py staging
+  ```
+- When done with testing, switch Kubeconfig back.
 
 [velocity_channel]: https://artsy.slack.com/messages/product-velocity "#product-velocity Slack Channel"
