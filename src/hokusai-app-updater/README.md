@@ -75,3 +75,22 @@ user@artsy:~/code/convection$ pwd
 ```
 
 When making changes to `convection` for example, the script will go into `/home/user/code/convection`. Therefore, project names in the list must match dir names in source root.
+
+> [!NOTE]
+> A checkout of each project _must_ exist in the specified directory, in a clean state, and without a branch matching the specified name. To ensure this is the case, it might be convenient to freshly clone the projects to a new location instead. E.g.:
+>
+> ```bash
+> sed 's|\(.*\)|git@github.com:artsy/\1.git|' ~/code/opstools/src/hokusai-app-updater/examples/replace_deprecated_specs/project_list | xargs -n 1  git clone
+> ```
+
+### Examples
+
+```bash
+./update_apps.sh examples/replace_deprecated_specs/replace_deprecated_specs.sh examples/replace_deprecated_specs/project_list ~/code deprecations "Replace deprecated k8s specs" joeyAghion artsyjian
+```
+
+When making changes with _a high degree of certainty_, you can set the `MERGE_ON_GREEN` environment variable to label pull requests accordingly and save some review labor:
+
+```bash
+MERGE_ON_GREEN=1 ./update_apps.sh examples/replace_deprecated_specs/replace_deprecated_specs.sh examples/replace_deprecated_specs/project_list ~/code deprecations "Replace deprecated k8s specs" joeyAghion artsyjian
+```

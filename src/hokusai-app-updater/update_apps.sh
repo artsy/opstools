@@ -56,7 +56,15 @@ function commit() {
   # command exits 0 if yes, 1 if not.
   # assumes script is run with set -e, so script exits if 1.
   gh auth status
-  gh pr create --title "$MSG" --body "$MSG" --reviewer "$REVIEWER" --assignee "$ASSIGNEE"
+
+  LABEL_ARG=""
+  # If specified, ensure "Merge On Green" label exists and has expected capitalization
+  if [[ -n "${MERGE_ON_GREEN}" ]]
+  then
+    gh label edit "merge on green" --name "Merge On Green" || gh label create "Merge On Green" --color "247A38" --description "Merge this PR when all statuses are green"
+    LABEL_ARG='--label "Merge On Green"'
+  fi
+  eval "gh pr create --title \"$MSG\" --body \"$MSG\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
 }
 
 check_input "$@"
