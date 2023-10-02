@@ -19,10 +19,6 @@ def parse_args():
     help='the artsy environment'
   )
   parser.add_argument(
-    'git_repos_base_dir',
-    help='the directory containing github repos of all the projects you wish to work on'
-  )
-  parser.add_argument(
     'artsy_project',
     help='the artsy project to work on'
   )
@@ -37,13 +33,12 @@ def parse_args():
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, git_repos_base_dir, loglevel = (
+  artsy_env, artsy_project, loglevel = (
     args.artsy_env,
-    args.git_repos_base_dir,
     args.artsy_project,
     args.loglevel
   )
 
   setup_logging(eval('logging.' + loglevel))
 
-  migrate_config_secrets(artsy_env, git_repos_base_dir, artsy_project)
+  migrate_config_secrets(artsy_env, artsy_project)

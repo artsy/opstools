@@ -3,6 +3,7 @@ import json
 
 from subprocess import run as subprocess_run
 
+
 class Kctl:
   ''' interface with kubectl '''
   def __init__(self, in_cluster, context):
@@ -68,9 +69,9 @@ class Kctl:
       logging.debug(f"Kctl: no jobs found in {namespace} namespace.")
     return data["items"]
 
-  def get_namespaced_object(self, type, output_format, namespace):
+  def get_namespaced_object(self, type, output_format, namespace, name=''):
     ''' return objects of the given type in the given namespace '''
-    cmd = f"-n {namespace} get {type} -o {output_format}"
+    cmd = f"-n {namespace} get {type} {name} -o {output_format}"
     resp = self._run(cmd, expect_success=True)
     return resp.stdout
 
@@ -96,3 +97,8 @@ class Kctl:
     if not data["items"]:
       logging.debug(f"Kctl: no configmaps found in {namespace} namespace.")
     return data["items"]
+
+  def get_configmap(self, name, namespace='default'):
+    output = self.get_namespaced_object('configmaps', 'json', namespace, name)
+    data = json.loads(output)
+    return data

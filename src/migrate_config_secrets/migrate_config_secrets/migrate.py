@@ -1,9 +1,11 @@
 import migrate_config_secrets.context
 
-from lib.hokusai import Hokusai
+from lib.kctl import Kctl
+from lib.k8s_configmap import ConfigMap
 
-def migrate_config_secrets(artsy_env, git_repos_base_dir, artsy_project):
+def migrate_config_secrets(artsy_env, artsy_project):
   # go through the list and create a list of secrets
-  hokusai = Hokusai(artsy_env, git_repos_base_dir, artsy_project)
-  env_vars = hokusai.env_get()
-  print(env_vars.keys())
+  kctl = Kctl(False, artsy_env)
+  configmap_name = f'{artsy_project}-environment'
+  configmap_obj = ConfigMap(kctl, name=configmap_name)
+  print(configmap_obj.load().keys())
