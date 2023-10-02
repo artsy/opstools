@@ -39,4 +39,8 @@ def migrate_var(artsy_project, var, configmap_obj, artsy_env):
   logging.info(f'Migrating {var} from k8s configmap to Vault...')
   value = configmap_obj.get(var)
   vault = Vault(artsy_project, artsy_env)
-  vault.add(var, value)
+  if vault.get(var):
+    logging.warning('{var} already in Vault, skipping.')
+  else:
+    vault.add(var, value)
+

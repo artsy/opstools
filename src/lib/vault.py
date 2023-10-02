@@ -57,6 +57,14 @@ class Vault:
     logging.debug(cmd)
     self._run(cmd, expect_success=True)
 
+  def get(self, key):
+    ''' get an entry '''
+    full_path = f'{self._path}{key}'
+    cmd = f"kv get {full_path}"
+    logging.debug(cmd)
+    resp = self._run(cmd, expect_success=True)
+    print(resp)
+
   def validate(self, value_string):
     # do not allow values to be quoted
     quotes = ["'", '"']
