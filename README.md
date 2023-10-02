@@ -11,15 +11,12 @@ Read and run the setup script:
 ./bin/setup
 ```
 
-Load environment vars:
-```
-unset $(grep --no-filename --invert-match '^#' .env.shared .env | cut -f1 -d"=" | xargs)
-export $(grep --no-filename --invert-match '^#' .env.shared .env | xargs)
-```
+# Run Scripts
 
-Alternative way to load environment vars using Foreman:
+To run a script with environment files loaded (using Foreman):
+
 ```
-foreman run --env .env.shared,.env [COMMAND]
+foreman run --env .env.shared,.env python src/...
 ```
 
 # Testing
