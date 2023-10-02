@@ -51,10 +51,21 @@ class Vault:
   def add(self, key, value):
     ''' add a kv entry '''
     full_path = f'{self._path}{key}'
+    self.validate(value)
     cleaned_value = self.clean_value(value)
     cmd = f"kv put -cas=0 {full_path} {key}='{cleaned_value}'"
     logging.debug(cmd)
     self._run(cmd, expect_success=True)
+
+  def validate(self, value_string):
+    # do not allow values to be quoted
+    quotes = ["'", '"']
+    if value_string[0] in quotes:
+      logging.error('Quoted values not accepted')
+      raise
+    if value_string[-1] in quotes:
+      logging.error('Quoted values not accepted')
+      raise
 
   def clean_value(self, value_string):
     '''
