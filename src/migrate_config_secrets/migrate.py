@@ -23,6 +23,10 @@ def parse_args():
     help='the directory containing github repos of all the projects you wish to work on'
   )
   parser.add_argument(
+    'artsy_project',
+    help='the artsy project to work on'
+  )
+  parser.add_argument(
     '--loglevel',
     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
     default='INFO',
@@ -36,9 +40,10 @@ if __name__ == "__main__":
   artsy_env, git_repos_base_dir, loglevel = (
     args.artsy_env,
     args.git_repos_base_dir,
+    args.artsy_project,
     args.loglevel
   )
 
   setup_logging(eval('logging.' + loglevel))
 
-  migrate_config_secrets(artsy_env, git_repos_base_dir)
+  migrate_config_secrets(artsy_env, git_repos_base_dir, artsy_project)
