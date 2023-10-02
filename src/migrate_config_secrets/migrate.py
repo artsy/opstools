@@ -28,17 +28,23 @@ def parse_args():
     default='INFO',
     help='log level'
   )
+  parser.add_argument(
+    '--secrets_list',
+    default=None,
+    help="file with list of sensitive config vars of the project, if no such list, you will be prompted for each existent config var and asked whether it's sensitive or not"
+  )
   return parser.parse_args()
 
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, artsy_project, loglevel = (
+  artsy_env, artsy_project, loglevel, secrets_list = (
     args.artsy_env,
     args.artsy_project,
-    args.loglevel
+    args.loglevel,
+    args.secrets_list
   )
 
   setup_logging(eval('logging.' + loglevel))
 
-  migrate_config_secrets(artsy_env, artsy_project)
+  migrate_config_secrets(artsy_env, artsy_project, secrets_list)
