@@ -2,7 +2,7 @@ import hvac
 import logging
 import os
 
-from lib.util import vault_version, unquote
+from lib.util import vault_string, unquote
 
 
 class Vault:
@@ -42,7 +42,7 @@ class Vault:
       return
 
     # no exception means there's some value
-    if current_value == vault_version(value):
+    if current_value == vault_string(value):
       logging.debug(f'{var} already has the value. Nothing to do.')
     else:
       self.set(key, value)
@@ -60,7 +60,7 @@ class Vault:
   def set(self, key, value):
     ''' set an entry '''
     full_path = f'{self._path}{key}'
-    cleaned_value = vault_version(value)
+    cleaned_value = vault_string(value)
     logging.debug(f'Vault: setting {full_path}')
     entry = { key: cleaned_value}
     response = self.client.secrets.kv.v2.create_or_update_secret(

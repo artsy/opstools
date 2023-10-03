@@ -7,6 +7,15 @@ def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
   return name.startswith('artsy-')
 
+def is_quoted(str1):
+  ''' if string is quoted, return the quote character '''
+  # double quote
+  if str1[0] == '"' and str1[-1] == '"':
+    return '"'
+  # single quote
+  elif str1[0] == "'" and str1[1] == "'":
+    return "'"
+
 def list_intersect(list_a, list_b):
   ''' return elements common between l1 and l2 '''
   return [ x for x in list_a if x in list_b]
@@ -67,33 +76,23 @@ def search_dirs_by_suffix(dirx, suffix):
   dirs = [os.path.dirname(path) for path in files]
   return sorted(list(set(dirs)))
 
-def is_quoted(str1):
-  ''' decide whether value is quoted '''
-  # double quote
-  if str1[0] == '"' and str1[-1] == '"':
-    return '"'
-  # single quote
-  elif str1[0] == "'" and str1[1] == "'":
-    return "'"
-
 def unquote(str1):
-  quote_type = is_quoted(str1)
-  if quote_type:
-    logging.debug(f'string is quoted with {quote_type}, removing quotes')
-    return str1.strip(quote_type)
+  ''' remove string's surrounding quotes, if any '''
+  quote_char = is_quoted(str1)
+  if quote_char:
+    logging.debug(f'string is quoted with {quote_char}, removing quotes')
+    return str1[1,-1]
   return str1
 
-def vault_version(str1):
+def vault_string(str1):
   ''' returns a version of str1 that is compatible with Hashicorp Vault '''
   # surrounding quotes must be stripped
   new_value = unquote(str1)
-
-  # string must be double quouted if there is any YAML special chars
+  # string must be double quouted if there is any YAML special char
   special_chars = ['*']
   for char in special_chars:
     if char in new_value:
       logging.debug('string contains special YAML chars, adding double-quotes.')
       new_value = f'"{new_value}"'
       break
-
   return new_value

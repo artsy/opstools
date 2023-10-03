@@ -2,15 +2,13 @@ import logging
 import os
 import time
 
-from hvac.exceptions import InvalidPath
-
 import migrate_config_secrets.context
 
 from lib.hokusai import env_unset
 from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
-from lib.util import vault_version
+from lib.util import vault_string
 from lib.vault import Vault
 
 
@@ -74,7 +72,7 @@ def sync_vault_k8s_secret(kctl, vault_client, secret_obj, artsy_project, sensiti
     logging.debug(f'Comparing {var} ...')
     vault_value = vault_client.get(var)
     k8s_secret_value = secret_obj.get(var)
-    if vault_value == vault_version(k8s_secret_value):
+    if vault_value == vault_string(k8s_secret_value):
       logging.debug(f'{var} match')
     else:
       logging.error(f"{var} doesn't match")
