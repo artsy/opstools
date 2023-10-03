@@ -36,6 +36,10 @@ class Kctl:
       )
     return resp
 
+  def annotate(self, type, name, annotation, namespace='default'):
+    cmd = f'-n {namespace} annotate {type} {name} {annotation} --overwrite'
+    resp = self._run(cmd, expect_success=True)
+
   def delete_job(self, job_name, namespace='default'):
     ''' delete the given job in the given namespace '''
     self.delete_namespaced_object('job', job_name, namespace)
@@ -107,7 +111,3 @@ class Kctl:
     output = self.get_namespaced_object('secrets', 'json', namespace, name)
     data = json.loads(output)
     return data
-
-  def annotate(self, type, name, annotation, namespace='default'):
-    cmd = f'-n {namespace} annotate {type} {name} {annotation} --overwrite'
-    resp = self._run(cmd, expect_success=True)

@@ -13,6 +13,16 @@ from lib.kctl import Kctl
 from lib.util import vault_version
 from lib.vault import Vault
 
+
+def ask_user_to_identify_sensitive_vars(keys_values):
+  ''' var by var, ask user whether it is sensitive '''
+  sensitive = []
+  for k,v in keys_values.items():
+    answer = input(f"is {k}={v} sensitive (y/n)? ")
+    if answer == 'y':
+      sensitive += [k]
+  return sensitive
+
 def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
   configmap_vars = configmap_obj.load()
   sensitive_vars = ask_user_to_identify_sensitive_vars(configmap_vars)
@@ -56,7 +66,7 @@ def sync_vault_k8s_secret(kctl, vault_client, secret_obj, artsy_project, sensiti
   epoch_time = int(time.time())
   kctl.annotate('externalsecret', artsy_project, f'force-sync={epoch_time}')
   # allow annotate to finish
-  time.sleep(5)
+  time.sleep(10)
 
   # confirm the two are in sync, var by var
   logging.info('Comparing values in Vault with values in k8s secret...')
@@ -70,31 +80,9 @@ def sync_vault_k8s_secret(kctl, vault_client, secret_obj, artsy_project, sensiti
       logging.error(f"{var} doesn't match")
       raise
 
-def ask_user_to_identify_sensitive_vars(vars):
-  ''' var by var, ask user whether it is sensitive '''
-  sensitive = []
-  for k,v in vars.items():
-    answer = input(f"is {k}={v} sensitive (y/n)? ")
-    if answer == 'y':
-      sensitive += [k]
-  return sensitive
-
-def update_vault(vault_client, configmap_obj, vars):
-  ''' migrate var from configmap to Vault '''
-  for var in vars:
+def update_vault(vault_client, configmap_obj, var_names):
+  ''' configure vars in Vault '''
+  for var in var_names:
     logging.debug(f'Updating {var} value in Vault...')
     configmap_value = configmap_obj.get(var)
-    try:
-      vault_value = vault_client.get(var)
-    except:
-      # any exception means Vault doesn't have the var with the same value
-      vault_client.set(var, configmap_value)
-      continue
-
-    # no exception means Vault has the var and it has some value
-    if vault_value == vault_version(configmap_value):
-      # setting the same value again in Vault just increments version, don't bother
-      logging.debug(f'{var} value already in Vault. Nothing to do.')
-    else:
-      # values differ. update vault.
-      vault_client.set(var, configmap_value)
+    vault_client.get_set(var, configmap_value)
