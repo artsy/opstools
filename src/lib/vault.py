@@ -43,7 +43,7 @@ class Vault:
 
     # no exception means there's some value
     if current_value == vault_string(value):
-      logging.debug(f'{var} already has the value. Nothing to do.')
+      logging.debug(f'{key} already has the value. Nothing to do.')
     else:
       self.set(key, value)
 

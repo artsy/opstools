@@ -81,7 +81,7 @@ def unquote(str1):
   quote_char = is_quoted(str1)
   if quote_char:
     logging.debug(f'string is quoted with {quote_char}, removing quotes')
-    return str1[1,-1]
+    return str1[1:-1]
   return str1
 
 def vault_string(str1):
