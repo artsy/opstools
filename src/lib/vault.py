@@ -6,7 +6,7 @@ from lib.util import vault_string, unquote
 
 
 class Vault:
-  ''' interface with hashicorp vault client '''
+  ''' Interface with Hashicorp Vault '''
   def __init__(self, artsy_project, artsy_env):
     env_var_name = f'{artsy_env.upper()}_VAULT_ADDR'
     vault_addr = os.environ.get(env_var_name)

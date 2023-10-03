@@ -37,6 +37,7 @@ class Kctl:
     return resp
 
   def annotate(self, type, name, annotation, namespace='default'):
+    ''' create a k8s annotation '''
     cmd = f'-n {namespace} annotate {type} {name} {annotation} --overwrite'
     resp = self._run(cmd, expect_success=True)
 
@@ -73,9 +74,12 @@ class Kctl:
       logging.debug(f"Kctl: no jobs found in {namespace} namespace.")
     return data["items"]
 
-  def get_namespaced_object(self, type, output_format, namespace, name=''):
+  def get_namespaced_object(self, type, output_format, namespace, name=None):
     ''' return objects of the given type in the given namespace '''
-    cmd = f"-n {namespace} get {type} {name} -o {output_format}"
+    if name is None:
+      cmd = f"-n {namespace} get {type} -o {output_format}"
+    else:
+      cmd = f"-n {namespace} get {type} {name} -o {output_format}"
     resp = self._run(cmd, expect_success=True)
     return resp.stdout
 
@@ -103,11 +107,13 @@ class Kctl:
     return data["items"]
 
   def get_configmap(self, name, namespace='default'):
+    ''' get data of the named configmap '''
     output = self.get_namespaced_object('configmaps', 'json', namespace, name)
     data = json.loads(output)
     return data
 
   def get_secret(self, name, namespace='default'):
+    ''' get data of the named k8s secret '''
     output = self.get_namespaced_object('secrets', 'json', namespace, name)
     data = json.loads(output)
     return data
