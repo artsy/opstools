@@ -27,7 +27,7 @@ replacements=(
 for i in "${!deprecations[@]}"; do
   echo "Replacing '${deprecations[i]}' with '${replacements[i]}'"
 
-  gsed -z -i -e "s|${deprecations[i]}|${replacements[i]}|g" hokusai/*.yml*
+  gsed -z -i -e "s|${deprecations[i]}|${replacements[i]}|g" **/hokusai/*.yml*
 done
 
 
