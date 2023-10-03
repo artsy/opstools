@@ -107,3 +107,7 @@ class Kctl:
     output = self.get_namespaced_object('secrets', 'json', namespace, name)
     data = json.loads(output)
     return data
+
+  def annotate(self, type, name, annotation, namespace='default'):
+    cmd = f'-n {namespace} annotate {type} {name} {annotation} --overwrite'
+    resp = self._run(cmd, expect_success=True)

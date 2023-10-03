@@ -2,8 +2,7 @@ import hvac
 import logging
 import os
 
-from subprocess import run as subprocess_run
-
+from lib.util import vault_version, unquote
 
 class Vault:
   ''' interface with hashicorp vault client '''
@@ -18,30 +17,10 @@ class Vault:
     prefix = 'kubernetes/apps/'
     self._path = f'{prefix}{artsy_project}/'
 
-  def _run(self, command, timeout=30, expect_success=False):
-    ''' run command using vault and return result '''
-    cmd = f"vault {command}"
-    logging.debug(f"Vault: running {cmd}")
-    # exception not raised if run fails
-    resp = subprocess_run(
-      cmd,
-      capture_output=True,
-      shell=True,
-      text=True,
-      timeout=timeout
-    )
-    if expect_success and resp.returncode != 0:
-      raise Exception(
-        f"Command failed: {command}\n" +
-        f"Stderr from Command: {resp.stderr}"
-      )
-    return resp
-
   def set(self, key, value):
     ''' set an entry '''
     full_path = f'{self._path}{key}'
-    self.validate(value)
-    cleaned_value = self.clean_value(value)
+    cleaned_value = vault_version(value)
     logging.debug(f'Vault: setting {full_path}')
     entry = { key: cleaned_value}
     response = self.client.secrets.kv.v2.create_or_update_secret(
@@ -62,21 +41,6 @@ class Vault:
     )
     # return value of key
     value = response['data']['data'][key]
-    return self.unquote(value)
-
-  def is_quoted(self, value):
-    ''' decide whether value is quoted '''
-    # double quote
-    if value[0] == '"' and value[-1] == '"':
-      return '"'
-    # single quote
-    elif value[0] == "'" and value[1] == "'":
-      return "'"
-
-  def unquote(self, value):
-    quote_type = self.is_quoted(value)
-    if quote_type:
-      return value.strip(quote_type)
     return value
 
   def list(self):
@@ -88,25 +52,3 @@ class Vault:
       mount_point=self.mount_point
     )
     return response
-
-  def validate(self, value_string):
-    # do not allow values to be quoted
-    quotes = ["'", '"']
-    if value_string[0] in quotes:
-      logging.error('Quoted values not accepted')
-      raise
-    if value_string[-1] in quotes:
-      logging.error('Quoted values not accepted')
-      raise
-
-  def clean_value(self, value_string):
-    '''
-    double quote strings that contain special YAML characters,
-    such as asterisk,
-    otherwise ESO won't be able to parse
-    '''
-    special_chars = ['*']
-    for char in special_chars:
-      if char in value_string:
-        return f'"{value_string}"'
-    return value_string

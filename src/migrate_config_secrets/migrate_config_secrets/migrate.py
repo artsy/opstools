@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 from hvac.exceptions import InvalidPath
 
@@ -9,7 +10,7 @@ from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
 from lib.vault import Vault
-from lib.util import run_cmd
+from lib.util import run_cmd, vault_version
 
 def migrate_config_secrets(artsy_env, artsy_project, secrets_list, repos_base_dir):
   ''' migrate all sensitive configs from configmap to vault '''
@@ -32,6 +33,10 @@ def migrate_config_secrets(artsy_env, artsy_project, secrets_list, repos_base_di
   for var in secrets:
     migrate_var(vault_client, var, configmap_obj)
 
+  # force sync vault -> eso
+  epoch_time = int(time.time())
+  kctl.annotate('externalsecret', artsy_project, f'force-sync={epoch_time}')
+
   # compare vault with k8s secret
   for var in secrets:
     compare_vault_k8s_secret(vault_client, kctl, var, artsy_project)
@@ -47,7 +52,7 @@ def compare_vault_k8s_secret(vault_client, kctl, var, artsy_project):
   vault_value = vault_client.get(var)
   k8s_secret_obj = K8sSecret(kctl, name=artsy_project)
   k8s_secret_value = k8s_secret_obj.get(var)
-  if vault_value == k8s_secret_value:
+  if vault_value == vault_version(k8s_secret_value):
     logging.info(f'k8s secret and Vault match')
   else:
     logging.info(f"k8s secret and Vault don't match")
@@ -73,7 +78,7 @@ def migrate_var(vault_client, var, configmap_obj):
     value_in_vault = vault_client.get(var)
     # no exception means var exists and has value
     # see if value matches configmap
-    if value_in_vault == value:
+    if value_in_vault == vault_version(value):
       logging.info(f'{var} value in Vault matches configmap. nothing to do.')
     else:
       # values differ. update vault.
