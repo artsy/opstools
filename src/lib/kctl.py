@@ -102,3 +102,8 @@ class Kctl:
     output = self.get_namespaced_object('configmaps', 'json', namespace, name)
     data = json.loads(output)
     return data
+
+  def get_secret(self, name, namespace='default'):
+    output = self.get_namespaced_object('secrets', 'json', namespace, name)
+    data = json.loads(output)
+    return data
