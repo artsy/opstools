@@ -11,20 +11,24 @@ from lib.logging import setup_logging
 def parse_args():
   ''' parse command line args '''
   parser = argparse.ArgumentParser(
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    description=(
+      'Migrate sensitive configs of an Artsy project ' +
+      'from Kubernetes configmap to Hashicorp Vault'
+    )
   )
   parser.add_argument(
     'artsy_env',
     choices=['staging', 'production'],
-    help='the artsy environment'
+    help='artsy environment'
   )
   parser.add_argument(
     'artsy_project',
-    help='the artsy project to work on'
+    help='artsy project'
   )
   parser.add_argument(
     'repos_base_dir',
-    help='directory where all the project github repos are stored locally'
+    help='directory where all the Github repos are stored locally'
   )
   parser.add_argument(
     '--loglevel',
@@ -33,23 +37,28 @@ def parse_args():
     help='log level'
   )
   parser.add_argument(
-    '--secrets_list',
+    '--list',
     default=None,
-    help="file with list of sensitive config vars of the project, if no such list, you will be prompted for each existent config var and asked whether it's sensitive or not"
+    help=(
+      'file containing a list of the sensitive configs, ' +
+      'if not provided, you will be prompted ' +
+      'for each config var of the project ' +
+      'and asked whether it is sensitive or not'
+    )
   )
   return parser.parse_args()
 
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, artsy_project, repos_base_dir, loglevel, secrets_list = (
+  artsy_env, artsy_project, repos_base_dir, loglevel, list = (
     args.artsy_env,
     args.artsy_project,
     args.repos_base_dir,
     args.loglevel,
-    args.secrets_list
+    args.list
   )
 
   setup_logging(eval('logging.' + loglevel))
 
-  migrate_config_secrets(artsy_env, artsy_project, secrets_list, repos_base_dir)
+  migrate_config_secrets(artsy_env, artsy_project, list, repos_base_dir)

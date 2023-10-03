@@ -6,60 +6,72 @@ from hvac.exceptions import InvalidPath
 
 import migrate_config_secrets.context
 
+from lib.hokusai import env_unset
 from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
+from lib.util import vault_version
 from lib.vault import Vault
-from lib.util import run_cmd, vault_version
 
-def migrate_config_secrets(artsy_env, artsy_project, secrets_list, repos_base_dir):
-  ''' migrate all sensitive configs from configmap to vault '''
+def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
+  configmap_vars = configmap_obj.load()
+  sensitive_vars = ask_user_to_identify_sensitive_vars(configmap_vars)
+  file_path = f'./{artsy_project}_{artsy_env}_secret_vars.txt'
+  logging.info(f'Saving list of sensitive vars in {file_path}')
+  with open(file_path, 'w') as f:
+    for var in sensitive_vars:
+      f.write(f'{var}\n') 
+  return sensitive_vars
+
+def migrate_config_secrets(artsy_env, artsy_project, list, repos_base_dir):
+  ''' migrate sensitive configs from configmap to Vault '''
   logging.info(f'Migrating {artsy_env} {artsy_project} sensitive configs from k8s configmap to Vault...')
-  # go through the list and create a list of secrets
   kctl = Kctl(False, artsy_env)
   configmap_name = f'{artsy_project}-environment'
   configmap_obj = ConfigMap(kctl, name=configmap_name)
-  vars = configmap_obj.load()
-
-  secrets = []
-  if secrets_list is None:
-    secrets = identify_sensitive_vars(vars)
-  else:
-    with open(secrets_list, 'r') as f:
-      secrets = f.read().splitlines()
-
   vault_client = Vault(artsy_project, artsy_env)
+  secret_obj = K8sSecret(kctl, name=artsy_project)
 
-  for var in secrets:
-    migrate_var(vault_client, var, configmap_obj)
+  logging.info('Getting list of sensitive vars...')
+  if list is not None:
+    # a list of sensitive vars is provided
+    with open(list, 'r') as f:
+      sensitive_vars = f.read().splitlines()
+  else:
+    # no list
+    sensitive_vars = get_sensitive_vars(configmap_obj, artsy_project, artsy_env)
 
-  # force sync vault -> eso
+  logging.info('Configuring vars in Vault...')
+  update_vault(vault_client, configmap_obj, sensitive_vars)
+
+  logging.info('Syncing vars from Vault to k8s secret...')
+  sync_vault_k8s_secret(kctl, vault_client, secret_obj, artsy_project, sensitive_vars)
+
+  logging.info('Deleting vars from configmap...')
+  project_repo_dir = os.path.join(repos_base_dir, artsy_project)
+  env_unset(project_repo_dir, artsy_env, sensitive_vars)
+
+def sync_vault_k8s_secret(kctl, vault_client, secret_obj, artsy_project, sensitive_vars):
+  logging.info('Force sync Vault -> k8s secret...')
   epoch_time = int(time.time())
   kctl.annotate('externalsecret', artsy_project, f'force-sync={epoch_time}')
+  # allow annotate to finish
+  time.sleep(5)
 
-  # compare vault with k8s secret
-  for var in secrets:
-    compare_vault_k8s_secret(vault_client, kctl, var, artsy_project)
+  # confirm the two are in sync, var by var
+  logging.info('Comparing values in Vault with values in k8s secret...')
+  for var in sensitive_vars:
+    logging.debug(f'Comparing {var} ...')
+    vault_value = vault_client.get(var)
+    k8s_secret_value = secret_obj.get(var)
+    if vault_value == vault_version(k8s_secret_value):
+      logging.debug(f'{var} match')
+    else:
+      logging.error(f"{var} doesn't match")
+      raise
 
-  project_repo_dir = os.path.join(repos_base_dir, artsy_project)
-  logging.info('delete vars from configmap...')
-  for var in secrets:
-    logging.info(f'delete {var}...')
-    run_cmd(f'hokusai {artsy_env} env unset {var}', project_repo_dir)
-
-def compare_vault_k8s_secret(vault_client, kctl, var, artsy_project):
-  logging.info(f'comparing Vault and k8s secret on {var} ...')
-  vault_value = vault_client.get(var)
-  k8s_secret_obj = K8sSecret(kctl, name=artsy_project)
-  k8s_secret_value = k8s_secret_obj.get(var)
-  if vault_value == vault_version(k8s_secret_value):
-    logging.info(f'k8s secret and Vault match')
-  else:
-    logging.info(f"k8s secret and Vault don't match")
-    raise
-
-def identify_sensitive_vars(vars):
-  ''' prompt user to say whether each var is sensitive '''
+def ask_user_to_identify_sensitive_vars(vars):
+  ''' var by var, ask user whether it is sensitive '''
   sensitive = []
   for k,v in vars.items():
     answer = input(f"is {k}={v} sensitive (y/n)? ")
@@ -67,28 +79,22 @@ def identify_sensitive_vars(vars):
       sensitive += [k]
   return sensitive
 
-def migrate_var(vault_client, var, configmap_obj):
-  ''' migrate one var from configmap to vault '''
-  logging.info(f'Migrating {var} ...')
-  value = configmap_obj.get(var)
-  # check if key exists and has value
-  # don't want to just put, because it bumps version
-  # even if value put is same as existing value
-  try:
-    value_in_vault = vault_client.get(var)
-    # no exception means var exists and has value
-    # see if value matches configmap
-    if value_in_vault == vault_version(value):
-      logging.info(f'{var} value in Vault matches configmap. nothing to do.')
+def update_vault(vault_client, configmap_obj, vars):
+  ''' migrate var from configmap to Vault '''
+  for var in vars:
+    logging.debug(f'Updating {var} value in Vault...')
+    configmap_value = configmap_obj.get(var)
+    try:
+      vault_value = vault_client.get(var)
+    except:
+      # any exception means Vault doesn't have the var with the same value
+      vault_client.set(var, configmap_value)
+      continue
+
+    # no exception means Vault has the var and it has some value
+    if vault_value == vault_version(configmap_value):
+      # setting the same value again in Vault just increments version, don't bother
+      logging.debug(f'{var} value already in Vault. Nothing to do.')
     else:
       # values differ. update vault.
-      logging.info(f'{var} value in Vault differs from configmap. making Vault match configmap... ')
-      vault_client.set(var, value)
-  except InvalidPath:
-    logging.info(f'{var} does not exist or data soft-deleted.')
-    # set it
-    vault_client.set(var, value)
-  except KeyError:
-    # that means the k/v pair of vault entry has key that's not the same as var name
-    # set it
-    vault_client.set(var, value)
+      vault_client.set(var, configmap_value)
