@@ -9,6 +9,11 @@ def config_secret_sanitizer(str1):
   eso_sanitized = config_secret_sanitizer_eso(artsy_sanitized)
   return eso_sanitized
 
+def config_secret_sanitizer_artsy(str1):
+  ''' ensure secret_value conforms to Artsy requirements '''
+  # strip surrounding quotes if any
+  return unquote(str1)
+
 def config_secret_sanitizer_eso(str1):
   ''' ensure string is acceptable to Kubernetes External Secrets Operator '''
   # add double quoutes if string has YAML special char
@@ -22,11 +27,6 @@ def config_secret_sanitizer_eso(str1):
       break
   return str1
 
-def config_secret_sanitizer_artsy(str1):
-  ''' ensure secret_value conforms to Artsy requirements '''
-  # strip surrounding quotes if any
-  return unquote(str1)
-
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
   return name.startswith('artsy-')
@@ -37,7 +37,7 @@ def is_quoted(str1):
   if str1[0] == '"' and str1[-1] == '"':
     return '"'
   # single quote
-  elif str1[0] == "'" and str1[1] == "'":
+  elif str1[0] == "'" and str1[-1] == "'":
     return "'"
 
 def list_intersect(list_a, list_b):
