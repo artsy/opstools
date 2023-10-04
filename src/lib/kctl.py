@@ -38,7 +38,10 @@ class Kctl:
 
   def annotate(self, type, name, annotation, namespace='default'):
     ''' create a k8s annotation '''
-    cmd = f'-n {namespace} annotate {type} {name} {annotation} --overwrite'
+    cmd = (
+      f'-n {namespace} annotate ' +
+      f'{type} {name} {annotation} --overwrite'
+    )
     resp = self._run(cmd, expect_success=True)
 
   def delete_job(self, job_name, namespace='default'):
@@ -68,27 +71,43 @@ class Kctl:
 
   def get_configmap(self, name, namespace='default'):
     ''' get data of the named configmap '''
-    output = self.get_namespaced_object('configmaps', 'json', namespace, name)
+    output = self.get_namespaced_object(
+      'configmaps', 'json', namespace, name
+    )
     data = json.loads(output)
     return data
 
   def get_configmaps(self, namespace='default'):
     ''' return configmaps in given namespace '''
-    output = self.get_namespaced_object('configmaps', 'json', namespace)
+    output = self.get_namespaced_object(
+      'configmaps', 'json', namespace
+    )
     data = json.loads(output)
     if not data["items"]:
-      logging.debug(f"Kctl: no configmaps found in {namespace} namespace.")
+      logging.debug(
+        f"Kctl: no configmaps found in {namespace} namespace."
+      )
     return data["items"]
 
   def get_jobs(self, namespace='default'):
     ''' return jobs in the given namespace'''
-    output = self.get_namespaced_object('jobs', 'json', namespace)
+    output = self.get_namespaced_object(
+      'jobs', 'json', namespace
+    )
     data = json.loads(output)
     if not data["items"]:
-      logging.debug(f"Kctl: no jobs found in {namespace} namespace.")
+      logging.debug(
+        f"Kctl: no jobs found in {namespace} namespace."
+      )
     return data["items"]
 
-  def get_namespaced_object(self, type, output_format, namespace, name=None):
+  def get_namespaced_object(
+    self,
+    type,
+    output_format,
+    namespace,
+    name=None
+  ):
     ''' return objects of the given type in the given namespace '''
     if name is None:
       cmd = f"-n {namespace} get {type} -o {output_format}"
@@ -114,6 +133,8 @@ class Kctl:
 
   def get_secret(self, name, namespace='default'):
     ''' get data of the named k8s secret '''
-    output = self.get_namespaced_object('secrets', 'json', namespace, name)
+    output = self.get_namespaced_object(
+      'secrets', 'json', namespace, name
+    )
     data = json.loads(output)
     return data

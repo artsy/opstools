@@ -3,6 +3,22 @@ import logging
 import os
 import subprocess
 
+def config_secret_sanitizer(str1):
+  ''' return a version of str1 that is compatible with Artsy's requirement '''
+  # surrounding quotes stripped
+  new_value = unquote(str1)
+  # double quoutes added if there is any YAML special char
+  # this is for ESO
+  special_chars = ['*']
+  for char in special_chars:
+    if char in new_value:
+      logging.debug(
+        'string contains special YAML chars, adding double-quotes.'
+      )
+      new_value = f'"{new_value}"'
+      break
+  return new_value
+
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
   return name.startswith('artsy-')
@@ -83,16 +99,3 @@ def unquote(str1):
     logging.debug(f'string is quoted with {quote_char}, removing quotes')
     return str1[1:-1]
   return str1
-
-def vault_string(str1):
-  ''' returns a version of str1 that is compatible with Hashicorp Vault '''
-  # surrounding quotes must be stripped
-  new_value = unquote(str1)
-  # string must be double quouted if there is any YAML special char
-  special_chars = ['*']
-  for char in special_chars:
-    if char in new_value:
-      logging.debug('string contains special YAML chars, adding double-quotes.')
-      new_value = f'"{new_value}"'
-      break
-  return new_value

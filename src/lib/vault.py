@@ -1,18 +1,19 @@
 import hvac
 import logging
 
-from lib.util import vault_string
-
 
 class Vault:
   ''' Interface with Hashicorp Vault '''
-  def __init__(self, addr, kvv2_mount_point, path, token):
+  def __init__(self, addr, kvv2_mount_point, path, token, sanitizer):
     self.client = hvac.Client(
         url=addr,
         token=token
     )
     self.mount_point = kvv2_mount_point
     self._path = path
+    # a function for sanitizing a value before setting it in Vault
+    # this is org-specific
+    self._sanitizer = sanitizer
 
   def get(self, key):
     ''' get an entry '''
@@ -38,8 +39,10 @@ class Vault:
       return
 
     # no exception means there's some value
-    if current_value == vault_string(value):
-      logging.debug(f'{key} already has the value. Nothing to do.')
+    if current_value == self._sanitizer(value):
+      logging.debug(
+        f'{key} already has the value. Nothing to do.'
+      )
     else:
       self.set(key, value)
 
@@ -56,7 +59,7 @@ class Vault:
   def set(self, key, value):
     ''' set an entry '''
     full_path = f'{self._path}{key}'
-    cleaned_value = vault_string(value)
+    cleaned_value = self._sanitizer(value)
     logging.debug(f'Vault: setting {full_path}')
     entry = { key: cleaned_value}
     response = self.client.secrets.kv.v2.create_or_update_secret(
