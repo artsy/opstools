@@ -4,20 +4,28 @@ import os
 import subprocess
 
 def config_secret_sanitizer(str1):
-  ''' return a version of str1 that is compatible with Artsy's requirement '''
-  # surrounding quotes stripped
-  new_value = unquote(str1)
-  # double quoutes added if there is any YAML special char
-  # this is for ESO
+  ''' run all config secret sanitizers '''
+  artsy_sanitized = config_secret_sanitizer_artsy(str1)
+  eso_sanitized = config_secret_sanitizer_eso(artsy_sanitized)
+  return eso_sanitized
+
+def config_secret_sanitizer_eso(str1):
+  ''' ensure string is acceptable to Kubernetes External Secrets Operator '''
+  # add double quoutes if string has YAML special char
   special_chars = ['*']
   for char in special_chars:
-    if char in new_value:
+    if char in str1:
       logging.debug(
-        'string contains special YAML chars, adding double-quotes.'
+        'String contains special YAML chars, adding double-quotes.'
       )
-      new_value = f'"{new_value}"'
+      return f'"{str1}"'
       break
-  return new_value
+  return str1
+
+def config_secret_sanitizer_artsy(str1):
+  ''' ensure secret_value conforms to Artsy requirements '''
+  # strip surrounding quotes if any
+  return unquote(str1)
 
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
@@ -49,6 +57,14 @@ def list_subtract(list_a, *args):
   for subtrahend in args:
     minuend = [x for x in minuend if x not in subtrahend]
   return minuend
+
+def match_or_raise(str1, str2):
+  ''' raise if str1 and str2 differ '''
+  if str1 == str2:
+    logging.debug('str1 and str2 match')
+  else:
+    logging.error('str1 and str2 different')
+    raise
 
 def parse_string_of_key_value_pairs(str1):
   '''

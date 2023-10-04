@@ -8,7 +8,11 @@ from lib.hokusai import env_unset
 from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
-from lib.util import config_secret_sanitizer
+from lib.util import (
+  config_secret_sanitizer,
+  config_secret_sanitizer_artsy,
+  match_or_raise
+)
 from lib.vault import Vault
 
 
@@ -20,6 +24,17 @@ def ask_user_to_identify_sensitive_vars(keys_values):
     if answer == 'y':
       sensitive += [k]
   return sensitive
+
+def compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars):
+  ''' compare k8s secret and configmap, var by var '''
+  for var in sensitive_vars:
+    logging.debug(f'Comparing {var} ...')
+    k8s_secret_value = secret_obj.get(var)
+    configmap_value = configmap_obj.get(var)
+    match_or_raise(
+      k8s_secret_value,
+      config_secret_sanitizer_artsy(configmap_value)
+    )
 
 def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
   configmap_vars = configmap_obj.load()
@@ -81,6 +96,9 @@ def migrate_config_secrets(
     kctl, vault_client, secret_obj, artsy_project, sensitive_vars
   )
 
+  logging.info('Compairing k8s secret with configmap...')
+  compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars)
+
   logging.info('Deleting vars from configmap...')
   project_repo_dir = os.path.join(repos_base_dir, artsy_project)
   env_unset(project_repo_dir, artsy_env, sensitive_vars)
@@ -108,11 +126,10 @@ def sync_vault_k8s_secret(
     logging.debug(f'Comparing {var} ...')
     vault_value = vault_client.get(var)
     k8s_secret_value = secret_obj.get(var)
-    if vault_value == config_secret_sanitizer(k8s_secret_value):
-      logging.debug(f'{var} match')
-    else:
-      logging.error(f"{var} doesn't match")
-      raise
+    match_or_raise(
+      vault_value,
+      config_secret_sanitizer(k8s_secret_value)
+    )
 
 def update_vault(vault_client, configmap_obj, var_names):
   ''' configure vars in Vault '''
