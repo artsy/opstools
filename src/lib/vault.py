@@ -5,11 +5,11 @@ import logging
 class Vault:
   ''' Interface with Hashicorp Vault '''
   def __init__(self, addr, kvv2_mount_point, path, token, sanitizer):
-    self.client = hvac.Client(
+    self._client = hvac.Client(
         url=addr,
         token=token
     )
-    self.mount_point = kvv2_mount_point
+    self._mount_point = kvv2_mount_point
     self._path = path
     # a function for sanitizing a value before setting it in Vault
     # this is org-specific
@@ -21,9 +21,9 @@ class Vault:
     logging.debug(f'Vault: getting {full_path}')
     # if key does not exist or if data is soft-deleted, it raises:
     # hvac.exceptions.InvalidPath
-    response = self.client.secrets.kv.read_secret_version(
+    response = self._client.secrets.kv.read_secret_version(
       path=full_path,
-      mount_point=self.mount_point
+      mount_point=self._mount_point
     )
     # return value of key
     value = response['data']['data'][key]
@@ -50,9 +50,9 @@ class Vault:
     ''' list keys under a path '''
     logging.debug(f'Vault: listing {self._path}')
     # list includes soft-deleted keys
-    response = self.client.secrets.kv.v2.list_secrets(
+    response = self._client.secrets.kv.v2.list_secrets(
       path=self._path,
-      mount_point=self.mount_point
+      mount_point=self._mount_point
     )
     return response
 
@@ -62,8 +62,8 @@ class Vault:
     cleaned_value = self._sanitizer(value)
     logging.debug(f'Vault: setting {full_path}')
     entry = { key: cleaned_value}
-    response = self.client.secrets.kv.v2.create_or_update_secret(
+    response = self._client.secrets.kv.v2.create_or_update_secret(
       path=full_path,
       secret=entry,
-      mount_point=self.mount_point,
+      mount_point=self._mount_point,
     )
