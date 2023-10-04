@@ -45,7 +45,7 @@ def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
   logging.info(f'Saving list of sensitive vars in {file_path}')
   with open(file_path, 'w') as f:
     for var in sensitive_vars:
-      f.write(f'{var}\n') 
+      f.write(f'{var}\n')
   return sensitive_vars
 
 def migrate_config_secrets(
@@ -96,7 +96,7 @@ def migrate_config_secrets(
     kctl, vault_client, secret_obj, artsy_project, sensitive_vars
   )
 
-  logging.info('Compairing k8s secret with configmap...')
+  logging.info('Comparing k8s secret with configmap...')
   compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars)
 
   logging.info('Deleting vars from configmap...')
