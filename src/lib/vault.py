@@ -6,8 +6,8 @@ class Vault:
   ''' Interface with Hashicorp Vault '''
   def __init__(self, addr, kvv2_mount_point, path, token, sanitizer):
     self._client = hvac.Client(
-        url=addr,
-        token=token
+      url=addr,
+      token=token
     )
     self._mount_point = kvv2_mount_point
     self._path = path
