@@ -24,6 +24,10 @@ def mock_kctl(
       }
     def get_namespaces(self):
       return mock_kubectl_get_namespaces_json_object['items']
+    def get_secret(self, name, namespace):
+      return {
+        'data': 'foodata'
+      }
     def get_pods(self, namespace):
       return mock_kubectl_get_pods_json_object['items']
     def get_jobs(self, namespace):

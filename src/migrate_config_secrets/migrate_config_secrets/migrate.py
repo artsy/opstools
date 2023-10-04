@@ -67,7 +67,7 @@ def migrate_config_secrets(
   configmap_name = f'{artsy_project}-environment'
   configmap_obj = ConfigMap(kctl, configmap_name)
 
-  secret_obj = K8sSecret(kctl, name=artsy_project)
+  secret_obj = K8sSecret(kctl, artsy_project)
 
   path = 'kubernetes/apps/' + f'{artsy_project}/'
   vault_client = Vault(
