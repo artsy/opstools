@@ -42,7 +42,7 @@ class Kctl:
       f'-n {namespace} annotate ' +
       f'{type} {name} {annotation} --overwrite'
     )
-    resp = self._run(cmd, expect_success=True)
+    self._run(cmd, expect_success=True)
 
   def delete_job(self, job_name, namespace='default'):
     ''' delete the given job in the given namespace '''
