@@ -31,14 +31,26 @@ def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
       f.write(f'{var}\n') 
   return sensitive_vars
 
-def migrate_config_secrets(artsy_env, artsy_project, list, repos_base_dir):
+def migrate_config_secrets(
+  artsy_env,
+  artsy_project,
+  list,
+  repos_base_dir,
+  vault_addr,
+  kvv2_mount_point,
+  vault_token
+):
   ''' migrate sensitive configs from configmap to Vault '''
   logging.info(f'Migrating {artsy_env} {artsy_project} sensitive configs from k8s configmap to Vault...')
+
   kctl = Kctl(False, artsy_env)
   configmap_name = f'{artsy_project}-environment'
   configmap_obj = ConfigMap(kctl, name=configmap_name)
-  vault_client = Vault(artsy_project, artsy_env)
+
   secret_obj = K8sSecret(kctl, name=artsy_project)
+
+  path = 'kubernetes/apps/' + f'{artsy_project}/'
+  vault_client = Vault(vault_addr, kvv2_mount_point, path, vault_token)
 
   logging.info('Getting list of sensitive vars...')
   if list is not None:

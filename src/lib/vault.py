@@ -1,22 +1,18 @@
 import hvac
 import logging
-import os
 
 from lib.util import vault_string, unquote
 
 
 class Vault:
   ''' Interface with Hashicorp Vault '''
-  def __init__(self, artsy_project, artsy_env):
-    env_var_name = f'{artsy_env.upper()}_VAULT_ADDR'
-    vault_addr = os.environ.get(env_var_name)
+  def __init__(self, addr, kvv2_mount_point, path, token):
     self.client = hvac.Client(
-        url=vault_addr,
-        token=os.environ.get('VAULT_TOKEN')
+        url=addr,
+        token=token
     )
-    self.mount_point = os.environ.get('VAULT_KVV2_MOUNT_POINT')
-    prefix = 'kubernetes/apps/'
-    self._path = f'{prefix}{artsy_project}/'
+    self.mount_point = kvv2_mount_point
+    self._path = path
 
   def get(self, key):
     ''' get an entry '''
