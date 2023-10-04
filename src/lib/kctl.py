@@ -66,6 +66,20 @@ class Kctl:
     ''' delete the given pod in the given namespace '''
     self.delete_namespaced_object('pod', pod_name, namespace)
 
+  def get_configmap(self, name, namespace='default'):
+    ''' get data of the named configmap '''
+    output = self.get_namespaced_object('configmaps', 'json', namespace, name)
+    data = json.loads(output)
+    return data
+
+  def get_configmaps(self, namespace='default'):
+    ''' return configmaps in given namespace '''
+    output = self.get_namespaced_object('configmaps', 'json', namespace)
+    data = json.loads(output)
+    if not data["items"]:
+      logging.debug(f"Kctl: no configmaps found in {namespace} namespace.")
+    return data["items"]
+
   def get_jobs(self, namespace='default'):
     ''' return jobs in the given namespace'''
     output = self.get_namespaced_object('jobs', 'json', namespace)
@@ -97,20 +111,6 @@ class Kctl:
     if not data["items"]:
       logging.debug(f"Kctl: no pods found in {namespace} namespace.")
     return data["items"]
-
-  def get_configmaps(self, namespace='default'):
-    ''' return configmaps in given namespace '''
-    output = self.get_namespaced_object('configmaps', 'json', namespace)
-    data = json.loads(output)
-    if not data["items"]:
-      logging.debug(f"Kctl: no configmaps found in {namespace} namespace.")
-    return data["items"]
-
-  def get_configmap(self, name, namespace='default'):
-    ''' get data of the named configmap '''
-    output = self.get_namespaced_object('configmaps', 'json', namespace, name)
-    data = json.loads(output)
-    return data
 
   def get_secret(self, name, namespace='default'):
     ''' get data of the named k8s secret '''

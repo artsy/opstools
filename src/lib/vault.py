@@ -1,7 +1,7 @@
 import hvac
 import logging
 
-from lib.util import vault_string, unquote
+from lib.util import vault_string
 
 
 class Vault:
@@ -18,8 +18,8 @@ class Vault:
     ''' get an entry '''
     full_path = f'{self._path}{key}'
     logging.debug(f'Vault: getting {full_path}')
-    # if key does not exist or if data is soft-deleted:
-    # raise exceptions.VaultError.from_status(hvac.exceptions.InvalidPath
+    # if key does not exist or if data is soft-deleted, it raises:
+    # hvac.exceptions.InvalidPath
     response = self.client.secrets.kv.read_secret_version(
       path=full_path,
       mount_point=self.mount_point
@@ -29,7 +29,7 @@ class Vault:
     return value
 
   def get_set(self, key, value):
-    ''' set only if current version doesn't exist or has a different value '''
+    ''' set, but only if value is not there '''
     try:
       current_value = self.get(key)
     except:
