@@ -1,9 +1,9 @@
 class ConfigMap:
   ''' Interface with one Kubernetes ConfigMap '''
-  def __init__(self, kctl, namespace='default', name=None):
+  def __init__(self, kctl, name, namespace='default'):
     self._kctl = kctl
-    self.name = name
-    self.namespace = namespace
+    self._name = name
+    self._namespace = namespace
 
   def get(self, var_name):
     ''' get value of one var in configmap '''
@@ -12,5 +12,5 @@ class ConfigMap:
 
   def load(self):
     ''' load all data of configmap '''
-    data = self._kctl.get_configmap(self.name, self.namespace)
+    data = self._kctl.get_configmap(self._name, self._namespace)
     return data['data']

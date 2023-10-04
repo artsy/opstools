@@ -16,14 +16,18 @@ def mock_kctl(
       pass
     def delete_job(self, namespace, job_name):
       pass
+    def delete_namespace(self, namespace):
+      pass
+    def get_configmap(self, name, namespace):
+      return {
+        'data': 'foodata'
+      }
     def get_namespaces(self):
       return mock_kubectl_get_namespaces_json_object['items']
     def get_pods(self, namespace):
       return mock_kubectl_get_pods_json_object['items']
     def get_jobs(self, namespace):
       return mock_kubectl_get_jobs_json_object['items']
-    def delete_namespace(self, namespace):
-      pass
   return MockKctl()
 
 # namespace fixtures

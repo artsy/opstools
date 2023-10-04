@@ -65,7 +65,7 @@ def migrate_config_secrets(
 
   kctl = Kctl(False, artsy_env)
   configmap_name = f'{artsy_project}-environment'
-  configmap_obj = ConfigMap(kctl, name=configmap_name)
+  configmap_obj = ConfigMap(kctl, configmap_name)
 
   secret_obj = K8sSecret(kctl, name=artsy_project)
 
