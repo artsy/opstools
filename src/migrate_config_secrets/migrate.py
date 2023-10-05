@@ -31,10 +31,9 @@ def parse_args():
     help='directory where all the Github repos are stored locally'
   )
   parser.add_argument(
-    '--loglevel',
-    choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-    default='INFO',
-    help='log level'
+    '--dry-run',
+    action="store_true",
+    help=("Dry Run. Won't make any changes.")
   )
   parser.add_argument(
     '--list',
@@ -45,6 +44,12 @@ def parse_args():
       'for each config var of the project ' +
       'and asked whether it is sensitive or not'
     )
+  )
+  parser.add_argument(
+    '--loglevel',
+    choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+    default='INFO',
+    help='log level'
   )
   return parser.parse_args()
 
@@ -72,12 +77,13 @@ def validate(artsy_env, vault_addr):
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, artsy_project, list, repos_base_dir, loglevel = (
+  artsy_env, artsy_project, repos_base_dir, dry_run, list, loglevel = (
     args.artsy_env,
     args.artsy_project,
-    args.list,
     args.repos_base_dir,
-    args.loglevel
+    args.dry_run,
+    args.list,
+    args.loglevel,
   )
 
   setup_logging(eval('logging.' + loglevel))
@@ -93,5 +99,6 @@ if __name__ == "__main__":
     repos_base_dir,
     vault_addr,
     kvv2_mount_point,
-    vault_token
+    vault_token,
+    dry_run
   )

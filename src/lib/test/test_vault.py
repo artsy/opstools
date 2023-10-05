@@ -57,7 +57,7 @@ def describe_vault():
         spy = mocker.spy(obj, 'set')
         obj.get_set('fookey', 'foovalue')
         spy.assert_has_calls([
-          mocker.call('fookey', 'foovalue')
+          mocker.call('fookey', 'foovalue', False)
         ])
     def describe_different_value():
       def it_sets(mocker, mock_hvac_client_class):
@@ -70,7 +70,7 @@ def describe_vault():
         spy = mocker.spy(obj, 'set')
         obj.get_set('fookey', 'foovalue')
         spy.assert_has_calls([
-          mocker.call('fookey', 'foovalue')
+          mocker.call('fookey', 'foovalue', False)
         ])
     def describe_same_value():
       def it_skips(mocker, mock_hvac_client_class):
@@ -114,4 +114,11 @@ def describe_vault():
           mount_point='foomountpoint'
         )
       ])
-
+    def it_does_not_set_when_dry_run(mocker, mock_hvac_client_class):
+      mocker.patch('lib.vault.hvac.Client').side_effect = mock_hvac_client_class
+      def foosanitizer(value):
+        return value
+      obj = Vault('fooaddr', 'foomountpoint', 'foopath', 'footoken', foosanitizer)
+      spy = mocker.spy(obj._client.secrets.kv.v2, 'create_or_update_secret')
+      obj.set('fookey', 'foovalue', True)
+      assert spy.call_count == 0

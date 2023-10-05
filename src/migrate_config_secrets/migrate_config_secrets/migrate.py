@@ -55,7 +55,8 @@ def migrate_config_secrets(
   repos_base_dir,
   vault_addr,
   kvv2_mount_point,
-  vault_token
+  vault_token,
+  dry_run
 ):
   ''' migrate sensitive configs from configmap to Vault '''
   logging.info(
@@ -89,19 +90,22 @@ def migrate_config_secrets(
     )
 
   logging.info('Configuring vars in Vault...')
-  update_vault(vault_client, configmap_obj, sensitive_vars)
+  update_vault(vault_client, configmap_obj, sensitive_vars, dry_run)
 
-  logging.info('Syncing vars from Vault to k8s secret...')
-  sync_vault_k8s_secret(
-    kctl, vault_client, secret_obj, artsy_project, sensitive_vars
-  )
+  if dry_run:
+    logging.info('Skipping the rest because this is a dry run.')
+  else:
+    logging.info('Syncing vars from Vault to k8s secret...')
+    sync_vault_k8s_secret(
+      kctl, vault_client, secret_obj, artsy_project, sensitive_vars
+    )
 
-  logging.info('Comparing k8s secret with configmap...')
-  compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars)
+    logging.info('Comparing k8s secret with configmap...')
+    compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars)
 
-  logging.info('Deleting vars from configmap...')
-  project_repo_dir = os.path.join(repos_base_dir, artsy_project)
-  env_unset(project_repo_dir, artsy_env, sensitive_vars)
+    logging.info('Deleting vars from configmap...')
+    project_repo_dir = os.path.join(repos_base_dir, artsy_project)
+    env_unset(project_repo_dir, artsy_env, sensitive_vars)
 
 def sync_vault_k8s_secret(
   kctl,
@@ -131,9 +135,9 @@ def sync_vault_k8s_secret(
       config_secret_sanitizer(k8s_secret_value)
     )
 
-def update_vault(vault_client, configmap_obj, var_names):
+def update_vault(vault_client, configmap_obj, var_names, dry_run):
   ''' configure vars in Vault '''
   for var in var_names:
     logging.debug(f'Updating {var} value in Vault...')
     configmap_value = configmap_obj.get(var)
-    vault_client.get_set(var, configmap_value)
+    vault_client.get_set(var, configmap_value, dry_run)

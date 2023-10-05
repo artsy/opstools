@@ -29,13 +29,13 @@ class Vault:
     value = response['data']['data'][key]
     return value
 
-  def get_set(self, key, value):
+  def get_set(self, key, value, dry_run=False):
     ''' set, but only if value is not there '''
     try:
       current_value = self.get(key)
     except:
       # any exception means there's no value
-      self.set(key, value)
+      self.set(key, value, dry_run)
       return
 
     # no exception means there's some value
@@ -44,7 +44,7 @@ class Vault:
         f'{key} already has the value. Nothing to do.'
       )
     else:
-      self.set(key, value)
+      self.set(key, value, dry_run)
 
   def list(self):
     ''' list keys under a path '''
@@ -56,14 +56,17 @@ class Vault:
     )
     return response
 
-  def set(self, key, value):
+  def set(self, key, value, dry_run=False):
     ''' set an entry '''
     full_path = f'{self._path}{key}'
     cleaned_value = self._sanitizer(value)
     logging.debug(f'Vault: setting {full_path}')
     entry = { key: cleaned_value}
-    response = self._client.secrets.kv.v2.create_or_update_secret(
-      path=full_path,
-      secret=entry,
-      mount_point=self._mount_point,
-    )
+    if dry_run:
+      logging.info(f'Would have set {full_path}')
+    else:
+      response = self._client.secrets.kv.v2.create_or_update_secret(
+        path=full_path,
+        secret=entry,
+        mount_point=self._mount_point,
+      )
