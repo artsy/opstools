@@ -5,14 +5,29 @@ import subprocess
 import tempfile
 
 from lib.util import (
+  config_secret_sanitizer_artsy,
+  config_secret_sanitizer_eso,
   is_artsy_s3_bucket,
+  is_quoted,
   list_intersect,
   list_match_str,
   list_subtract,
+  match_or_raise,
   parse_string_of_key_value_pairs,
   run_cmd,
-  search_dirs_by_suffix
+  search_dirs_by_suffix,
+  unquote
 )
+
+def describe_config_secret_sanitizer_artsy():
+  def it_removes_surrounding_quotes():
+    assert config_secret_sanitizer_artsy('"foo"') == 'foo'
+
+def describe_config_secret_sanitizer_eso():
+  def it_adds_double_quotes_when_special_yaml_char():
+    assert config_secret_sanitizer_eso('*foo') == '"*foo"'
+  def it_returns_same_string_otherwise():
+    assert config_secret_sanitizer_eso('foo') == 'foo'
 
 def describe_is_artsy_s3_bucket():
   def it_returns_true_if_name_starts_with_artsy():
@@ -21,6 +36,16 @@ def describe_is_artsy_s3_bucket():
     assert not is_artsy_s3_bucket('foo-bucket')
   def it_returns_false_if_name_is_empty_string():
     assert not is_artsy_s3_bucket('')
+
+def describe_is_quoted():
+  def it_returns_double_quote_when_string_is_quoted_that():
+    assert is_quoted('"foo"') == '"'
+  def it_returns_single_quote_when_string_is_quoted_that():
+    assert is_quoted("'foo'") == "'"
+  def it_does_not_return_when_string_is_not_quoted():
+    assert is_quoted('foo') == None
+  def it_ignores_non_surrounding_quotes():
+    assert is_quoted('"foo') == None
 
 def describe_list_intersect():
   def it_returns_common_elements():
@@ -53,6 +78,13 @@ def describe_list_subtract():
     a = [1, 2, 3]
     b = [1, 3, 4, 5]
     assert list_subtract(a,b) == [2]
+
+def describe_match_or_raise():
+  def it_does_not_raise_when_match():
+    assert match_or_raise('foo', 'foo') is None
+  def it_raises_when_no_match():
+    with pytest.raises(Exception):
+      assert match_or_raise('foo', 'bar')
 
 def describe_parse_string_of_key_value_pairs():
   def it_parses():
@@ -95,3 +127,11 @@ def describe_search_dirs_by_suffix():
         os.path.join(tmpdir, 'foo')
       ]
       assert search_dirs_by_suffix(tmpdir, 'txt') == expected_dirs
+
+def describe_unquote():
+  def it_removes_surrounding_double_quotes():
+    assert unquote('"foo"') == 'foo'
+  def it_removes_surrounding_single_quotes():
+    assert unquote("'foo'") == 'foo'
+  def it_returns_same_string_if_unquoted():
+    assert unquote('"foo') == '"foo'

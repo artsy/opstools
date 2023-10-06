@@ -3,6 +3,7 @@ import json
 
 from subprocess import run as subprocess_run
 
+
 class Kctl:
   ''' interface with kubectl '''
   def __init__(self, in_cluster, context):
@@ -35,6 +36,14 @@ class Kctl:
       )
     return resp
 
+  def annotate(self, type, name, annotation, namespace='default'):
+    ''' create a k8s annotation '''
+    cmd = (
+      f'-n {namespace} annotate ' +
+      f'{type} {name} {annotation} --overwrite'
+    )
+    self._run(cmd, expect_success=True)
+
   def delete_job(self, job_name, namespace='default'):
     ''' delete the given job in the given namespace '''
     self.delete_namespaced_object('job', job_name, namespace)
@@ -60,17 +69,50 @@ class Kctl:
     ''' delete the given pod in the given namespace '''
     self.delete_namespaced_object('pod', pod_name, namespace)
 
-  def get_jobs(self, namespace='default'):
-    ''' return jobs in the given namespace'''
-    output = self.get_namespaced_object('jobs', 'json', namespace)
+  def get_configmap(self, name, namespace='default'):
+    ''' get data of the named configmap '''
+    output = self.get_namespaced_object(
+      'configmaps', 'json', namespace, name
+    )
+    data = json.loads(output)
+    return data
+
+  def get_configmaps(self, namespace='default'):
+    ''' return configmaps in given namespace '''
+    output = self.get_namespaced_object(
+      'configmaps', 'json', namespace
+    )
     data = json.loads(output)
     if not data["items"]:
-      logging.debug(f"Kctl: no jobs found in {namespace} namespace.")
+      logging.debug(
+        f"Kctl: no configmaps found in {namespace} namespace."
+      )
     return data["items"]
 
-  def get_namespaced_object(self, type, output_format, namespace):
+  def get_jobs(self, namespace='default'):
+    ''' return jobs in the given namespace'''
+    output = self.get_namespaced_object(
+      'jobs', 'json', namespace
+    )
+    data = json.loads(output)
+    if not data["items"]:
+      logging.debug(
+        f"Kctl: no jobs found in {namespace} namespace."
+      )
+    return data["items"]
+
+  def get_namespaced_object(
+    self,
+    type,
+    output_format,
+    namespace,
+    name=None
+  ):
     ''' return objects of the given type in the given namespace '''
-    cmd = f"-n {namespace} get {type} -o {output_format}"
+    if name is None:
+      cmd = f"-n {namespace} get {type} -o {output_format}"
+    else:
+      cmd = f"-n {namespace} get {type} {name} -o {output_format}"
     resp = self._run(cmd, expect_success=True)
     return resp.stdout
 
@@ -89,10 +131,10 @@ class Kctl:
       logging.debug(f"Kctl: no pods found in {namespace} namespace.")
     return data["items"]
 
-  def get_configmaps(self, namespace='default'):
-    ''' return configmaps in given namespace '''
-    output = self.get_namespaced_object('configmaps', 'json', namespace)
+  def get_secret(self, name, namespace='default'):
+    ''' get data of the named k8s secret '''
+    output = self.get_namespaced_object(
+      'secrets', 'json', namespace, name
+    )
     data = json.loads(output)
-    if not data["items"]:
-      logging.debug(f"Kctl: no configmaps found in {namespace} namespace.")
-    return data["items"]
+    return data
