@@ -22,16 +22,13 @@ from lib.test.fixtures.kctl import (
 )
 
 def describe_kctl():
-
   def describe_instantiation():
-
     def it_instantiates():
       kctl = Kctl(True, 'staging')
       assert kctl._context == 'staging'
       assert kctl._in_cluster == True
 
   def describe_in_cluster():
-
     def describe_run():
       def describe_sucess_not_expected():
         def it_calls_subprocess_run_with_correct_params(mocker):
@@ -90,7 +87,6 @@ def describe_kctl():
             assert resp.returncode == 1
 
   def describe_outside_cluster():
-
     def describe_run():
       def it_calls_run_with_correct_params(mocker):
         kctl = Kctl(False, 'staging')
@@ -110,6 +106,19 @@ def describe_kctl():
           )
         ])
         assert resp.returncode == 0
+
+    def describe_annotate():
+      def it_calls_run_with_correct_params(mocker):
+        kctl = Kctl(False, 'staging')
+        mocker.patch('lib.kctl.Kctl._run')
+        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+        kctl.annotate('footype', 'fooname', 'fooannotation')
+        kctl_run_spy.assert_has_calls([
+          mocker.call(
+            '-n default annotate footype fooname fooannotation --overwrite',
+            expect_success=True
+          )
+        ])
 
     def describe_delete_job():
       def it_calls_delete_namespaced_object_with_correct_params(mocker):
@@ -188,18 +197,32 @@ def describe_kctl():
         assert data == mock_kubectl_get_jobs_json_object['items']
 
     def describe_get_namespaced_object():
-      def it_calls_run_with_correct_params(mocker):
-        kctl = Kctl(False, 'staging')
-        mocker.patch(
-          'lib.kctl.Kctl._run',
-          return_value=CompletedProcess('foo', 0, stdout='foooutput')
-        )
-        kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
-        output = kctl.get_namespaced_object('jobs', 'json', 'default')
-        kctl_run_spy.assert_has_calls([
-          mocker.call('-n default get jobs -o json', expect_success=True)
-        ])
-        assert output == 'foooutput'
+      def describe_when_no_resource_name():
+        def it_calls_run_with_correct_params(mocker):
+          kctl = Kctl(False, 'staging')
+          mocker.patch(
+            'lib.kctl.Kctl._run',
+            return_value=CompletedProcess('foo', 0, stdout='foooutput')
+          )
+          kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+          output = kctl.get_namespaced_object('jobs', 'json', 'default')
+          kctl_run_spy.assert_has_calls([
+            mocker.call('-n default get jobs -o json', expect_success=True)
+          ])
+          assert output == 'foooutput'
+      def describe_when_resource_name():
+        def it_calls_run_with_correct_params(mocker):
+          kctl = Kctl(False, 'staging')
+          mocker.patch(
+            'lib.kctl.Kctl._run',
+            return_value=CompletedProcess('foo', 0, stdout='foooutput')
+          )
+          kctl_run_spy = mocker.spy(lib.kctl.Kctl, '_run')
+          output = kctl.get_namespaced_object('jobs', 'json', 'default', 'fooresource')
+          kctl_run_spy.assert_has_calls([
+            mocker.call('-n default get jobs fooresource -o json', expect_success=True)
+          ])
+          assert output == 'foooutput'
 
     def describe_get_namespaces():
       def it_gets_namespaces(
@@ -235,6 +258,21 @@ def describe_kctl():
         ])
         assert data == mock_kubectl_get_pods_json_object['items']
 
+    def describe_get_configmap():
+      def it_gets_the_named_configmap(mocker):
+        kctl = Kctl(False, 'staging')
+        mock_configmap = {'foo': 'bar'}
+        mocker.patch(
+          'lib.kctl.Kctl.get_namespaced_object',
+          return_value=json.dumps(mock_configmap)
+        )
+        gno_spy = mocker.spy(lib.kctl.Kctl, 'get_namespaced_object')
+        data = kctl.get_configmap('fooconfigmap', 'foonamespace')
+        gno_spy.assert_has_calls([
+          mocker.call('configmaps', 'json', 'foonamespace', 'fooconfigmap')
+        ])
+        assert data == mock_configmap
+
     def describe_get_configmaps():
       def it_gets_configmaps(
           mocker,
@@ -247,8 +285,23 @@ def describe_kctl():
           return_value=mock_kubectl_get_configmaps_json_string
         )
         gno_spy = mocker.spy(lib.kctl.Kctl, 'get_namespaced_object')
-        data = kctl.get_configmaps('foo')
+        data = kctl.get_configmaps('foonamespace')
         gno_spy.assert_has_calls([
-          mocker.call('configmaps', 'json', 'foo')
+          mocker.call('configmaps', 'json', 'foonamespace')
         ])
         assert data == mock_kubectl_get_configmaps_json_object['items']
+
+  def describe_get_secret():
+    def it_gets_the_named_secret(mocker):
+      kctl = Kctl(False, 'staging')
+      mock_secret = {'foo': 'bar'}
+      mocker.patch(
+        'lib.kctl.Kctl.get_namespaced_object',
+        return_value=json.dumps(mock_secret)
+      )
+      gno_spy = mocker.spy(lib.kctl.Kctl, 'get_namespaced_object')
+      data = kctl.get_secret('foosecret', 'foonamespace')
+      gno_spy.assert_has_calls([
+        mocker.call('secrets', 'json', 'foonamespace', 'foosecret')
+      ])
+      assert data == mock_secret

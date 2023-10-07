@@ -3,9 +3,42 @@ import logging
 import os
 import subprocess
 
+def config_secret_sanitizer(str1):
+  ''' run all config secret sanitizers '''
+  artsy_sanitized = config_secret_sanitizer_artsy(str1)
+  eso_sanitized = config_secret_sanitizer_eso(artsy_sanitized)
+  return eso_sanitized
+
+def config_secret_sanitizer_artsy(str1):
+  ''' ensure secret_value conforms to Artsy requirements '''
+  # strip surrounding quotes if any
+  return unquote(str1)
+
+def config_secret_sanitizer_eso(str1):
+  ''' ensure string is acceptable to Kubernetes External Secrets Operator '''
+  # add double quoutes if string has YAML special char
+  special_chars = ['*']
+  for char in special_chars:
+    if char in str1:
+      logging.debug(
+        'String contains special YAML chars, adding double-quotes.'
+      )
+      return f'"{str1}"'
+      break
+  return str1
+
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
   return name.startswith('artsy-')
+
+def is_quoted(str1):
+  ''' if string is quoted, return the quote character '''
+  # double quote
+  if str1[0] == '"' and str1[-1] == '"':
+    return '"'
+  # single quote
+  elif str1[0] == "'" and str1[-1] == "'":
+    return "'"
 
 def list_intersect(list_a, list_b):
   ''' return elements common between l1 and l2 '''
@@ -24,6 +57,14 @@ def list_subtract(list_a, *args):
   for subtrahend in args:
     minuend = [x for x in minuend if x not in subtrahend]
   return minuend
+
+def match_or_raise(str1, str2):
+  ''' raise if str1 and str2 differ '''
+  if str1 == str2:
+    logging.debug('str1 and str2 match')
+  else:
+    logging.error('str1 and str2 different')
+    raise
 
 def parse_string_of_key_value_pairs(str1):
   '''
@@ -66,3 +107,11 @@ def search_dirs_by_suffix(dirx, suffix):
   ]
   dirs = [os.path.dirname(path) for path in files]
   return sorted(list(set(dirs)))
+
+def unquote(str1):
+  ''' remove string's surrounding quotes, if any '''
+  quote_char = is_quoted(str1)
+  if quote_char:
+    logging.debug(f'string is quoted with {quote_char}, removing quotes')
+    return str1[1:-1]
+  return str1
