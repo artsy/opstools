@@ -48,7 +48,7 @@ function commit() {
   echo "### commit changes ###"
   git commit -am "$MSG" --no-verify
   echo "### push to origin ###"
-  git push --set-upstream origin "$BRANCH" --no-verify
+  git push -f --set-upstream origin "$BRANCH" --no-verify
 
   echo "### open PR ###"
 
@@ -99,6 +99,16 @@ COUNT=1
 while read PROJECT
 do
   echo "---------------- #$COUNT -------------------------"
+
+  # allow user to skip project
+  echo "### Operate on $PROJECT? ###"
+  read -p "Enter y or Y to proceed: " -n 1 -r </dev/tty
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    continue
+  fi
+
   WORKDIR="$SRC_ROOT/$PROJECT"
   cd "$WORKDIR"
   echo "### Operating in directory: $WORKDIR ###"
