@@ -30,7 +30,7 @@ else
 fi
 
 echo "Downloading .env.shared (project's local dev configuration common across developers)..."
-aws s3 cp s3://artsy-citadel/dev/.env.opstools .env.shared
+aws s3 cp s3://artsy-citadel/opstools/.env.shared ./
 
 echo "Downloading config-opstools Kubeconfig (useful for locally testing Kubernetes-related scripts ..."
 aws s3 cp s3://artsy-citadel/k8s/config-opstools ~/.kube
