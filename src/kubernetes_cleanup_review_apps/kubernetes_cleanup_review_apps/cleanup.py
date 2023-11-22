@@ -2,32 +2,31 @@ import logging
 
 import kubernetes_cleanup_review_apps.context
 
-from kubernetes_cleanup_review_apps.config import config
-
 from lib.k8s_namespaces import Namespaces
 from lib.kctl import Kctl
 from lib.util import list_subtract
 
-def cleanup_review_apps():
+
+def cleanup_review_apps(artsy_env, ndays, force, in_cluster, protected_namespaces):
   ''' delete review apps older than n days '''
   logging.info(
-    f"Deleting review apps older than {config.ndays} days"
+    f"Deleting review apps older than {ndays} days"
   )
-  kctl = Kctl(config.in_cluster, config.artsy_env)
+  kctl = Kctl(in_cluster, artsy_env)
   ns_obj = Namespaces(kctl)
   # delete review apps by deleting their namespaces
-  old_namespaces = ns_obj.old_namespaces(config.ndays)
-  to_delete = list_subtract(old_namespaces, config.protected_namespaces)
-  delete_namespaces(to_delete, ns_obj)
+  old_namespaces = ns_obj.old_namespaces(ndays)
+  to_delete = list_subtract(old_namespaces, protected_namespaces)
+  delete_namespaces(to_delete, ns_obj, force)
   logging.info(
     f"Done deleting namespaces."
   )
 
-def delete_namespaces(namespaces, ns_obj):
+def delete_namespaces(namespaces, ns_obj, force):
   ''' delete the given list of namespaces '''
   for ns in namespaces:
     created_at = ns_obj.created_at(ns)
-    if config.force:
+    if force:
       logging.info(
         f"Deleting {ns} created at {created_at}"
       )
