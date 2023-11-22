@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-import kubernetes_cleanup_namespaces.context
+import kubernetes_cleanup_review_apps.context
 
 from lib.logging import setup_logging
 

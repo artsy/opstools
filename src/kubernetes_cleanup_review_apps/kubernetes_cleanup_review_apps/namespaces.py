@@ -1,8 +1,8 @@
 import logging
 
-import kubernetes_cleanup_namespaces.context
+import kubernetes_cleanup_review_apps.context
 
-from kubernetes_cleanup_namespaces.config import config
+from kubernetes_cleanup_review_apps.config import config
 
 from lib.k8s_namespaces import Namespaces
 from lib.kctl import Kctl
