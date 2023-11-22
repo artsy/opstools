@@ -4,10 +4,10 @@ import kubernetes_cleanup_review_apps.context
 
 from lib.k8s_namespaces import Namespaces
 from lib.kctl import Kctl
-from lib.util import list_subtract
+from lib.util import list_intersect
 
 
-def cleanup_review_apps(artsy_env, ndays, force, in_cluster, protected_namespaces):
+def cleanup_review_apps(artsy_env, ndays, force, in_cluster):
   ''' delete review apps older than n days '''
   logging.info(
     f"Deleting review apps older than {ndays} days"
@@ -15,8 +15,9 @@ def cleanup_review_apps(artsy_env, ndays, force, in_cluster, protected_namespace
   kctl = Kctl(in_cluster, artsy_env)
   ns_obj = Namespaces(kctl)
   # delete review apps by deleting their namespaces
+  review_app_namespaces = ns_obj.namespaces(app_phase='review')
   old_namespaces = ns_obj.old_namespaces(ndays)
-  to_delete = list_subtract(old_namespaces, protected_namespaces)
+  to_delete = list_intersect(review_app_namespaces, old_namespaces)
   delete_namespaces(to_delete, ns_obj, force)
   logging.info(
     f"Done deleting namespaces."

@@ -57,16 +57,4 @@ if __name__ == "__main__":
 
   setup_logging(eval('logging.' + loglevel))
 
-  protected_namespaces = [
-    'cert-manager',
-    'circleci',
-    'default',
-    'external-secrets',
-    'ingress-nginx',
-    'kube-node-lease',
-    'kube-public',
-    'kubernetes-dashboard',
-    'kube-system',
-    'vault'
-  ]
-  cleanup_review_apps(artsy_env, int(ndays), force, in_cluster, protected_namespaces)
+  cleanup_review_apps(artsy_env, int(ndays), force, in_cluster)
