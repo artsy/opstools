@@ -7,6 +7,7 @@ import tempfile
 from lib.util import (
   config_secret_sanitizer_artsy,
   config_secret_sanitizer_eso,
+  dict1_in_dict2,
   is_artsy_s3_bucket,
   is_quoted,
   list_intersect,
@@ -14,6 +15,7 @@ from lib.util import (
   list_subtract,
   match_or_raise,
   parse_string_of_key_value_pairs,
+  replace_dashes_in_dict_keys_with_underscores,
   run_cmd,
   search_dirs_by_suffix,
   unquote
@@ -28,6 +30,43 @@ def describe_config_secret_sanitizer_eso():
     assert config_secret_sanitizer_eso('*foo') == '"*foo"'
   def it_returns_same_string_otherwise():
     assert config_secret_sanitizer_eso('foo') == 'foo'
+
+def describe_dict1_in_dict2():
+  def it_returns_true_when_dict1_is_in_dict2():
+    dict1 = {
+      'foo': 'bar'
+    }
+    dict2 = {
+      'foo': 'bar',
+      'bar': 'baz'
+    }
+    assert dict1_in_dict2(dict1, dict2)
+  def it_returns_false_when_dict1_is_not_in_dict2():
+    dict1 = {
+      'foo': 'bin'
+    }
+    dict2 = {
+      'foo': 'bar',
+      'bar': 'baz'
+    }
+    assert not dict1_in_dict2(dict1, dict2)
+  def it_returns_true_when_dict1_is_empty_and_dict2_not():
+    dict1 = {}
+    dict2 = {
+      'foo': 'bar',
+      'bar': 'baz'
+    }
+    assert dict1_in_dict2(dict1, dict2)
+  def it_returns_false_when_dict2_is_empty_and_dict1_not():
+    dict1 = {
+      'foo': 'bin'
+    }
+    dict2 = {}
+    assert not dict1_in_dict2(dict1, dict2)
+  def it_returns_true_when_both_empty():
+    dict1 = {}
+    dict2 = {}
+    assert dict1_in_dict2(dict1, dict2)
 
 def describe_is_artsy_s3_bucket():
   def it_returns_true_if_name_starts_with_artsy():
@@ -93,6 +132,19 @@ def describe_parse_string_of_key_value_pairs():
       'foo': ['x', 'y'],
       'bar': ['x']
     }
+
+def describe_replace_dashes_in_dict_keys_with_underscores():
+  def it_replaces():
+    dict1 = {
+      'foo': 'bar',
+      'foo-foo': 'bar'
+    }
+    dict2 = {
+      'foo': 'bar',
+      'foo_foo': 'bar'
+    }
+    new_dict = replace_dashes_in_dict_keys_with_underscores(dict1)
+    assert new_dict == dict2
 
 def describe_run_cmd():
   def it_runs():

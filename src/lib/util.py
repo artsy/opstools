@@ -27,6 +27,12 @@ def config_secret_sanitizer_eso(str1):
       break
   return str1
 
+def dict1_in_dict2(dict1, dict2):
+  ''' return true if all items in dict1 are in dict2 '''
+  return all(
+    item in dict2.items() for item in dict1.items()
+  )
+
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
   return name.startswith('artsy-')
@@ -76,6 +82,14 @@ def parse_string_of_key_value_pairs(str1):
     k, v = kv.split(':')
     dict1[k] = dict1.get(k, []) + [v]
   return dict1
+
+def replace_dashes_in_dict_keys_with_underscores(dict1):
+  ''' replace every dash in dict1's keys with underscore '''
+  dict2 = {}
+  for k,v in dict1.items():
+    k2 = k.replace('-', '_')
+    dict2[k2] = v
+  return dict2
 
 def run_cmd(cmd, dirx, timeout=300):
   ''' run command in dir and return output '''
