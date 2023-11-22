@@ -8,13 +8,14 @@ from lib.k8s_namespaces import Namespaces
 from lib.kctl import Kctl
 from lib.util import list_subtract
 
-def cleanup_namespaces():
-  ''' delete unprotected namespaces older than n days '''
+def cleanup_review_apps():
+  ''' delete review apps older than n days '''
   logging.info(
-    f"Deleting namespaces older than {config.ndays} days"
+    f"Deleting review apps older than {config.ndays} days"
   )
   kctl = Kctl(config.in_cluster, config.artsy_env)
   ns_obj = Namespaces(kctl)
+  # delete review apps by deleting their namespaces
   old_namespaces = ns_obj.old_namespaces(config.ndays)
   to_delete = list_subtract(old_namespaces, config.protected_namespaces)
   delete_namespaces(to_delete, ns_obj)
