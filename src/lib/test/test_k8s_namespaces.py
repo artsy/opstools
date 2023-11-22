@@ -29,18 +29,18 @@ def describe_namespaces():
       obj = Namespaces(mock_kctl)
       assert obj.created_at('namespace10') is None
 
-    def describe_delete():
-      def it_calls_kctl_delete_namespace(mocker, mock_kctl):
-        obj = Namespaces(mock_kctl)
-        kctl_spy = mocker.spy(obj._kctl, 'delete_namespace')
-        obj.delete('foonamespace')
-        kctl_spy.assert_has_calls([mocker.call('foonamespace')])
+  def describe_delete():
+    def it_calls_kctl_delete_namespace(mocker, mock_kctl):
+      obj = Namespaces(mock_kctl)
+      kctl_spy = mocker.spy(obj._kctl, 'delete_namespace')
+      obj.delete('foonamespace')
+      kctl_spy.assert_has_calls([mocker.call('foonamespace')])
 
-    def describe_old_namespaces():
-      def it_returns_old_namespaces(mocker, mock_kctl):
-        obj = Namespaces(mock_kctl)
-        mocker.patch(
-          'lib.k8s_namespaces.over_ndays_ago'
-        ).side_effect = [True, False]
-        names = obj.old_namespaces(10)
-        assert names == ['namespace1']
+  def describe_old_namespaces():
+    def it_returns_old_namespaces(mocker, mock_kctl):
+      obj = Namespaces(mock_kctl)
+      mocker.patch(
+        'lib.k8s_namespaces.over_ndays_ago'
+      ).side_effect = [True, False]
+      names = obj.old_namespaces(10)
+      assert names == ['namespace1']
