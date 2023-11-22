@@ -1,6 +1,6 @@
-import kubernetes_cleanup_review_apps.namespaces
+import kubernetes_cleanup_review_apps.cleanup
 
-from kubernetes_cleanup_review_apps.namespaces import (
+from kubernetes_cleanup_review_apps.cleanup import (
   config,
   delete_namespaces
 )

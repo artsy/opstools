@@ -4,10 +4,10 @@ import os
 
 import migrate_config_secrets.context
 
-from kubernetes_cleanup_review_apps.namespaces import (
-  cleanup_namespaces
+from kubernetes_cleanup_review_apps.cleanup import (
+  cleanup_review_apps
 )
 
 if __name__ == "__main__":
 
-  cleanup_namespaces()
+  cleanup_review_apps()
