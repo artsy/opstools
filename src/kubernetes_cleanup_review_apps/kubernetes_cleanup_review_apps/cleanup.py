@@ -7,12 +7,12 @@ from lib.kctl import Kctl
 from lib.util import list_intersect
 
 
-def cleanup_review_apps(artsy_env, ndays, force, in_cluster):
+def cleanup_review_apps(ndays, force, in_cluster):
   ''' delete review apps older than n days '''
   logging.info(
     f"Deleting review apps older than {ndays} days"
   )
-  kctl = Kctl(in_cluster, artsy_env)
+  kctl = Kctl(in_cluster, 'staging')
   ns_obj = Namespaces(kctl)
   # delete review apps by deleting their namespaces
   review_app_namespaces = ns_obj.namespaces(app_phase='review')
