@@ -83,11 +83,10 @@ def parse_string_of_key_value_pairs(str1):
 
 def replace_dashes_in_dict_keys_with_underscores(dict1):
   ''' replace every dash in dict1's keys with underscore '''
-  dict2 = {}
-  for k,v in dict1.items():
-    k2 = k.replace('-', '_')
-    dict2[k2] = v
-  return dict2
+  return {
+    key.replace('-', '_'): value
+    for key, value in dict1.items()
+  }
 
 def run_cmd(cmd, dirx, timeout=300):
   ''' run command in dir and return output '''
