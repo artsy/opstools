@@ -1,4 +1,9 @@
 from lib.date import over_ndays_ago
+from lib.util import (
+  dict1_in_dict2,
+  replace_dashes_in_dict_keys_with_underscores
+)
+
 
 class Namespaces:
   ''' manage k8s namespaces data '''
@@ -17,6 +22,29 @@ class Namespaces:
   def delete(self, namespace_name):
     ''' delete the given namespace '''
     self._kctl.delete_namespace(namespace_name)
+
+  def namespaces(self, **kwargs):
+    '''
+    return names of namespaces,
+    if labels (e.g. foo=bar, bar=baz) are specified in kwargs,
+    return only namespaces that have all the specified labels,
+    dashes in label keys received from Kubernetes are converted to underscores.
+    '''
+    if kwargs:
+      return [
+        ns['metadata']['name']
+        for ns in self._ns_data
+        if 'labels' in ns['metadata'] and
+        dict1_in_dict2(
+          kwargs,
+          replace_dashes_in_dict_keys_with_underscores(
+            ns['metadata']['labels']
+          )
+        )
+      ]
+    else:
+      # no labels specified, return all
+      return [ns['metadata']['name'] for ns in self._ns_data]
 
   def old_namespaces(self, ndays):
     ''' return names of namespaces older than ndays '''

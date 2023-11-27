@@ -139,7 +139,7 @@ spec:
               image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:staging
               command:
               - python
-              - src/kubernetes_cleanup_namespaces/cleanup.py
+              - src/kubernetes_cleanup_review_apps/cleanup.py
               - staging
               - "30"
               - --force

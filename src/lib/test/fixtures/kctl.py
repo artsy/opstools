@@ -40,14 +40,32 @@ def mock_kctl(
 def mock_kubectl_get_namespaces_json_object():
   obj = {
     'items': [
-        { 'metadata': {
+        {
+          'metadata': {
             'name': 'namespace1',
-            'creationTimestamp': '2023-04-12T21:24:33Z'
+            'creationTimestamp': '2023-04-12T21:24:33Z',
+            'labels': {
+              'foo': 'bar',
+              'bar': 'baz'
+            }
           }
         },
-        { 'metadata': {
+        {
+          'metadata': {
             'name': 'namespace2',
-            'creationTimestamp': '2023-04-13T21:24:33Z'
+            'creationTimestamp': '2023-04-13T21:24:33Z',
+            'labels': {
+              'foo': 'bar',
+            }
+          }
+        },
+        {
+          'metadata': {
+            'name': 'namespace3',
+            'creationTimestamp': '2023-04-14T21:24:33Z',
+            'labels': {
+              'foo-foo': 'bar',
+            }
           }
         }
     ]
