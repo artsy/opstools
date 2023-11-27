@@ -29,9 +29,7 @@ def config_secret_sanitizer_eso(str1):
 
 def dict1_in_dict2(dict1, dict2):
   ''' return true if all items in dict1 are in dict2 '''
-  return all(
-    item in dict2.items() for item in dict1.items()
-  )
+  return set(dict1.items()).issubset(set(dict2.items()))
 
 def is_artsy_s3_bucket(name):
   ''' return true if bucket name starts with artsy- '''
