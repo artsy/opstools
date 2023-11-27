@@ -17,11 +17,6 @@ def parse_args():
     description=('Delete old review apps')
   )
   parser.add_argument(
-    'artsy_env',
-    choices=['staging', 'production'],
-    help='the artsy environment of the Kubernetes cluster'
-  )
-  parser.add_argument(
     'ndays',
     help='delete review apps older than n days'
   )
@@ -47,8 +42,7 @@ def parse_args():
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, ndays, force, in_cluster, loglevel = (
-    args.artsy_env,
+  ndays, force, in_cluster, loglevel = (
     args.ndays,
     args.force,
     args.in_cluster,
@@ -57,4 +51,4 @@ if __name__ == "__main__":
 
   setup_logging(eval('logging.' + loglevel))
 
-  cleanup_review_apps(artsy_env, int(ndays), force, in_cluster)
+  cleanup_review_apps(int(ndays), force, in_cluster)
