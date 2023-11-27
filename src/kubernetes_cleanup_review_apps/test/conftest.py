@@ -3,9 +3,6 @@ import sys
 
 ## prepare environment before tests, for pytest
 
-# set env
-os.environ['KUBECTL_CONTEXT'] = 'foo'
-
 if len(sys.argv) == 2:
   # indicates that pytest is called with a dir path as argument
   # dir path becomes first argument to script
