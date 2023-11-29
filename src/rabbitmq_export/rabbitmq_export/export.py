@@ -20,13 +20,11 @@ def export_and_backup(
   s3_bucket,
   s3_prefix
 ):
-  logging.info(
-    'Exporting and backing up RabbitMQ broker definitions...'
-  )
   export_dir = os.path.join(local_dir, artsy_env)
   mkpath(export_dir)
   file_name = f"{rabbitmq_host}.json"
   output_file = os.path.join(export_dir, file_name)
+  logging.info('Exporting broker definitions...')
   export_broker_definition(
     output_file, rabbitmq_host, rabbitmq_user, rabbitmq_pass
   )
@@ -39,6 +37,7 @@ def export_and_backup(
         artsy_env,
         'json'
       )
+      logging.info('Backing up to S3...')
       artsy_s3_backup.backup(output_file)
     except:
       raise
@@ -49,9 +48,6 @@ def export_and_backup(
     logging.info(
       "Skipping backup to S3. Please delete the local files when done!"
     )
-  logging.info(
-    'Done exporting and backing up RabbitMQ broker definitions...'
-  )
 
 def export_broker_definition(
   output_file, rabbitmq_host, rabbitmq_user, rabbitmq_pass
