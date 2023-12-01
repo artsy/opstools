@@ -4,16 +4,19 @@ RUN adduser --disabled-password --gecos '' deploy
 RUN mkdir -p /src
 RUN chown deploy:deploy /src
 
+RUN apk --no-cache --quiet add \
+  curl \
+  git \
+  make \
+  gcc \
+  musl-dev \
+  libffi-dev
+
 RUN pip --no-cache-dir install poetry
 RUN pip --no-cache-dir install awscli --upgrade
 
 ARG terraform_version=0.12.31
 ARG kubectl_version=1.19.16
-
-RUN apk --no-cache --quiet add \
-  curl \
-  git \
-  make
 
 RUN curl https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip \
   -o /tmp/terraform_${terraform_version}_linux_amd64.zip \
