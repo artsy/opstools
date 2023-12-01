@@ -7,7 +7,6 @@ from enum import Enum
 import terraform_drift_detection.context
 
 from lib.util import run_cmd, search_dirs_by_suffix
-from terraform_drift_detection.config import config
 
 class Drift(Enum):
   ''' enumerate terraform drift detection results '''
@@ -21,11 +20,11 @@ def check_dir(dirx):
   results = [check_tf_dir(tf_dir) for tf_dir in tf_dirs]
   return results
 
-def check_repo(repo, basedir):
+def check_repo(repo, basedir, github_token, repos_dirs):
   ''' return drift detection result for repo '''
   clone_cmd = (
     'git clone https://github:' +
-    config.github_token +
+    github_token +
     '@github.com/artsy/' + repo + '.git'
   )
   output = run_cmd(clone_cmd, basedir)
@@ -33,16 +32,16 @@ def check_repo(repo, basedir):
     return [Drift.UNKNOWN]
   repo_dir = os.path.join(basedir, repo)
   results = []
-  for dirx in config.repos_dirs[repo]:
+  for dirx in repos_dirs[repo]:
     results += check_dir(os.path.join(repo_dir, dirx))
   return results
 
-def check_repos():
+def check_repos(github_token, repos_dirs):
   ''' return drift detection result for repos '''
   results = []
   with tempfile.TemporaryDirectory() as tmpdir:
-    for repo in list(config.repos_dirs.keys()):
-      results += check_repo(repo, tmpdir)
+    for repo in list(repos_dirs.keys()):
+      results += check_repo(repo, tmpdir, github_token, repos_dirs)
   return results
 
 def check_tf_dir(tf_dir):
