@@ -8,26 +8,36 @@ from distutils.dir_util import mkpath
 import rabbitmq_export.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
-from rabbitmq_export.config import config
 
-def export_and_backup():
-  logging.info(
-    'Exporting and backing up RabbitMQ broker definitions...'
-  )
-  export_dir = os.path.join(config.local_dir, config.artsy_env)
+
+def export_and_backup(
+  local_dir,
+  artsy_env,
+  rabbitmq_host,
+  rabbitmq_user,
+  rabbitmq_pass,
+  s3,
+  s3_bucket,
+  s3_prefix
+):
+  export_dir = os.path.join(local_dir, artsy_env)
   mkpath(export_dir)
-  file_name = f"{config.rabbitmq_host}.json"
+  file_name = f"{rabbitmq_host}.json"
   output_file = os.path.join(export_dir, file_name)
-  export_broker_definition(output_file)
-  if config.s3:
+  logging.info('Exporting broker definitions...')
+  export_broker_definition(
+    output_file, rabbitmq_host, rabbitmq_user, rabbitmq_pass
+  )
+  if s3:
     try:
       artsy_s3_backup = ArtsyS3Backup(
-        config.s3_bucket,
-        config.s3_prefix,
+        s3_bucket,
+        s3_prefix,
         'rabbitmq',
-        config.artsy_env,
+        artsy_env,
         'json'
       )
+      logging.info('Backing up to S3...')
       artsy_s3_backup.backup(output_file)
     except:
       raise
@@ -38,14 +48,13 @@ def export_and_backup():
     logging.info(
       "Skipping backup to S3. Please delete the local files when done!"
     )
-  logging.info(
-    'Done exporting and backing up RabbitMQ broker definitions...'
-  )
 
-def export_broker_definition(output_file):
+def export_broker_definition(
+  output_file, rabbitmq_host, rabbitmq_user, rabbitmq_pass
+):
   scheme = 'https://'
-  user_pass = f"{config.rabbitmq_user}:{config.rabbitmq_pass}@"
-  host_path = f"{config.rabbitmq_host}/api/definitions"
+  user_pass = f"{rabbitmq_user}:{rabbitmq_pass}@"
+  host_path = f"{rabbitmq_host}/api/definitions"
   url = scheme + user_pass + host_path
   try:
     logging.info(

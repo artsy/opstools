@@ -3,23 +3,30 @@ import logging
 import s3_prune_backups.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
-from s3_prune_backups.config import config
 
-def prune():
+def prune(
+  app,
+  artsy_env,
+  ndays,
+  s3_bucket,
+  s3_prefix,
+  suffix,
+  force
+):
   ''' delete backups older than ndays '''
   logging.info(
-    f"Deleting {config.app}'s {config.artsy_env} backups " +
-    f"in S3 older than {config.ndays} days..."
+    f"Deleting {app}'s {artsy_env} backups " +
+    f"in S3 older than {ndays} days..."
   )
   artsy_s3_backup = ArtsyS3Backup(
-    config.s3_bucket,
-    config.s3_prefix,
-    config.app,
-    config.artsy_env,
-    config.suffix
+    s3_bucket,
+    s3_prefix,
+    app,
+    artsy_env,
+    suffix
   )
-  for backup_id in artsy_s3_backup.old_backups(config.ndays):
-    if config.force:
+  for backup_id in artsy_s3_backup.old_backups(ndays):
+    if force:
       artsy_s3_backup.delete(backup_id)
       logging.info(f"Deleted {backup_id}")
     else:

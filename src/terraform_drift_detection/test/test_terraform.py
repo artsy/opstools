@@ -5,7 +5,6 @@ import terraform_drift_detection.terraform
 
 from lib.logging import setup_sensitive_logging
 
-from terraform_drift_detection.config import config
 from terraform_drift_detection.terraform import (
   check_dir,
   check_repo,
@@ -38,17 +37,17 @@ def describe_check_repo():
   def it_returns_unknown_if_clone_failed(mocker, mock_clone_failed):
     mocker.patch('terraform_drift_detection.terraform.run_cmd').side_effect = mock_clone_failed
     spy = mocker.spy(terraform_drift_detection.terraform, 'run_cmd')
-    results = check_repo('foorepo', 'foobasedir')
+    results = check_repo('foorepo', 'foobasedir', 'footoken', 'fooreposdirs')
     assert spy.call_count == 1
     spy.assert_has_calls([mocker.call('git clone https://github:footoken@github.com/artsy/foorepo.git', 'foobasedir')])
     assert results == [Drift.UNKNOWN]
   def it_returns_correct_check_dir_results(expected_results, mocker, mock_clone_success, mock_multiple_repo_dir_results):
     mocker.patch('terraform_drift_detection.terraform.run_cmd').side_effect = mock_clone_success
     mocker.patch('terraform_drift_detection.terraform.check_dir').side_effect = mock_multiple_repo_dir_results
-    mocker.patch.object(config, 'repos_dirs', {'foorepo': ['dir1', 'dir2', 'dir3']})
+    repos_dirs = {'foorepo': ['dir1', 'dir2', 'dir3']}
     run_cmd_spy = mocker.spy(terraform_drift_detection.terraform, 'run_cmd')
     check_dir_spy = mocker.spy(terraform_drift_detection.terraform, 'check_dir')
-    results = check_repo('foorepo', 'foobasedir')
+    results = check_repo('foorepo', 'foobasedir', 'footoken', repos_dirs)
     assert run_cmd_spy.call_count == 1
     assert check_dir_spy.call_count == 3
     run_cmd_spy.assert_has_calls([mocker.call('git clone https://github:footoken@github.com/artsy/foorepo.git', 'foobasedir')])
@@ -64,8 +63,8 @@ def describe_check_repo():
 def describe_check_repos():
   def it_returns_correct_check_repo_results(expected_results, mocker, mock_multiple_repo_dir_results):
     mocker.patch('terraform_drift_detection.terraform.check_repo').side_effect = mock_multiple_repo_dir_results
-    mocker.patch.object(config, 'repos_dirs', {'repo1': ['dir1'], 'repo2':['dir2'], 'repo3':['dir3']})
-    results = check_repos()
+    repos_dirs = {'repo1': ['dir1'], 'repo2':['dir2'], 'repo3':['dir3']}
+    results = check_repos('footoken', repos_dirs)
     assert results == expected_results
 
 def describe_check_tf_dir():
