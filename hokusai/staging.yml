@@ -140,7 +140,6 @@ spec:
               command:
               - python
               - src/kubernetes_cleanup_review_apps/cleanup.py
-              - staging
               - "30"
               - --force
               - --in_cluster
