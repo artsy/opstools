@@ -8,7 +8,7 @@ RUN pip --no-cache-dir install poetry
 RUN pip --no-cache-dir install awscli --upgrade
 
 ARG terraform_version=0.12.31
-ARG kubectl_version=1.19.16
+ARG kubectl_version=1.20.15
 
 RUN apk --no-cache --quiet add \
   curl \
