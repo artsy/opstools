@@ -11,17 +11,13 @@ from lib.test.fixtures.kctl import (
   mock_kubectl_get_jobs_json_object # indirect usage
 )
 
-from kubernetes_cleanup_jobs.jobs import (
-  config,
-  delete_jobs
-)
+from kubernetes_cleanup_jobs.jobs import delete_jobs
 
 def describe_delete_jobs():
   def describe_force_set():
     def it_calls_jobs_obj_delete(mocker, jobs_obj):
-      mocker.patch.object(config, 'force', True)
       delete_spy = mocker.spy(jobs_obj, 'delete')
-      delete_jobs(['job1', 'job2'], jobs_obj)
+      delete_jobs(['job1', 'job2'], jobs_obj, True)
       assert delete_spy.call_count == 2
       delete_spy.assert_has_calls([
         mocker.call('job1'),
@@ -29,7 +25,6 @@ def describe_delete_jobs():
       ])
   def describe_force_unset():
     def it_does_not_call_jobs_obj_delete(mocker, jobs_obj):
-      mocker.patch.object(config, 'force', False)
       delete_spy = mocker.spy(jobs_obj, 'delete')
-      delete_jobs(['job1', 'job2'], jobs_obj)
+      delete_jobs(['job1', 'job2'], jobs_obj, False)
       assert delete_spy.call_count == 0
