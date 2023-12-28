@@ -6,15 +6,14 @@ from distutils.dir_util import mkpath
 
 import kubernetes_configmap_jwt_scan.context
 
-from kubernetes_configmap_jwt_scan.config import config
 from lib.jwt import is_jwt
 from lib.kctl import Kctl
 
 WARN_THRESHOLD = 30 # warn if expiring within 30 days
 
-def scan():
-  logging.info(f"Scanning {config.artsy_env}...")
-  kctl = Kctl(config.in_cluster, config.artsy_env)
+def scan(loglevel, artsy_env, in_cluster):
+  logging.info(f"Scanning {artsy_env}...")
+  kctl = Kctl(in_cluster, artsy_env)
   results = {}
   now = datetime.datetime.now()
   for configmap in kctl.get_configmaps():

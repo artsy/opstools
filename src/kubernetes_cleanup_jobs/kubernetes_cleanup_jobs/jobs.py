@@ -2,30 +2,35 @@ import logging
 
 import kubernetes_cleanup_jobs.context
 
-from kubernetes_cleanup_jobs.config import config
-
 from lib.k8s_jobs import Jobs
 from lib.kctl import Kctl
 
-def cleanup_jobs():
+def cleanup_jobs(
+  loglevel,
+  artsy_env,
+  force,
+  in_cluster,
+  namespace,
+  nhours
+):
   '''
   delete jobs older than nhours,
   even those that are still running!
   '''
   logging.info(
-    f"Deleting jobs older than {config.nhours} hours " +
-    f"in {config.namespace} namespace"
+    f"Deleting jobs older than {nhours} hours " +
+    f"in {namespace} namespace"
   )
-  kctl = Kctl(config.in_cluster, config.artsy_env)
-  jobs_obj = Jobs(kctl, config.namespace)
-  old_jobs = jobs_obj.old_jobs(config.nhours)
-  delete_jobs(old_jobs, jobs_obj)
+  kctl = Kctl(in_cluster, artsy_env)
+  jobs_obj = Jobs(kctl, namespace)
+  old_jobs = jobs_obj.old_jobs(nhours)
+  delete_jobs(old_jobs, jobs_obj, force)
   logging.info("Deleted jobs.")
 
-def delete_jobs(job_names, jobs_obj):
+def delete_jobs(job_names, jobs_obj, force):
   ''' delete the given list of jobs '''
   for job in job_names:
-    if config.force:
+    if force:
       logging.info(f"Deleting {job} ...")
       jobs_obj.delete(job)
     else:
