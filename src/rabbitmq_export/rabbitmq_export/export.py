@@ -8,6 +8,7 @@ from distutils.dir_util import mkpath
 import rabbitmq_export.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
+from lib.util import write_file
 
 
 def export_and_backup(
@@ -70,5 +71,4 @@ def export_broker_definition(
   logging.info(
     f"Saving RabbitMQ broker definitions to {output_file} ..."
   )
-  with open(output_file, 'w') as f:
-    f.write(resp.text)
+  write_file(output_file, resp.text)

@@ -3,6 +3,9 @@ import logging
 import os
 import subprocess
 
+from pathlib import Path
+
+
 def config_secret_sanitizer(str1):
   ''' run all config secret sanitizers '''
   artsy_sanitized = config_secret_sanitizer_artsy(str1)
@@ -126,3 +129,12 @@ def unquote(str1):
     logging.debug(f'string is quoted with {quote_char}, removing quotes')
     return str1[1:-1]
   return str1
+
+def write_file(output_file, data, heading=None, mode=0o600, exist_ok=True):
+  ''' write heading and data to output file, create file with proper permissions '''
+  fobj = Path(output_file)
+  fobj.touch(mode=mode, exist_ok=exist_ok)
+  with open(output_file, 'w') as f:
+    if heading:
+      f.write(heading)
+    f.write(data)

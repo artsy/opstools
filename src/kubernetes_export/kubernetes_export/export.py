@@ -9,6 +9,8 @@ import kubernetes_export.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
 from lib.kctl import Kctl
+from lib.util import write_file
+
 
 def backup_to_s3(artsy_env, export_dir, local_dir, s3_bucket, s3_prefix):
   ''' back up yamls to S3 '''
@@ -37,11 +39,8 @@ def export(object_type, export_dir, kctl):
   ''' export object_type of k8s objects to a yaml file '''
   logging.info(f"Exporting {object_type}...")
   data = kctl.get_namespaced_object(object_type, 'yaml', 'default')
-  with open(
-    os.path.join(export_dir, f"{object_type}.yaml"), 'w'
-  ) as f:
-    f.write('---\n')
-    f.write(data)
+  output_file = os.path.join(export_dir, f"{object_type}.yaml")
+  write_file(output_file, data, heading='---\n')
 
 def export_and_backup(KUBERNETES_OBJECTS, artsy_env, in_cluster, local_dir, s3, s3_bucket, s3_prefix):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''
