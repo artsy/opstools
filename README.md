@@ -13,7 +13,7 @@ Read and run the setup script:
 
 # Run Scripts
 
-To run a script with environment files loaded (using Foreman):
+To run a script with environment files loaded (using [Foreman](https://github.com/ddollar/foreman)):
 
 ```
 foreman run --env .env.shared,.env python src/...
