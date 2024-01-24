@@ -73,8 +73,10 @@ def migrate_config_secrets(
   path = 'kubernetes/apps/' + f'{artsy_project}/'
   vault_client = Vault(
     vault_addr,
+    'token',
+    vault_token,
     kvv2_mount_point,
-    path, vault_token,
+    path,
     config_secret_sanitizer
   )
 

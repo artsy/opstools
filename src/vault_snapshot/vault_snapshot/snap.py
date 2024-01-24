@@ -1,3 +1,8 @@
+import vault_snapshot.context
+
+from lib.vault import Vault
+
+
 def take_snapshot(
   local_dir,
   artsy_env,
@@ -6,4 +11,4 @@ def take_snapshot(
   s3_bucket,
   s3_prefix
 ):
-  pass
+  vault_client = Vault(vault_addr, 'iam')

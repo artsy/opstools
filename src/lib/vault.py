@@ -1,19 +1,45 @@
+import boto3
 import hvac
 import logging
 
 
 class Vault:
   ''' Interface with Hashicorp Vault '''
-  def __init__(self, addr, kvv2_mount_point, path, token, sanitizer):
-    self._client = hvac.Client(
-      url=addr,
-      token=token
-    )
+  def __init__(
+    self,
+    addr,
+    auth_method,
+    token=None,
+    kvv2_mount_point=None,
+    path=None,
+    sanitizer=None
+  ):
+    self._client = hvac.Client(url=addr)
     self._mount_point = kvv2_mount_point
     self._path = path
     # a function for sanitizing a value before setting it in Vault
     # this is org-specific
     self._sanitizer = sanitizer
+    self.login(self._client, auth_method, token)
+
+  def login(self, client, auth_method, token=None):
+    ''' log into Vault using the specified method '''
+    if auth_method == 'iam':
+      self.iam_login()
+    elif auth_method == 'token':
+      self._client.token = token
+    else:
+      raise Exception(f'Un-supported auth method: {auth_method}')
+
+  def iam_login(self):
+    ''' log into Vault using AWS IAM keys '''
+    session = boto3.Session()
+    credentials = session.get_credentials()
+    self._client.auth.aws.iam_login(
+      credentials.access_key,
+      credentials.secret_key,
+      credentials.token
+    )
 
   def get(self, key):
     ''' get an entry '''
