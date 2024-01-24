@@ -55,13 +55,26 @@ def parse_env():
     s3_prefix
   )
 
-def validate(vault_addr, vault_user, vault_pass, s3, s3_bucket):
+def validate(artsy_env, vault_addr, s3, s3_bucket):
   ''' validate config obtained from env and command line '''
-  if not (vault_addr and vault_user and vault_pass):
+
+  # make sure Vault address matches environment
+  # in case user specifies 'staging' on the command line
+  # yet supplies production Vault address in Env (and connects to Prod VPN)
+  # or the other way around
+  # address for staging is expected to contain 'stg'
+  # that for prod contain 'prd'
+  if artsy_env == 'staging':
+    assert 'stg' in vault_addr
+  else:
+    assert 'prd' in vault_addr
+
+  if not (vault_addr):
     raise Exception(
       "The following environment variables must be specified: " +
-      "VAULT_ADDR, VAULT_USER, VAULT_PASS"
+      "VAULT_ADDR"
     )
+
   if s3 and not s3_bucket:
     raise Exception(
       "VAULT_BACKUP_S3_BUCKET must be specified in the environment."
@@ -91,9 +104,8 @@ if __name__ == "__main__":
   ) = parse_env()
 
   validate(
+    artsy_env,
     vault_addr,
-    vault_user,
-    vault_pass,
     s3,
     s3_bucket
   )
@@ -102,8 +114,6 @@ if __name__ == "__main__":
     local_dir,
     artsy_env,
     vault_addr,
-    vault_user,
-    vault_pass,
     s3,
     s3_bucket,
     s3_prefix
