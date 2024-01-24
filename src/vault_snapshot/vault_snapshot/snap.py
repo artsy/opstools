@@ -11,4 +11,4 @@ def take_snapshot(
   s3_bucket,
   s3_prefix
 ):
-  vault_client = Vault(vault_addr, 'iam')
+  vault_client = Vault(vault_addr, 'iam', role='opstools-role')
