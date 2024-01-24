@@ -98,3 +98,9 @@ class Vault:
         secret=entry,
         mount_point=self._mount_point,
       )
+
+  def take_snapshot(self, output_file):
+    binary_response = self._client.sys.take_raft_snapshot()
+    with open(output_file, 'wb') as f:
+      f.write(binary_response.content)
+
