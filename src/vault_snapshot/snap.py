@@ -56,23 +56,23 @@ def parse_env():
 def validate(artsy_env, vault_host, vault_port, s3, s3_bucket):
   ''' validate config obtained from env and command line '''
 
-  # make sure Vault address matches environment
-  # in case user specifies 'staging' on the command line
-  # yet supplies production Vault address in Env (and connects to Prod VPN)
-  # or the other way around
-  # address for staging is expected to contain 'stg'
-  # that for prod contain 'prd'
-  if artsy_env == 'staging':
-    assert 'stg' in vault_host
-  else:
-    assert 'prd' in vault_host
-
   if not (vault_host and vault_port):
     raise Exception(
       "The following environment variables must be specified: " +
-      "VAULT_ADDR" +
+      "VAULT_HOST, " +
       "VAULT_PORT"
     )
+
+  # make sure Vault hostname matches environment
+  # in case user specifies 'staging' on the command line
+  # yet supplies production Vault host in Env (and connects to Prod VPN)
+  # or the other way around
+  # address for staging is expected to contain 'stg'
+  # that for prod contain 'prd'
+  if artsy_env == 'staging' and not 'stg' in vault_host:
+    raise Exception(f'Vault hostname does not contain "stg": {vault_host}')
+  elif artsy_env == 'production' and not 'prd' in vault_host:
+    raise Exception(f'Vault hostname does not contain "prd": {vault_host}')
 
   if s3 and not s3_bucket:
     raise Exception(
