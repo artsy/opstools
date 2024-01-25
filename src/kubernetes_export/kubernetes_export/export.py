@@ -1,39 +1,17 @@
 import logging
 import os
-import shutil
 import tarfile
 
 from distutils.dir_util import mkpath
 
 import kubernetes_export.context
 
-from lib.artsy_s3_backup import ArtsyS3Backup
 from lib.kctl import Kctl
-from lib.util import write_file
+from lib.util import (
+  backup_to_s3,
+  write_file
+)
 
-
-def backup_to_s3(artsy_env, export_dir, local_dir, s3_bucket, s3_prefix):
-  ''' back up yamls to S3 '''
-  archive_file = os.path.join(
-    local_dir, f"kubernetes-backup-{artsy_env}.tar.gz"
-  )
-  logging.info(f"Writing local archive file: {archive_file} ...")
-  with tarfile.open(archive_file, "w:gz") as tar:
-    tar.add(export_dir, arcname=os.path.basename(export_dir))
-  artsy_s3_backup = ArtsyS3Backup(
-    s3_bucket,
-    s3_prefix,
-    'k8s',
-    artsy_env,
-    'tar.gz'
-  )
-  try:
-    artsy_s3_backup.backup(archive_file)
-  except:
-    raise
-  finally:
-    logging.info(f"Deleting {archive_file} ...")
-    os.remove(archive_file)
 
 def export(object_type, export_dir, kctl):
   ''' export object_type of k8s objects to a yaml file '''
@@ -54,14 +32,27 @@ def export_and_backup(KUBERNETES_OBJECTS, artsy_env, in_cluster, local_dir, s3, 
   for object_type in KUBERNETES_OBJECTS:
     export(object_type, export_dir, kctl)
   logging.info("Done exporting")
-
   if s3:
     try:
-      backup_to_s3(artsy_env, export_dir, local_dir, s3_bucket, s3_prefix)
+      archive_file = os.path.join(
+        local_dir, f"kubernetes-backup-{artsy_env}.tar.gz"
+      )
+      logging.info(f"Writing local archive file: {archive_file} ...")
+      with tarfile.open(archive_file, "w:gz") as tar:
+        tar.add(export_dir, arcname=os.path.basename(export_dir))
+      backup_to_s3(
+        s3_bucket,
+        s3_prefix,
+        'k8s',
+        artsy_env,
+        'tar.gz',
+        archive_file,
+        export_dir
+      )
     except:
       raise
     finally:
-      logging.info(f"Deleting {export_dir} ...")
-      shutil.rmtree(export_dir)
+      logging.info(f"Deleting {archive_file} ...")
+      os.remove(archive_file)
   else:
     logging.info("Skipping backup to S3. Please delete the local files when done!")

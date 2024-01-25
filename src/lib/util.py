@@ -1,10 +1,41 @@
 import glob
 import logging
 import os
+import shutil
 import subprocess
 
 from pathlib import Path
 
+from lib.artsy_s3_backup import ArtsyS3Backup
+
+
+def backup_to_s3(
+  s3_bucket,
+  s3_prefix,
+  service_name,
+  artsy_env,
+  suffix,
+  source_file,
+  source_dir,
+  cleanup=True
+):
+  ''' back up to S3 and if failure, cleanup '''
+  try:
+    artsy_s3_backup = ArtsyS3Backup(
+      s3_bucket,
+      s3_prefix,
+      service_name,
+      artsy_env,
+      suffix
+    )
+    logging.info('Backing up to S3...')
+    artsy_s3_backup.backup(source_file)
+  except:
+    raise
+  finally:
+    if cleanup:
+      logging.info(f"Deleting {source_dir} ...")
+      shutil.rmtree(source_dir)
 
 def config_secret_sanitizer(str1):
   ''' run all config secret sanitizers '''
