@@ -62,16 +62,21 @@ def parse_env():
 
 def validate(artsy_env, vault_addr):
   ''' validate config obtained from env and command line '''
+  if not vault_addr:
+    raise Exception(
+      "The following environment variables must be specified: " +
+      "VAULT_ADDR"
+    )
   # make sure Vault address matches environment
   # in case user specifies 'staging' on the command line
   # yet supplies production Vault address in Env (and connects to Prod VPN)
   # or the other way around
   # address for staging is expected to contain 'stg'
   # that for prod contain 'prd'
-  if artsy_env == 'staging':
-    assert 'stg' in vault_addr
-  else:
-    assert 'prd' in vault_addr
+  if artsy_env == 'staging' and not 'stg' in vault_addr:
+    raise Exception(f'Vault address does not contain "stg": {vault_addr}')
+  elif artsy_env == 'production' and not 'prd' in vault_addr:
+    raise Exception(f'Vault address does not contain "prd": {vault_addr}')
 
 
 if __name__ == "__main__":
