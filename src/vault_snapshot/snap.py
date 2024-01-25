@@ -5,7 +5,7 @@ import os
 import vault_snapshot.context
 
 from lib.logging import setup_logging
-from lib.util import is_artsy_s3_bucket
+from lib.validations import is_artsy_s3_bucket
 
 from vault_snapshot.snap import (
   take_snapshot

@@ -7,7 +7,6 @@ from lib.util import (
   config_secret_sanitizer_artsy,
   config_secret_sanitizer_eso,
   dict1_in_dict2,
-  is_artsy_s3_bucket,
   is_quoted,
   list_intersect,
   list_match_str,
@@ -20,6 +19,7 @@ from lib.util import (
   unquote,
   write_file
 )
+
 
 def describe_config_secret_sanitizer_artsy():
   def it_removes_surrounding_quotes():
@@ -67,14 +67,6 @@ def describe_dict1_in_dict2():
     dict1 = {}
     dict2 = {}
     assert dict1_in_dict2(dict1, dict2)
-
-def describe_is_artsy_s3_bucket():
-  def it_returns_true_if_name_starts_with_artsy():
-    assert is_artsy_s3_bucket('artsy-foo-bucket')
-  def it_returns_false_if_name_does_not_start_with_artsy():
-    assert not is_artsy_s3_bucket('foo-bucket')
-  def it_returns_false_if_name_is_empty_string():
-    assert not is_artsy_s3_bucket('')
 
 def describe_is_quoted():
   def it_returns_double_quote_when_string_is_quoted_that():

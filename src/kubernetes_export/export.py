@@ -6,7 +6,7 @@ import kubernetes_export.context
 
 from kubernetes_export.export import export_and_backup
 from lib.logging import setup_logging
-from lib.util import is_artsy_s3_bucket
+from lib.validations import is_artsy_s3_bucket
 
 
 def parse_args():
