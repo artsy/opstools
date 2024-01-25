@@ -130,11 +130,26 @@ def unquote(str1):
     return str1[1:-1]
   return str1
 
-def write_file(output_file, data, heading=None, mode=0o600, exist_ok=True):
+def write_file(output_file, data, data_format='text', heading=None, mode=0o600, exist_ok=True):
+  if data_format == 'text':
+    write_text_file(output_file, data, heading, mode, exist_ok)
+  elif data_format == 'binary':
+    write_binary_file(output_file, data, mode, exist_ok)
+  else:
+    raise Exception(f'Un-supported data format: {data_format}')
+
+def write_text_file(output_file, data, heading=None, mode=0o600, exist_ok=True):
   ''' write heading and data to output file, create file with proper permissions '''
   fobj = Path(output_file)
   fobj.touch(mode=mode, exist_ok=exist_ok)
   with open(output_file, 'w') as f:
     if heading:
       f.write(heading)
+    f.write(data)
+
+def write_binary_file(output_file, data, mode=0o600, exist_ok=True):
+  ''' write data to output file, create file with proper permissions '''
+  fobj = Path(output_file)
+  fobj.touch(mode=mode, exist_ok=exist_ok)
+  with open(output_file, 'wb') as f:
     f.write(data)
