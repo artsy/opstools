@@ -2,6 +2,8 @@ import boto3
 import hvac
 import logging
 
+from lib.util import write_file
+
 
 class Vault:
   ''' Interface with Hashicorp Vault '''
@@ -101,6 +103,4 @@ class Vault:
 
   def take_snapshot(self, output_file):
     binary_response = self._client.sys.take_raft_snapshot()
-    with open(output_file, 'wb') as f:
-      f.write(binary_response.content)
-
+    write_file(output_file, binary_response.content, data_format='binary')
