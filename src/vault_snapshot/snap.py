@@ -37,9 +37,8 @@ def parse_args():
 
 def parse_env():
   ''' parse env vars '''
-  vault_addr = os.environ.get('VAULT_ADDR')
-  vault_user = os.environ.get('VAULT_USER')
-  vault_pass = os.environ.get('VAULT_PASS')
+  vault_host = os.environ.get('VAULT_HOST')
+  vault_port = os.environ.get('VAULT_PORT')
   s3_bucket = os.environ.get('VAULT_BACKUP_S3_BUCKET', '')
   s3_prefix = os.environ.get('VAULT_BACKUP_S3_PREFIX', 'dev')
   # local dir to store snapshot
@@ -48,14 +47,13 @@ def parse_env():
   )
   return (
     local_dir,
-    vault_addr,
-    vault_user,
-    vault_pass,
+    vault_host,
+    vault_port,
     s3_bucket,
     s3_prefix
   )
 
-def validate(artsy_env, vault_addr, s3, s3_bucket):
+def validate(artsy_env, vault_host, vault_port, s3, s3_bucket):
   ''' validate config obtained from env and command line '''
 
   # make sure Vault address matches environment
@@ -65,14 +63,15 @@ def validate(artsy_env, vault_addr, s3, s3_bucket):
   # address for staging is expected to contain 'stg'
   # that for prod contain 'prd'
   if artsy_env == 'staging':
-    assert 'stg' in vault_addr
+    assert 'stg' in vault_host
   else:
-    assert 'prd' in vault_addr
+    assert 'prd' in vault_host
 
-  if not (vault_addr):
+  if not (vault_host and vault_port):
     raise Exception(
       "The following environment variables must be specified: " +
-      "VAULT_ADDR"
+      "VAULT_ADDR" +
+      "VAULT_PORT"
     )
 
   if s3 and not s3_bucket:
@@ -96,16 +95,16 @@ if __name__ == "__main__":
 
   (
     local_dir,
-    vault_addr,
-    vault_user,
-    vault_pass,
+    vault_host,
+    vault_port,
     s3_bucket,
     s3_prefix
   ) = parse_env()
 
   validate(
     artsy_env,
-    vault_addr,
+    vault_host,
+    vault_port,
     s3,
     s3_bucket
   )
@@ -113,7 +112,8 @@ if __name__ == "__main__":
   take_snapshot(
     local_dir,
     artsy_env,
-    vault_addr,
+    vault_host,
+    vault_port,
     s3,
     s3_bucket,
     s3_prefix
