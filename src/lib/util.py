@@ -126,6 +126,10 @@ def unquote(str1):
     return str1[1:-1]
   return str1
 
+def url_host_port(hostname, port=443):
+  ''' return https://hostname:port '''
+  return f'https://{hostname}:{port}'
+
 def write_file(output_file, data, data_format='text', heading=None, mode=0o600, exist_ok=True):
   if data_format == 'text':
     write_text_file(output_file, data, heading, mode, exist_ok)

@@ -7,6 +7,9 @@ from distutils.dir_util import mkpath
 import vault_snapshot.context
 
 from lib.artsy_s3_backup import ArtsyS3Backup
+from lib.util import (
+  url_host_port
+)
 from lib.vault import Vault
 
 
@@ -20,7 +23,7 @@ def take_snapshot(
   s3_prefix
 ):
   vault_client = Vault(
-    f'https://{vault_host}:{vault_port}',
+    url_host_port(vault_host, vault_port),
     'iam',
     role='opstools-role'
   )

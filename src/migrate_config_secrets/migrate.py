@@ -6,6 +6,9 @@ import migrate_config_secrets.context
 
 from migrate_config_secrets.migrate import migrate_config_secrets
 from lib.logging import setup_logging
+from lib.validations import (
+  hostname_agrees_with_artsy_environment
+)
 
 
 def parse_args():
@@ -55,28 +58,24 @@ def parse_args():
 
 def parse_env():
   ''' parse env vars '''
-  vault_addr = os.environ.get('VAULT_ADDR')
+  vault_host = os.environ.get('VAULT_HOST')
+  vault_port = os.environ.get('VAULT_PORT')
   vault_token = os.environ.get('VAULT_TOKEN')
   kvv2_mount_point = os.environ.get('VAULT_KVV2_MOUNT_POINT')
-  return vault_addr, kvv2_mount_point, vault_token
+  return vault_host, vault_port, kvv2_mount_point, vault_token
 
-def validate(artsy_env, vault_addr):
+def validate(artsy_env, vault_host, vault_port):
   ''' validate config obtained from env and command line '''
-  if not vault_addr:
+  if not (vault_host and vault_port):
     raise Exception(
       "The following environment variables must be specified: " +
-      "VAULT_ADDR"
+      "VAULT_HOST, " +
+      "VAULT_PORT"
     )
-  # make sure Vault address matches environment
-  # in case user specifies 'staging' on the command line
-  # yet supplies production Vault address in Env (and connects to Prod VPN)
-  # or the other way around
-  # address for staging is expected to contain 'stg'
-  # that for prod contain 'prd'
-  if artsy_env == 'staging' and not 'stg' in vault_addr:
-    raise Exception(f'Vault address does not contain "stg": {vault_addr}')
-  elif artsy_env == 'production' and not 'prd' in vault_addr:
-    raise Exception(f'Vault address does not contain "prd": {vault_addr}')
+  if not hostname_agrees_with_artsy_environment(vault_host, artsy_env):
+    raise Exception(
+      f'Hostname {vault_host} does not agree with environment {artsy_env}'
+    )
 
 
 if __name__ == "__main__":
@@ -93,16 +92,17 @@ if __name__ == "__main__":
 
   setup_logging(eval('logging.' + loglevel))
 
-  vault_addr, kvv2_mount_point, vault_token = parse_env()
+  vault_host, vault_port, kvv2_mount_point, vault_token = parse_env()
 
-  validate(artsy_env, vault_addr)
+  validate(artsy_env, vault_host, vault_port)
 
   migrate_config_secrets(
     artsy_env,
     artsy_project,
     list,
     repos_base_dir,
-    vault_addr,
+    vault_host,
+    vault_port,
     kvv2_mount_point,
     vault_token,
     dry_run

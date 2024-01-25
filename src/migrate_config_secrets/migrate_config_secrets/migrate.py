@@ -11,7 +11,8 @@ from lib.kctl import Kctl
 from lib.util import (
   config_secret_sanitizer,
   config_secret_sanitizer_artsy,
-  match_or_raise
+  match_or_raise,
+  url_host_port
 )
 from lib.vault import Vault
 
@@ -53,7 +54,8 @@ def migrate_config_secrets(
   artsy_project,
   list,
   repos_base_dir,
-  vault_addr,
+  vault_host,
+  vault_port,
   kvv2_mount_point,
   vault_token,
   dry_run
@@ -72,7 +74,7 @@ def migrate_config_secrets(
 
   path = 'kubernetes/apps/' + f'{artsy_project}/'
   vault_client = Vault(
-    vault_addr,
+    url_host_port(vault_host, vault_port),
     'token',
     vault_token,
     kvv2_mount_point,
