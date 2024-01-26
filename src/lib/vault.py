@@ -2,7 +2,7 @@ import boto3
 import hvac
 import logging
 
-from lib.util import write_file
+from lib.export_backup import write_file
 
 
 class Vault:

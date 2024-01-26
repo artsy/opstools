@@ -3,11 +3,11 @@ import os
 
 import vault_snapshot.context
 
-from lib.util import (
+from lib.export_backup import (
   backup_to_s3,
-  setup_local_export_dir,
-  url_host_port
+  setup_local_export_dir
 )
+from lib.util import url_host_port
 from lib.vault import Vault
 
 

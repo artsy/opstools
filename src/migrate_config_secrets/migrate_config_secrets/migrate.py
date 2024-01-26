@@ -9,10 +9,12 @@ from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
 from lib.util import (
-  config_secret_sanitizer,
-  config_secret_sanitizer_artsy,
   match_or_raise,
   url_host_port
+)
+from lib.sanitizers import (
+  config_secret_sanitizer,
+  config_secret_sanitizer_artsy
 )
 from lib.vault import Vault
 

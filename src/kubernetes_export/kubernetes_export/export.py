@@ -6,11 +6,11 @@ from distutils.dir_util import mkpath
 
 import kubernetes_export.context
 
-from lib.kctl import Kctl
-from lib.util import (
+from lib.export_backup import (
   backup_to_s3,
   write_file
 )
+from lib.kctl import Kctl
 
 
 def export(object_type, export_dir, kctl):
