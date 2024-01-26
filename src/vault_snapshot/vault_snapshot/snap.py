@@ -1,5 +1,6 @@
 import logging
 import os
+
 import vault_snapshot.context
 
 from lib.util import (
@@ -22,12 +23,15 @@ def take_snapshot(
 ):
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
-    'iam',
+    auth_method='iam',
     role=vault_role
   )
   suffix = 'gz'
   export_dir, output_file = setup_local_export_dir(
-    local_dir, artsy_env, vault_host, suffix
+    local_dir,
+    artsy_env,
+    vault_host,
+    suffix
   )
   logging.info('Taking snapshot...')
   vault_client.take_snapshot(output_file)
