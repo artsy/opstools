@@ -5,6 +5,7 @@ import os
 import rabbitmq_export.context
 
 from lib.logging import setup_logging
+from lib.validations import hostname_agrees_with_artsy_environment
 
 from rabbitmq_export.export import (
   export_and_backup

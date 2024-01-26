@@ -61,25 +61,22 @@ def migrate_config_secrets(
   dry_run
 ):
   ''' migrate sensitive configs from configmap to Vault '''
-  logging.info(
-    f'Migrating {artsy_env} {artsy_project} ' +
-    'sensitive configs from k8s configmap to Vault...'
-  )
-
   kctl = Kctl(False, artsy_env)
   configmap_name = f'{artsy_project}-environment'
   configmap_obj = ConfigMap(kctl, configmap_name)
 
   secret_obj = K8sSecret(kctl, artsy_project)
-
   path = 'kubernetes/apps/' + f'{artsy_project}/'
+
+  logging.info(f'Migrating sensitive configs from {artsy_env} {configmap_name} configmap to {path} in Vault...')
+
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
-    'token',
-    vault_token,
-    kvv2_mount_point,
-    path,
-    config_secret_sanitizer
+    auth_method='token',
+    token=vault_token,
+    kvv2_mount_point=kvv2_mount_point,
+    path=path,
+    sanitizer=config_secret_sanitizer
   )
 
   logging.info('Getting list of sensitive vars...')

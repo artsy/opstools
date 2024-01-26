@@ -6,6 +6,7 @@ import rabbitmq_export.context
 
 from lib.util import (
   backup_to_s3,
+  setup_local_export_dir,
   write_file
 )
 
