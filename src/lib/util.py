@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 
+from distutils.dir_util import mkpath
 from pathlib import Path
 
 from lib.artsy_s3_backup import ArtsyS3Backup
@@ -151,6 +152,19 @@ def search_dirs_by_suffix(dirx, suffix):
   ]
   dirs = [os.path.dirname(path) for path in files]
   return sorted(list(set(dirs)))
+
+def setup_local_export_dir(local_dir, artsy_env, service_host, suffix):
+  '''
+  set up a local dir to store data export,
+  name dir after artsy environment,
+  generate output file name,
+  return dir and file name, expect client to create file.
+  '''
+  export_dir = os.path.join(local_dir, artsy_env)
+  mkpath(export_dir)
+  file_name = f"{service_host}.{suffix}"
+  output_file = os.path.join(export_dir, file_name)
+  return export_dir, output_file
 
 def unquote(str1):
   ''' remove string's surrounding quotes, if any '''

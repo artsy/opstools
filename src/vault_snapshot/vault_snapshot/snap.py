@@ -1,11 +1,10 @@
 import logging
 import os
-from distutils.dir_util import mkpath
-
 import vault_snapshot.context
 
 from lib.util import (
   backup_to_s3,
+  setup_local_export_dir,
   url_host_port
 )
 from lib.vault import Vault
@@ -26,10 +25,10 @@ def take_snapshot(
     'iam',
     role=vault_role
   )
-  export_dir = os.path.join(local_dir, artsy_env)
-  mkpath(export_dir)
-  file_name = f"{vault_host}.gz"
-  output_file = os.path.join(export_dir, file_name)
+  suffix = 'gz'
+  export_dir, output_file = setup_local_export_dir(
+    local_dir, artsy_env, vault_host, suffix
+  )
   logging.info('Taking snapshot...')
   vault_client.take_snapshot(output_file)
   if s3:
@@ -38,7 +37,7 @@ def take_snapshot(
       s3_prefix,
       'vault',
       artsy_env,
-      'gz',
+      suffix,
       output_file,
       export_dir
     )

@@ -2,8 +2,6 @@ import logging
 import os
 import requests
 
-from distutils.dir_util import mkpath
-
 import rabbitmq_export.context
 
 from lib.util import (
@@ -22,10 +20,10 @@ def export_and_backup(
   s3_bucket,
   s3_prefix
 ):
-  export_dir = os.path.join(local_dir, artsy_env)
-  mkpath(export_dir)
-  file_name = f"{rabbitmq_host}.json"
-  output_file = os.path.join(export_dir, file_name)
+  suffix = 'json'
+  export_dir, output_file = setup_local_export_dir(
+    local_dir, artsy_env, rabbitmq_host, suffix
+  )
   logging.info('Exporting broker definitions...')
   export_broker_definition(
     output_file, rabbitmq_host, rabbitmq_user, rabbitmq_pass
@@ -36,7 +34,7 @@ def export_and_backup(
       s3_prefix,
       'rabbitmq',
       artsy_env,
-      'json'
+      suffix,
       output_file,
       export_dir
     )
