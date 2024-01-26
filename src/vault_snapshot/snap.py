@@ -41,6 +41,7 @@ def parse_env():
   ''' parse env vars '''
   vault_host = os.environ.get('VAULT_HOST')
   vault_port = os.environ.get('VAULT_PORT')
+  vault_role = os.environ.get('VAULT_ROLE')
   s3_bucket = os.environ.get('VAULT_BACKUP_S3_BUCKET', '')
   s3_prefix = os.environ.get('VAULT_BACKUP_S3_PREFIX', 'dev')
   # local dir to store snapshot
@@ -51,17 +52,19 @@ def parse_env():
     local_dir,
     vault_host,
     vault_port,
+    vault_role,
     s3_bucket,
     s3_prefix
   )
 
-def validate(artsy_env, vault_host, vault_port, s3, s3_bucket):
+def validate(artsy_env, vault_host, vault_port, vault_role, s3, s3_bucket):
   ''' validate config obtained from env and command line '''
-  if not (vault_host and vault_port):
+  if not (vault_host and vault_port and vault_role):
     raise Exception(
       "The following environment variables must be specified: " +
       "VAULT_HOST, " +
-      "VAULT_PORT"
+      "VAULT_PORT, " +
+      "VAULT_ROLE"
     )
   if not hostname_agrees_with_artsy_environment(vault_host, artsy_env):
     raise Exception(
@@ -88,6 +91,7 @@ if __name__ == "__main__":
     local_dir,
     vault_host,
     vault_port,
+    vault_role,
     s3_bucket,
     s3_prefix
   ) = parse_env()
@@ -96,6 +100,7 @@ if __name__ == "__main__":
     artsy_env,
     vault_host,
     vault_port,
+    vault_role,
     s3,
     s3_bucket
   )
@@ -105,6 +110,7 @@ if __name__ == "__main__":
     artsy_env,
     vault_host,
     vault_port,
+    vault_role,
     s3,
     s3_bucket,
     s3_prefix

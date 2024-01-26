@@ -16,6 +16,7 @@ def take_snapshot(
   artsy_env,
   vault_host,
   vault_port,
+  vault_role,
   s3,
   s3_bucket,
   s3_prefix
@@ -23,7 +24,7 @@ def take_snapshot(
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
     'iam',
-    role='opstools-role'
+    role=vault_role
   )
   export_dir = os.path.join(local_dir, artsy_env)
   mkpath(export_dir)
