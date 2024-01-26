@@ -43,8 +43,8 @@ def setup_local_export_dir(local_dir, artsy_env, service_host, suffix):
   '''
   set up a local dir to store data export,
   name dir after artsy environment,
-  generate output file name,
-  return dir and file name, expect client to create file.
+  generate output file path,
+  return dir and file path, expect client to create file.
   '''
   export_dir = os.path.join(local_dir, artsy_env)
   mkpath(export_dir)
@@ -53,6 +53,7 @@ def setup_local_export_dir(local_dir, artsy_env, service_host, suffix):
   return export_dir, output_file
 
 def write_file(output_file, data, data_format='text', heading=None, mode=0o600, exist_ok=True):
+  ''' write text or binary data to file, create file with proper permissions '''
   if data_format == 'text':
     write_text_file(output_file, data, heading, mode, exist_ok)
   elif data_format == 'binary':
@@ -61,7 +62,7 @@ def write_file(output_file, data, data_format='text', heading=None, mode=0o600, 
     raise Exception(f'Un-supported data format: {data_format}')
 
 def write_text_file(output_file, data, heading=None, mode=0o600, exist_ok=True):
-  ''' write heading and data to output file, create file with proper permissions '''
+  ''' write heading and text data to output file, create file with proper permissions '''
   fobj = Path(output_file)
   fobj.touch(mode=mode, exist_ok=exist_ok)
   with open(output_file, 'w') as f:
@@ -70,7 +71,7 @@ def write_text_file(output_file, data, heading=None, mode=0o600, exist_ok=True):
     f.write(data)
 
 def write_binary_file(output_file, data, mode=0o600, exist_ok=True):
-  ''' write data to output file, create file with proper permissions '''
+  ''' write binary data to output file, create file with proper permissions '''
   fobj = Path(output_file)
   fobj.touch(mode=mode, exist_ok=exist_ok)
   with open(output_file, 'wb') as f:
