@@ -1,3 +1,8 @@
+import logging
+
+from lib.util import unquote
+
+
 def config_secret_sanitizer(str1):
   ''' run all config secret sanitizers '''
   artsy_sanitized = config_secret_sanitizer_artsy(str1)

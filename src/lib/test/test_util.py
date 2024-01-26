@@ -4,8 +4,6 @@ import pytest
 import subprocess
 
 from lib.util import (
-  config_secret_sanitizer_artsy,
-  config_secret_sanitizer_eso,
   dict1_in_dict2,
   is_quoted,
   list_intersect,
@@ -17,19 +15,9 @@ from lib.util import (
   run_cmd,
   search_dirs_by_suffix,
   unquote,
-  write_file
+  url_host_port
 )
 
-
-def describe_config_secret_sanitizer_artsy():
-  def it_removes_surrounding_quotes():
-    assert config_secret_sanitizer_artsy('"foo"') == 'foo'
-
-def describe_config_secret_sanitizer_eso():
-  def it_adds_double_quotes_when_special_yaml_char():
-    assert config_secret_sanitizer_eso('*foo') == '"*foo"'
-  def it_returns_same_string_otherwise():
-    assert config_secret_sanitizer_eso('foo') == 'foo'
 
 def describe_dict1_in_dict2():
   def it_returns_true_when_dict1_is_in_dict2():
@@ -176,25 +164,6 @@ def describe_unquote():
   def it_returns_same_string_if_unquoted():
     assert unquote('"foo') == '"foo'
 
-def describe_write_file():
-  def it_creates_file_with_default_permissions(tmp_path):
-    file_path = os.path.join(tmp_path, 'foo.txt')
-    write_file(file_path, 'foo data')
-    assert os.stat(file_path).st_mode == int(0o100600)
-    with open(file_path, 'r') as f:
-      assert f.readline().strip() == 'foo data'
-  def it_creates_file_with_custom_permissions(tmp_path):
-    file_path = os.path.join(tmp_path, 'foo.txt')
-    write_file(file_path, 'foo data', mode=0o755)
-    assert os.stat(file_path).st_mode == int(0o100755)
-  def it_writes_heading(tmp_path):
-    file_path = os.path.join(tmp_path, 'foo.txt')
-    write_file(file_path, 'foo data', heading='foo heading\n')
-    with open(file_path, 'r') as f:
-      assert f.readline().strip() == 'foo heading'
-  def it_balks_when_file_exists(tmp_path):
-    file_path = os.path.join(tmp_path, 'foo.txt')
-    write_file(file_path, 'foo data')
-    write_file(file_path, 'foo data')
-    with pytest.raises(FileExistsError):
-      write_file(file_path, 'foo data', exist_ok=False)
+def describe_url_host_port():
+  def it_returns_url_with_host_and_port():
+    assert url_host_port('foohost', '123') == 'https://foohost:123'
