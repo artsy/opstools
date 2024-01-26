@@ -5,7 +5,6 @@ import os
 import rabbitmq_export.context
 
 from lib.logging import setup_logging
-from lib.validations import is_artsy_s3_bucket
 
 from rabbitmq_export.export import (
   export_and_backup
@@ -70,8 +69,6 @@ def validate(rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3, s3_bucket):
     raise Exception(
       "RABBITMQ_BACKUP_S3_BUCKET must be specified in the environment."
     )
-  if s3 and not is_artsy_s3_bucket(s3_bucket):
-    raise Exception(f"{s3_bucket} seems not an Artsy S3 bucket.")
 
 
 if __name__ == "__main__":

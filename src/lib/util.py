@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 from lib.artsy_s3_backup import ArtsyS3Backup
+from lib.validations import is_artsy_s3_bucket
 
 
 def backup_to_s3(
@@ -20,6 +21,8 @@ def backup_to_s3(
   cleanup=True
 ):
   ''' back up to S3 and if failure, cleanup '''
+  if not is_artsy_s3_bucket(s3_bucket):
+    raise Exception(f"{s3_bucket} seems not an Artsy S3 bucket.")
   try:
     artsy_s3_backup = ArtsyS3Backup(
       s3_bucket,

@@ -6,8 +6,7 @@ import vault_snapshot.context
 
 from lib.logging import setup_logging
 from lib.validations import (
-  hostname_agrees_with_artsy_environment,
-  is_artsy_s3_bucket
+  hostname_agrees_with_artsy_environment
 )
 
 from vault_snapshot.snap import (
@@ -72,8 +71,6 @@ def validate(artsy_env, vault_host, vault_port, s3, s3_bucket):
     raise Exception(
       "VAULT_BACKUP_S3_BUCKET must be specified in the environment."
     )
-  if s3 and not is_artsy_s3_bucket(s3_bucket):
-    raise Exception(f"{s3_bucket} seems not an Artsy S3 bucket.")
 
 
 if __name__ == "__main__":
