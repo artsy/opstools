@@ -23,19 +23,21 @@ class Vault:
     # a function for sanitizing a value before setting it in Vault
     # this is org-specific
     self._sanitizer = sanitizer
-    self.login(self._client, auth_method, token, role)
+    self._login(auth_method, token, role)
 
-  def login(self, client, auth_method, token=None, role=None):
+  def _login(self, auth_method, token=None, role=None):
     ''' log into Vault using the specified method '''
     if auth_method == 'iam':
-      self.iam_login(role)
+      self._iam_login(role)
     elif auth_method == 'token':
       self._client.token = token
     else:
       raise Exception(f'Un-supported auth method: {auth_method}')
 
-  def iam_login(self, role):
+  def _iam_login(self, role):
     ''' log into Vault using AWS IAM keys '''
+    if role == None:
+      raise Exception(f'No Vault role specified for IAM auth method.')
     session = boto3.Session()
     credentials = session.get_credentials()
     self._client.auth.aws.iam_login(
