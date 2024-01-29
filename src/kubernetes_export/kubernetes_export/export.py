@@ -20,7 +20,15 @@ def export(object_type, export_dir, kctl):
   output_file = os.path.join(export_dir, f"{object_type}.yaml")
   write_file(output_file, data, heading='---\n')
 
-def export_and_backup(KUBERNETES_OBJECTS, artsy_env, in_cluster, local_dir, s3, s3_bucket, s3_prefix):
+def export_and_backup(
+  KUBERNETES_OBJECTS,
+  artsy_env,
+  in_cluster,
+  local_dir,
+  s3,
+  s3_bucket,
+  s3_prefix
+):
   ''' export kubernetes objects to yaml files and optionally back them up to S3 '''
   export_dir = os.path.join(local_dir, artsy_env)
   mkpath(export_dir)

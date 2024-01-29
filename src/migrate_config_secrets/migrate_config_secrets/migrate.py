@@ -70,7 +70,9 @@ def migrate_config_secrets(
   secret_obj = K8sSecret(kctl, artsy_project)
   path = 'kubernetes/apps/' + f'{artsy_project}/'
 
-  logging.info(f'Migrating sensitive configs from {artsy_env} {configmap_name} configmap to {path} in Vault...')
+  logging.info(
+    f'Migrating sensitive configs from {artsy_env} {configmap_name} configmap to {path} in Vault...'
+  )
 
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
