@@ -2,13 +2,9 @@ import glob
 import os
 import pytest
 import subprocess
-import tempfile
 
 from lib.util import (
-  config_secret_sanitizer_artsy,
-  config_secret_sanitizer_eso,
   dict1_in_dict2,
-  is_artsy_s3_bucket,
   is_quoted,
   list_intersect,
   list_match_str,
@@ -18,18 +14,10 @@ from lib.util import (
   replace_dashes_in_dict_keys_with_underscores,
   run_cmd,
   search_dirs_by_suffix,
-  unquote
+  unquote,
+  url_host_port
 )
 
-def describe_config_secret_sanitizer_artsy():
-  def it_removes_surrounding_quotes():
-    assert config_secret_sanitizer_artsy('"foo"') == 'foo'
-
-def describe_config_secret_sanitizer_eso():
-  def it_adds_double_quotes_when_special_yaml_char():
-    assert config_secret_sanitizer_eso('*foo') == '"*foo"'
-  def it_returns_same_string_otherwise():
-    assert config_secret_sanitizer_eso('foo') == 'foo'
 
 def describe_dict1_in_dict2():
   def it_returns_true_when_dict1_is_in_dict2():
@@ -67,14 +55,6 @@ def describe_dict1_in_dict2():
     dict1 = {}
     dict2 = {}
     assert dict1_in_dict2(dict1, dict2)
-
-def describe_is_artsy_s3_bucket():
-  def it_returns_true_if_name_starts_with_artsy():
-    assert is_artsy_s3_bucket('artsy-foo-bucket')
-  def it_returns_false_if_name_does_not_start_with_artsy():
-    assert not is_artsy_s3_bucket('foo-bucket')
-  def it_returns_false_if_name_is_empty_string():
-    assert not is_artsy_s3_bucket('')
 
 def describe_is_quoted():
   def it_returns_double_quote_when_string_is_quoted_that():
@@ -147,38 +127,34 @@ def describe_replace_dashes_in_dict_keys_with_underscores():
     assert new_dict == dict2
 
 def describe_run_cmd():
-  def it_runs():
-    with tempfile.TemporaryDirectory() as tmpdir:
-      os.chdir(tmpdir)
-      os.makedirs('foo')
-      resp = run_cmd('ls', tmpdir)
+  def it_runs(tmp_path):
+    os.chdir(tmp_path)
+    os.makedirs('foo')
+    resp = run_cmd('ls', tmp_path)
     assert resp.stdout == 'foo\n'
     assert resp.returncode == 0
-  def it_does_not_timeout():
-    with tempfile.TemporaryDirectory() as tmpdir:
-      os.chdir(tmpdir)
-      resp = run_cmd('sleep 1', tmpdir, timeout=3)
-  def it_times_out():
+  def it_does_not_timeout(tmp_path):
+    os.chdir(tmp_path)
+    resp = run_cmd('sleep 1', tmp_path, timeout=3)
+  def it_times_out(tmp_path):
     with pytest.raises(subprocess.TimeoutExpired):
-      with tempfile.TemporaryDirectory() as tmpdir:
-        os.chdir(tmpdir)
-        resp = run_cmd('sleep 3', tmpdir, timeout=1)
+      os.chdir(tmp_path)
+      resp = run_cmd('sleep 3', tmp_path, timeout=1)
 
 def describe_search_dirs_by_suffix():
-  def it_returns_dirs_that_have_matching_files():
-    with tempfile.TemporaryDirectory() as tmpdir:
-      os.chdir(tmpdir)
-      os.makedirs('foo')
-      os.makedirs('bar/bar')
-      os.makedirs('baz')
-      open('foo/file.txt', 'w').close()
-      open('bar/bar/file.txt', 'w').close()
-      open('baz/file.gz', 'w').close()
-      expected_dirs = [
-        os.path.join(tmpdir, 'bar/bar'),
-        os.path.join(tmpdir, 'foo')
-      ]
-      assert search_dirs_by_suffix(tmpdir, 'txt') == expected_dirs
+  def it_returns_dirs_that_have_matching_files(tmp_path):
+    os.chdir(tmp_path)
+    os.makedirs('foo')
+    os.makedirs('bar/bar')
+    os.makedirs('baz')
+    open('foo/file.txt', 'w').close()
+    open('bar/bar/file.txt', 'w').close()
+    open('baz/file.gz', 'w').close()
+    expected_dirs = [
+      os.path.join(tmp_path, 'bar/bar'),
+      os.path.join(tmp_path, 'foo')
+    ]
+    assert search_dirs_by_suffix(tmp_path, 'txt') == expected_dirs
 
 def describe_unquote():
   def it_removes_surrounding_double_quotes():
@@ -187,3 +163,7 @@ def describe_unquote():
     assert unquote("'foo'") == 'foo'
   def it_returns_same_string_if_unquoted():
     assert unquote('"foo') == '"foo'
+
+def describe_url_host_port():
+  def it_returns_url_with_host_and_port():
+    assert url_host_port('foohost', '123') == 'https://foohost:123'

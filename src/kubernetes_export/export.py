@@ -6,7 +6,6 @@ import kubernetes_export.context
 
 from kubernetes_export.export import export_and_backup
 from lib.logging import setup_logging
-from lib.util import is_artsy_s3_bucket
 
 
 def parse_args():
@@ -49,8 +48,6 @@ def validate(s3, s3_bucket):
   ''' validate config obtained from env and command line '''
   if s3 and not s3_bucket:
     raise Exception("K8S_BACKUP_S3_BUCKET must be specified in the environment.")
-  if s3 and not is_artsy_s3_bucket(s3_bucket):
-    raise Exception(f"{s3_bucket} seems not an Artsy S3 bucket.")
 
 
 if __name__ == "__main__":

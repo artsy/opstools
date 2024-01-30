@@ -1,13 +1,14 @@
 import logging
 import os
 import requests
-import shutil
-
-from distutils.dir_util import mkpath
 
 import rabbitmq_export.context
 
-from lib.artsy_s3_backup import ArtsyS3Backup
+from lib.export_backup import (
+  backup_to_s3,
+  setup_local_export_dir,
+  write_file
+)
 
 
 def export_and_backup(
@@ -20,30 +21,24 @@ def export_and_backup(
   s3_bucket,
   s3_prefix
 ):
-  export_dir = os.path.join(local_dir, artsy_env)
-  mkpath(export_dir)
-  file_name = f"{rabbitmq_host}.json"
-  output_file = os.path.join(export_dir, file_name)
+  suffix = 'json'
+  export_dir, output_file = setup_local_export_dir(
+    local_dir, artsy_env, rabbitmq_host, suffix
+  )
   logging.info('Exporting broker definitions...')
   export_broker_definition(
     output_file, rabbitmq_host, rabbitmq_user, rabbitmq_pass
   )
   if s3:
-    try:
-      artsy_s3_backup = ArtsyS3Backup(
-        s3_bucket,
-        s3_prefix,
-        'rabbitmq',
-        artsy_env,
-        'json'
-      )
-      logging.info('Backing up to S3...')
-      artsy_s3_backup.backup(output_file)
-    except:
-      raise
-    finally:
-      logging.info(f"Deleting {export_dir} ...")
-      shutil.rmtree(export_dir)
+    backup_to_s3(
+      s3_bucket,
+      s3_prefix,
+      'rabbitmq',
+      artsy_env,
+      suffix,
+      output_file,
+      export_dir
+    )
   else:
     logging.info(
       "Skipping backup to S3. Please delete the local files when done!"
@@ -70,5 +65,4 @@ def export_broker_definition(
   logging.info(
     f"Saving RabbitMQ broker definitions to {output_file} ..."
   )
-  with open(output_file, 'w') as f:
-    f.write(resp.text)
+  write_file(output_file, resp.text)

@@ -9,9 +9,12 @@ from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
 from lib.util import (
+  match_or_raise,
+  url_host_port
+)
+from lib.sanitizers import (
   config_secret_sanitizer,
-  config_secret_sanitizer_artsy,
-  match_or_raise
+  config_secret_sanitizer_artsy
 )
 from lib.vault import Vault
 
@@ -53,29 +56,31 @@ def migrate_config_secrets(
   artsy_project,
   list,
   repos_base_dir,
-  vault_addr,
+  vault_host,
+  vault_port,
   kvv2_mount_point,
   vault_token,
   dry_run
 ):
   ''' migrate sensitive configs from configmap to Vault '''
-  logging.info(
-    f'Migrating {artsy_env} {artsy_project} ' +
-    'sensitive configs from k8s configmap to Vault...'
-  )
-
   kctl = Kctl(False, artsy_env)
   configmap_name = f'{artsy_project}-environment'
   configmap_obj = ConfigMap(kctl, configmap_name)
 
   secret_obj = K8sSecret(kctl, artsy_project)
-
   path = 'kubernetes/apps/' + f'{artsy_project}/'
+
+  logging.info(
+    f'Migrating sensitive configs from {artsy_env} {configmap_name} configmap to {path} in Vault...'
+  )
+
   vault_client = Vault(
-    vault_addr,
-    kvv2_mount_point,
-    path, vault_token,
-    config_secret_sanitizer
+    url_host_port(vault_host, vault_port),
+    auth_method='token',
+    token=vault_token,
+    kvv2_mount_point=kvv2_mount_point,
+    path=path,
+    sanitizer=config_secret_sanitizer
   )
 
   logging.info('Getting list of sensitive vars...')

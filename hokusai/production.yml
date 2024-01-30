@@ -403,3 +403,42 @@ spec:
                     operator: In
                     values:
                     - background
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: opstools-vault-snapshot
+spec:
+  schedule: "42 7 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          annotations:
+            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+        spec:
+          containers:
+            - name: opstools-vault-snapshot
+              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+              command:
+              - python
+              - src/vault_snapshot/snap.py
+              - production
+              - --s3
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: opstools-environment
+          restartPolicy: Never
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: tier
+                    operator: In
+                    values:
+                    - background

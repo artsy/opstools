@@ -5,7 +5,7 @@ import os
 import rabbitmq_export.context
 
 from lib.logging import setup_logging
-from lib.util import is_artsy_s3_bucket
+from lib.validations import hostname_agrees_with_artsy_environment
 
 from rabbitmq_export.export import (
   export_and_backup
@@ -62,12 +62,14 @@ def validate(rabbitmq_host, rabbitmq_user, rabbitmq_pass, s3, s3_bucket):
       "The following environment variables must be specified: " +
       "RABBITMQ_HOST, RABBITMQ_USER, RABBITMQ_PASS"
     )
+  if not hostname_agrees_with_artsy_environment(rabbitmq_host, artsy_env):
+    raise Exception(
+      f'Hostname {rabbitmq_host} does not agree with environment {artsy_env}'
+    )
   if s3 and not s3_bucket:
     raise Exception(
       "RABBITMQ_BACKUP_S3_BUCKET must be specified in the environment."
     )
-  if s3 and not is_artsy_s3_bucket(s3_bucket):
-    raise Exception(f"{s3_bucket} seems not an Artsy S3 bucket.")
 
 
 if __name__ == "__main__":
