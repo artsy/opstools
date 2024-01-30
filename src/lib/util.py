@@ -3,37 +3,10 @@ import logging
 import os
 import subprocess
 
-def config_secret_sanitizer(str1):
-  ''' run all config secret sanitizers '''
-  artsy_sanitized = config_secret_sanitizer_artsy(str1)
-  eso_sanitized = config_secret_sanitizer_eso(artsy_sanitized)
-  return eso_sanitized
-
-def config_secret_sanitizer_artsy(str1):
-  ''' ensure secret_value conforms to Artsy requirements '''
-  # strip surrounding quotes if any
-  return unquote(str1)
-
-def config_secret_sanitizer_eso(str1):
-  ''' ensure string is acceptable to Kubernetes External Secrets Operator '''
-  # add double quoutes if string has YAML special char
-  special_chars = ['*']
-  for char in special_chars:
-    if char in str1:
-      logging.debug(
-        'String contains special YAML chars, adding double-quotes.'
-      )
-      return f'"{str1}"'
-      break
-  return str1
 
 def dict1_in_dict2(dict1, dict2):
   ''' return true if all items in dict1 are in dict2 '''
   return set(dict1.items()).issubset(set(dict2.items()))
-
-def is_artsy_s3_bucket(name):
-  ''' return true if bucket name starts with artsy- '''
-  return name.startswith('artsy-')
 
 def is_quoted(str1):
   ''' if string is quoted, return the quote character '''
@@ -126,3 +99,7 @@ def unquote(str1):
     logging.debug(f'string is quoted with {quote_char}, removing quotes')
     return str1[1:-1]
   return str1
+
+def url_host_port(hostname, port=443):
+  ''' return https://hostname:port '''
+  return f'https://{hostname}:{port}'
