@@ -47,13 +47,20 @@ def describe_vault():
         obj._login('fooauthmethod')
 
   def describe_iam_login():
-    def it_raises_when_role_is_none(mocker):
-      mocker.patch('lib.vault.boto3')
+    def it_omits_role_arg_when_role_is_not_specified(mocker):
+      mock_boto3 = mocker.patch('lib.vault.boto3')
       mocker.patch('lib.vault.hvac.Client')
-      obj = Vault('fooaddr', 'iam', role='foorole')
-      with pytest.raises(Exception):
-        obj._iam_login(None)
-    def it_does_the_right_things_when_role_is_specified(mocker):
+      obj = Vault('fooaddr', 'iam')
+      spy = mocker.spy(obj._client.auth.aws, 'iam_login')
+      obj._iam_login()
+      spy.assert_has_calls([
+        mocker.call(
+          lib.vault.boto3.Session().get_credentials().access_key,
+          lib.vault.boto3.Session().get_credentials().secret_key,
+          lib.vault.boto3.Session().get_credentials().token
+        )
+      ])
+    def it_passes_role_arg_when_role_is_specified(mocker):
       mock_boto3 = mocker.patch('lib.vault.boto3')
       mocker.patch('lib.vault.hvac.Client')
       obj = Vault('fooaddr', 'iam', role='foorole')

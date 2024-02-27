@@ -57,14 +57,13 @@ def parse_env():
     s3_prefix
   )
 
-def validate(artsy_env, vault_host, vault_port, vault_role, s3, s3_bucket):
+def validate(artsy_env, vault_host, vault_port, s3, s3_bucket):
   ''' validate config obtained from env and command line '''
-  if not (vault_host and vault_port and vault_role):
+  if not (vault_host and vault_port):
     raise Exception(
       "The following environment variables must be specified: " +
       "VAULT_HOST, " +
-      "VAULT_PORT, " +
-      "VAULT_ROLE"
+      "VAULT_PORT"
     )
   if not hostname_agrees_with_artsy_environment(vault_host, artsy_env):
     raise Exception(
@@ -100,7 +99,6 @@ if __name__ == "__main__":
     artsy_env,
     vault_host,
     vault_port,
-    vault_role,
     s3,
     s3_bucket
   )

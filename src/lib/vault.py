@@ -34,18 +34,24 @@ class Vault:
     else:
       raise Exception(f'Un-supported auth method: {auth_method}')
 
-  def _iam_login(self, role):
+  def _iam_login(self, role=None):
     ''' log into Vault using AWS IAM keys '''
-    if role == None:
-      raise Exception(f'No Vault role specified for IAM auth method.')
     session = boto3.Session()
     credentials = session.get_credentials()
-    self._client.auth.aws.iam_login(
-      credentials.access_key,
-      credentials.secret_key,
-      credentials.token,
-      role=role
-    )
+    if role == None:
+      # role not specified, let hvac default role to same as iam username
+      self._client.auth.aws.iam_login(
+        credentials.access_key,
+        credentials.secret_key,
+        credentials.token,
+      )
+    else:
+      self._client.auth.aws.iam_login(
+        credentials.access_key,
+        credentials.secret_key,
+        credentials.token,
+        role=role
+      )
 
   def get(self, key):
     ''' get an entry '''
