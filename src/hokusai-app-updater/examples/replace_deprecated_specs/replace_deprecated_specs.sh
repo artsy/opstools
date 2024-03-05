@@ -3,7 +3,7 @@
 # Depends on GNU-sed installed as gsed (via `brew install gnu-sed`).
 
 deprecations=(
-#   "apiVersion: batch/v1beta1"
+  "apiVersion: batch/v1beta1"
   "apiVersion: networking.k8s.io/v1beta1"
   "              serviceName: "
   "              servicePort: "
@@ -14,7 +14,7 @@ deprecations=(
 )
 
 replacements=(
-#   "apiVersion: batch/v1"
+  "apiVersion: batch/v1"
   "apiVersion: networking.k8s.io/v1"
   "              service:\n                name: "
   "                port:\n                  name: "
@@ -27,7 +27,17 @@ replacements=(
 for i in "${!deprecations[@]}"; do
   echo "Replacing '${deprecations[i]}' with '${replacements[i]}'"
 
-  gsed -z -i -e "s|${deprecations[i]}|${replacements[i]}|g" **/hokusai/*.yml*
+  for file in `find . -name "staging.yml*"`
+  do
+    echo $file
+    gsed -z -i -e "s|${deprecations[i]}|${replacements[i]}|g" $file
+  done
+
+  for file in `find . -name "production.yml*"`
+  do
+    echo $file
+    gsed -z -i -e "s|${deprecations[i]}|${replacements[i]}|g" $file
+  done
 done
 
 
