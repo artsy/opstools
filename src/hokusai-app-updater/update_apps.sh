@@ -120,7 +120,14 @@ do
   $SCRIPT_DIR/$SCRIPT "${@:8}"
 
   cd "$WORKDIR"
-  commit "$BRANCH"
+  # commit if there are changes
+  changes=$(git status -s)
+  if [ ! -z "$changes" ]
+  then
+    commit "$BRANCH"
+  else
+    echo "no changes"
+  fi
 
   COUNT=$(( $COUNT + 1 ))
 done <$PROJECT_LIST
