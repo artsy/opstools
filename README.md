@@ -2,7 +2,7 @@
 
 Tools for Operations.
 
-* __Point People:__ [#product-velocity][velocity_channel]
+* __Point People:__ [#product-sapphire][sapphire_channel]
 
 # Setup
 
@@ -50,4 +50,4 @@ To make local testing accurate, we have created a `KubernetesOpstools` IAM role 
   ```
 - When done with testing, switch Kubeconfig back.
 
-[velocity_channel]: https://artsy.slack.com/messages/product-velocity "#product-velocity Slack Channel"
+[sapphire_channel]: https://artsy.slack.com/messages/product-sapphire "#product-sapphire Slack Channel"
