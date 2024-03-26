@@ -9,6 +9,8 @@ import kubernetes_configmap_jwt_scan.context
 from lib.jwt import is_jwt
 from lib.kctl import Kctl
 
+from lib.k8s_configmap import ConfigMaps
+
 WARN_THRESHOLD = 30 # warn if expiring within 30 days
 
 def scan(loglevel, artsy_env, in_cluster):
@@ -39,3 +41,25 @@ def scan(loglevel, artsy_env, in_cluster):
   if results:
     raise Exception('Some tokens are expiring!')
   logging.info("Done")
+
+def jwt_expires_ndays(val, ndays):
+  if not is_jwt(val):
+    logging.info('Value is not JWT')
+    return False
+  payload = jwt.decode(val, options={"verify_signature": False, "verify_exp": False})
+  if not 'exp' in payload:
+    logging.info('JWT has no exp field in payload')
+    return False
+  exp_date = datetime.datetime.utcfromtimestamp(payload['exp'])
+  now = datetime.datetime.now()
+  days_to_expiry = (exp_date - now).days
+  logging.info(f'JWT expires in {days_to_expiry} days')
+  if days_to_expiry <= ndays:
+    return True
+
+def scan2(artsy_env, ndays, loglevel, in_cluster):
+  logging.info(f"Scanning {artsy_env} configmaps for JWTs that will expire in < {ndays} days...")
+  kctl = Kctl(in_cluster, artsy_env)
+  configmaps = ConfigMaps(kctl)
+  matched_vars = configmaps.scan(jwt_expires_ndays, ndays)
+  print(matched_vars)

@@ -6,7 +6,7 @@ import kubernetes_configmap_jwt_scan.context
 
 from lib.logging import setup_logging
 
-from kubernetes_configmap_jwt_scan.scan import scan
+from kubernetes_configmap_jwt_scan.scan import scan, scan2
 
 
 def parse_args():
@@ -18,6 +18,11 @@ def parse_args():
     'artsy_env',
     choices=['staging', 'production'],
     help='the artsy environment of the Kubernetes cluster'
+  )
+  parser.add_argument(
+    '--ndays',
+    default=30,
+    help='ndays'
   )
   parser.add_argument(
     '--in_cluster',
@@ -36,12 +41,13 @@ def parse_args():
 if __name__ == "__main__":
 
   args = parse_args()
-  loglevel, artsy_env, in_cluster = (
-    args.loglevel,
+  artsy_env, ndays, loglevel, in_cluster = (
     args.artsy_env,
+    int(args.ndays),
+    args.loglevel,
     args.in_cluster
   )
 
   setup_logging(eval('logging.' + loglevel))
 
-  scan(loglevel, artsy_env, in_cluster)
+  scan2(artsy_env, ndays, loglevel, in_cluster)
