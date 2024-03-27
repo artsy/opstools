@@ -6,7 +6,7 @@ import kubernetes_configmap_jwt_scan.context
 
 from lib.logging import setup_logging
 
-from kubernetes_configmap_jwt_scan.scan import scan, scan2
+from kubernetes_configmap_jwt_scan.scan import scan
 
 
 def parse_args():
@@ -50,4 +50,4 @@ if __name__ == "__main__":
 
   setup_logging(eval('logging.' + loglevel))
 
-  scan2(artsy_env, ndays, loglevel, in_cluster)
+  scan(artsy_env, ndays, in_cluster)

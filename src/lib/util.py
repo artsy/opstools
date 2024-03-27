@@ -35,6 +35,15 @@ def list_subtract(list_a, *args):
     minuend = [x for x in minuend if x not in subtrahend]
   return minuend
 
+def match_dict_vars_by_value(dict_data, match_function, *match_function_args):
+  ''' return portion of dict_data matched by match_function '''
+  matched_vars = {}
+  for key, value in dict_data.items():
+    logging.debug(f'Checking var {key}')
+    if match_function(value, *match_function_args):
+      matched_vars.update({key: value})
+  return matched_vars
+
 def match_or_raise(str1, str2):
   ''' raise if str1 and str2 differ '''
   if str1 == str2:
