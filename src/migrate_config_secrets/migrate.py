@@ -60,9 +60,8 @@ def parse_env():
   ''' parse env vars '''
   vault_host = os.environ.get('VAULT_HOST')
   vault_port = os.environ.get('VAULT_PORT')
-  vault_token = os.environ.get('VAULT_TOKEN')
   kvv2_mount_point = os.environ.get('VAULT_KVV2_MOUNT_POINT')
-  return vault_host, vault_port, kvv2_mount_point, vault_token
+  return vault_host, vault_port, kvv2_mount_point
 
 def validate(artsy_env, vault_host, vault_port):
   ''' validate config obtained from env and command line '''
@@ -92,7 +91,7 @@ if __name__ == "__main__":
 
   setup_logging(eval('logging.' + loglevel))
 
-  vault_host, vault_port, kvv2_mount_point, vault_token = parse_env()
+  vault_host, vault_port, kvv2_mount_point = parse_env()
 
   validate(artsy_env, vault_host, vault_port)
 
@@ -104,6 +103,5 @@ if __name__ == "__main__":
     vault_host,
     vault_port,
     kvv2_mount_point,
-    vault_token,
     dry_run
   )

@@ -59,7 +59,6 @@ def migrate_config_secrets(
   vault_host,
   vault_port,
   kvv2_mount_point,
-  vault_token,
   dry_run
 ):
   ''' migrate sensitive configs from configmap to Vault '''
@@ -76,8 +75,7 @@ def migrate_config_secrets(
 
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
-    auth_method='token',
-    token=vault_token,
+    auth_method='iam',
     kvv2_mount_point=kvv2_mount_point,
     path=path,
     sanitizer=config_secret_sanitizer
