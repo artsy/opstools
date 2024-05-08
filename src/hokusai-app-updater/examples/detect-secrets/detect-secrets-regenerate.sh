@@ -17,6 +17,7 @@ then
   # Instead of including the exclusions in this file, source the script and execute the regen() function.
   source scripts/detect-secrets.sh
   regen
+  echo "done"
   exit 0
 fi
 
@@ -26,12 +27,18 @@ then
   # Instead of including the exclusions in this file, execute that specific script.
   scripts/detect-secrets/secrets-generate-baseline
   rescan
+  echo "done"
   exit 0
 fi
 
-if [ "$dir" == "gravity" ] || [ "$dir" == "positron" ] || [ "$dir" == "ohm" ] || [ "$dir" == "pulse" ] || [ "$dir" == "volt" ];
+if [ "$dir" == "gravity" ] || [ "$dir" == "positron" ] || [ "$dir" == "ohm" ] || [ "$dir" == "volt" ];
 then
   scan="detect-secrets scan --exclude-secrets '[a-fA-F0-9]{24}' > .secrets.baseline"
+fi
+
+if [ "$dir" == "pulse" ];
+then
+  scan="detect-secrets scan --exclude-secrets '[a-fA-F0-9]{24}' --exclude-lines 'W/\"[!#-\\x7E]*\"' > .secrets.baseline"
 fi
 
 if [ "$dir" == "forque" ] || [ "$dir" == "volt-v2" ];
@@ -42,5 +49,4 @@ fi
 echo "Executing detect-secrets scan to regenerate the baseline for $dir"
 eval $scan
 rescan
-
 echo "done"
