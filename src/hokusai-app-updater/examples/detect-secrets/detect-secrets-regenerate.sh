@@ -19,9 +19,7 @@ then
   regen
   echo "done"
   exit 0
-fi
-
-if [ "$dir" == "eigen" ] || [ "$dir" == "energy" ];
+elif [ "$dir" == "eigen" ] || [ "$dir" == "energy" ];
 then
   # This is a special case for the eigen and energy codebase, which have a custom detect-secrets script with numerous exclusions.
   # Instead of including the exclusions in this file, execute that specific script.
@@ -29,19 +27,13 @@ then
   rescan
   echo "done"
   exit 0
-fi
-
-if [ "$dir" == "gravity" ] || [ "$dir" == "positron" ] || [ "$dir" == "ohm" ] || [ "$dir" == "volt" ];
+elif [ "$dir" == "gravity" ] || [ "$dir" == "positron" ] || [ "$dir" == "ohm" ] || [ "$dir" == "volt" ];
 then
   scan="detect-secrets scan --exclude-secrets '[a-fA-F0-9]{24}' > .secrets.baseline"
-fi
-
-if [ "$dir" == "pulse" ];
+elif [ "$dir" == "pulse" ];
 then
   scan="detect-secrets scan --exclude-secrets '[a-fA-F0-9]{24}' --exclude-lines 'W/\"[!#-\\x7E]*\"' > .secrets.baseline"
-fi
-
-if [ "$dir" == "forque" ] || [ "$dir" == "volt-v2" ];
+elif [ "$dir" == "forque" ] || [ "$dir" == "volt-v2" ];
 then
   scan="detect-secrets scan --exclude-files 'src/__generated__/.*\.ts$' > .secrets.baseline"
 fi
