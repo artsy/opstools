@@ -38,11 +38,17 @@ function commit() {
 
   echo "### confirm changes ###"
   git diff
-  read -p "Enter y or Y to proceed: " -n 1 -r </dev/tty
+  read -p "Enter y or Y to proceed, s or S to skip, any other input exit script: " -n 1 -r </dev/tty
   echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  if [[ $REPLY =~ ^[Yy]$ ]]
   then
-      exit 1
+    echo "Applying changes..."
+  elif [[ $REPLY =~ ^[Ss]$ ]]
+  then
+    # exit function but continue executing the script
+    return
+  else
+    exit 1
   fi
 
   echo "### commit changes ###"
