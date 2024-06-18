@@ -19,9 +19,7 @@ def mock_kctl(
     def delete_namespace(self, namespace):
       pass
     def get_configmap(self, name, namespace):
-      return {
-        'data': 'foodata'
-      }
+      pass
     def get_namespaces(self):
       return mock_kubectl_get_namespaces_json_object['items']
     def get_secret(self, name, namespace):
