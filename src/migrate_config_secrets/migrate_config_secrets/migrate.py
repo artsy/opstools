@@ -9,6 +9,7 @@ from lib.k8s_configmap import ConfigMap
 from lib.k8s_secret import K8sSecret
 from lib.kctl import Kctl
 from lib.util import (
+  list_to_multiline_string,
   match_or_raise,
   url_host_port
 )
@@ -44,17 +45,12 @@ def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
   sensitive_vars = ask_user_to_identify_sensitive_vars(
     configmap_vars
   )
-  file_path = f'./{artsy_project}_{artsy_env}_secret_vars.txt'
-  logging.info(f'Saving list of sensitive vars in {file_path}')
-  with open(file_path, 'w') as f:
-    for var in sensitive_vars:
-      f.write(f'{var}\n')
   return sensitive_vars
 
 def migrate_config_secrets(
   artsy_env,
   artsy_project,
-  list,
+  var_list_file,
   repos_base_dir,
   vault_host,
   vault_port,
@@ -82,15 +78,26 @@ def migrate_config_secrets(
   )
 
   logging.info('Getting list of sensitive vars...')
-  if list is not None:
+  if var_list_file is not None:
     # a list of sensitive vars is provided
-    with open(list, 'r') as f:
+    with open(var_list_file, 'r') as f:
       sensitive_vars = f.read().splitlines()
   else:
-    # no list
+    # no input var list, we check configmap
     sensitive_vars = get_sensitive_vars(
       configmap_obj, artsy_project, artsy_env
     )
+
+  if len(sensitive_vars) == 0:
+    logging.info('Found no sensitive vars, exiting...')
+    exit()
+
+  save_sensitive_var_names_to_file(sensitive_vars, artsy_project, artsy_env)
+
+  logging.info(
+    f'Identified {len(sensitive_vars)} sensitive vars:\n' +
+    f'{list_to_multiline_string(sensitive_vars)}'
+  )
 
   logging.info('Configuring vars in Vault...')
   update_vault(vault_client, configmap_obj, sensitive_vars, dry_run)
@@ -109,6 +116,13 @@ def migrate_config_secrets(
     logging.info('Deleting vars from configmap...')
     project_repo_dir = os.path.join(repos_base_dir, artsy_project)
     env_unset(project_repo_dir, artsy_env, sensitive_vars)
+
+def save_sensitive_var_names_to_file(sensitive_vars, artsy_project, artsy_env):
+  file_path = f'./{artsy_project}_{artsy_env}_secret_vars.txt'
+  logging.info(f'Saving list of sensitive vars in {file_path}')
+  with open(file_path, 'w') as f:
+    for var in sensitive_vars:
+      f.write(f'{var}\n')
 
 def sync_vault_k8s_secret(
   kctl,
