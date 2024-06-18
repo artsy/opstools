@@ -9,6 +9,7 @@ from lib.util import (
   list_intersect,
   list_match_str,
   list_subtract,
+  list_to_multiline_string,
   match_or_raise,
   parse_string_of_key_value_pairs,
   replace_dashes_in_dict_keys_with_underscores,
@@ -97,6 +98,11 @@ def describe_list_subtract():
     a = [1, 2, 3]
     b = [1, 3, 4, 5]
     assert list_subtract(a,b) == [2]
+
+def describe_list_to_multiline_string():
+  def it_converts():
+    list1 = [1, 2, 3]
+    assert list_to_multiline_string(list1) == '1\n2\n3'
 
 def describe_match_or_raise():
   def it_does_not_raise_when_match():
