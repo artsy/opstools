@@ -13,4 +13,7 @@ class ConfigMap:
   def load(self):
     ''' load all data of configmap '''
     data = self._kctl.get_configmap(self._name, self._namespace)
-    return data['data']
+    if 'data' in data:
+      return data['data']
+    else:
+      return {}
