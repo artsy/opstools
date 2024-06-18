@@ -35,6 +35,10 @@ def list_subtract(list_a, *args):
     minuend = [x for x in minuend if x not in subtrahend]
   return minuend
 
+def list_to_multiline_string(list1):
+  ''' given a list, return its elements as strings, one per line '''
+  return '\n'.join(str(element) for element in list1)
+
 def match_or_raise(str1, str2):
   ''' raise if str1 and str2 differ '''
   if str1 == str2:
