@@ -44,7 +44,6 @@ def compare_vault_k8s_secret(vault_client, secret_obj, var_name):
 def migrate_config_secrets(
   artsy_env,
   artsy_project,
-  var_list_file,
   repos_base_dir,
   vault_host,
   vault_port,

@@ -39,16 +39,6 @@ def parse_args():
     help=("Dry Run. Won't make any changes.")
   )
   parser.add_argument(
-    '--var-list-file',
-    default=None,
-    help=(
-      'file containing a list of the sensitive configs, ' +
-      'if not provided, you will be prompted ' +
-      'for each config var of the project ' +
-      'and asked whether it is sensitive or not'
-    )
-  )
-  parser.add_argument(
     '--loglevel',
     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
     default='INFO',
@@ -80,12 +70,11 @@ def validate(artsy_env, vault_host, vault_port):
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, artsy_project, repos_base_dir, dry_run, var_list_file, loglevel = (
+  artsy_env, artsy_project, repos_base_dir, dry_run, loglevel = (
     args.artsy_env,
     args.artsy_project,
     args.repos_base_dir,
     args.dry_run,
-    args.var_list_file,
     args.loglevel,
   )
 
@@ -98,7 +87,6 @@ if __name__ == "__main__":
   migrate_config_secrets(
     artsy_env,
     artsy_project,
-    var_list_file,
     repos_base_dir,
     vault_host,
     vault_port,
