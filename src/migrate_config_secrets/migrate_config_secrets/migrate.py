@@ -20,31 +20,19 @@ from lib.sanitizers import (
 from lib.vault import Vault
 
 
-def ask_user_to_identify_sensitive_vars(keys_values):
-  ''' var by var, ask user whether it is sensitive '''
-  sensitive = []
-  for k,v in keys_values.items():
-    answer = None
-    while answer != 'y' and answer != 'n':
-      answer = input(f"is {k}={v} sensitive (y/n)? ")
-    if answer == 'y':
-      sensitive += [k]
-  return sensitive
-
-def compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars):
-  ''' compare k8s secret and configmap, var by var '''
-  for var in sensitive_vars:
-    logging.debug(f'Comparing {var} ...')
-    k8s_secret_value = secret_obj.get(var)
-    configmap_value = configmap_obj.get(var)
-    match_or_raise(
-      k8s_secret_value,
-      config_secret_sanitizer_artsy(configmap_value)
-    )
+def compare_k8s_secret_configmap(var_name, secret_obj, configmap_obj):
+  ''' compare k8s secret and configmap for specified var '''
+  logging.info(f'Comparing var {var_name} between K8S Secret and ConfigMap ...')
+  k8s_secret_value = secret_obj.get(var_name)
+  configmap_value = configmap_obj.get(var_name)
+  match_or_raise(
+    k8s_secret_value,
+    config_secret_sanitizer_artsy(configmap_value)
+  )
 
 def compare_vault_k8s_secret(vault_client, secret_obj, var_name):
   logging.info(
-    f'Comparing value in Vault with value in k8s secret for var {var_name} ...'
+    f'Comparing var {var_name} between Vault and K8S Secret...'
   )
   vault_value = vault_client.get(var_name)
   k8s_secret_value = secret_obj.get(var_name)
@@ -52,13 +40,6 @@ def compare_vault_k8s_secret(vault_client, secret_obj, var_name):
     vault_value,
     config_secret_sanitizer(k8s_secret_value)
   )
-
-def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
-  configmap_vars = configmap_obj.load()
-  sensitive_vars = ask_user_to_identify_sensitive_vars(
-    configmap_vars
-  )
-  return sensitive_vars
 
 def migrate_config_secrets(
   artsy_env,
@@ -78,10 +59,6 @@ def migrate_config_secrets(
   secret_obj = K8sSecret(kctl, artsy_project)
   path = 'kubernetes/apps/' + f'{artsy_project}/'
 
-  logging.info(
-    f'Migrating sensitive configs from {artsy_env} {configmap_name} configmap to {path} in Vault...'
-  )
-
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
     auth_method='iam',
@@ -90,61 +67,46 @@ def migrate_config_secrets(
     sanitizer=config_secret_sanitizer
   )
 
-  logging.info('Getting list of sensitive vars...')
-  if var_list_file is not None:
-    # a list of sensitive vars is provided
-    with open(var_list_file, 'r') as f:
-      sensitive_vars = f.read().splitlines()
-  else:
-    # no input var list, we check configmap
-    sensitive_vars = get_sensitive_vars(
-      configmap_obj, artsy_project, artsy_env
-    )
-
-  if len(sensitive_vars) == 0:
-    logging.info('Found no sensitive vars, exiting...')
-    exit()
-
-  save_sensitive_var_names_to_file(sensitive_vars, artsy_project, artsy_env)
+  configmap_vars = configmap_obj.load()
 
   logging.info(
-    f'Identified {len(sensitive_vars)} sensitive vars:\n' +
-    f'{list_to_multiline_string(sensitive_vars)}'
+    f'Migrating sensitive configs from {artsy_env} {configmap_name} configmap to {path} in Vault...'
   )
 
-  if dry_run:
-    logging.info('Skipping the rest because this is a dry run.')
-  else:
-    logging.info('Configuring vars in Vault...')
-    update_vault(
-      kctl,
-      vault_client,
-      configmap_obj,
-      secret_obj,
-      sensitive_vars,
-      artsy_project,
-    )
+  sensitive = []
+  for var_name, var_value in configmap_vars.items():
+    answer = None
+    while answer != 'y' and answer != 'n':
+      answer = input(f"is {var_name}={var_value} sensitive (y/n)? ")
+    if answer == 'y':
+      sensitive += [var_name]
+      if dry_run:
+        logging.info('Skipping the rest because this is a dry run.')
+      else:
+        update_vault(
+          var_name,
+          kctl,
+          vault_client,
+          configmap_obj,
+          secret_obj,
+          artsy_project,
+        )
+        compare_k8s_secret_configmap(var_name, secret_obj, configmap_obj)
 
-    logging.info('Comparing k8s secret with configmap...')
-    compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars)
+        logging.info(f'Deleting var {var_name} from configmap...')
+        project_repo_dir = os.path.join(repos_base_dir, artsy_project)
+        env_unset(var_name, project_repo_dir, artsy_env)
 
-    logging.info('Deleting vars from configmap...')
-    project_repo_dir = os.path.join(repos_base_dir, artsy_project)
-    env_unset(project_repo_dir, artsy_env, sensitive_vars)
-
-def save_sensitive_var_names_to_file(sensitive_vars, artsy_project, artsy_env):
-  file_path = f'./{artsy_project}_{artsy_env}_secret_vars.txt'
-  logging.info(f'Saving list of sensitive vars in {file_path}')
-  with open(file_path, 'w') as f:
-    for var in sensitive_vars:
-      f.write(f'{var}\n')
+  logging.info(
+    f'Identified {len(sensitive)} sensitive vars:\n' +
+    f'{list_to_multiline_string(sensitive)}'
+  )
 
 def sync_vault_k8s_es(
   kctl,
   vault_client,
   secret_obj,
-  artsy_project,
-  sensitive_vars
+  artsy_project
 ):
   logging.info('Force sync Vault -> k8s ExternalSecret...')
   epoch_time = int(time.time())
@@ -155,19 +117,18 @@ def sync_vault_k8s_es(
   time.sleep(10)
 
 def update_vault(
+  var_name,
   kctl,
   vault_client,
   configmap_obj,
   secret_obj,
-  var_names,
   artsy_project,
 ):
-  ''' configure vars in Vault '''
-  for var in var_names:
-    logging.info(f'Updating {var} value in Vault...')
-    configmap_value = configmap_obj.get(var)
-    vault_client.get_set(var, configmap_value)
-    sync_vault_k8s_es(
-      kctl, vault_client, secret_obj, artsy_project, var_names
-    )
-    compare_vault_k8s_secret(vault_client, secret_obj, var)
+  ''' configure a var in Vault '''
+  logging.info(f'Configuring var {var_name} in Vault...')
+  configmap_value = configmap_obj.get(var_name)
+  vault_client.get_set(var_name, configmap_value)
+  sync_vault_k8s_es(
+    kctl, vault_client, secret_obj, artsy_project
+  )
+  compare_vault_k8s_secret(vault_client, secret_obj, var_name)
