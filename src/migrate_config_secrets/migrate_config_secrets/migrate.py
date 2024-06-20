@@ -42,6 +42,17 @@ def compare_k8s_secret_configmap(secret_obj, configmap_obj, sensitive_vars):
       config_secret_sanitizer_artsy(configmap_value)
     )
 
+def compare_vault_k8s_secret(vault_client, secret_obj, var_name):
+  logging.info(
+    f'Comparing value in Vault with value in k8s secret for var {var_name} ...'
+  )
+  vault_value = vault_client.get(var_name)
+  k8s_secret_value = secret_obj.get(var_name)
+  match_or_raise(
+    vault_value,
+    config_secret_sanitizer(k8s_secret_value)
+  )
+
 def get_sensitive_vars(configmap_obj, artsy_project, artsy_env):
   configmap_vars = configmap_obj.load()
   sensitive_vars = ask_user_to_identify_sensitive_vars(
@@ -101,15 +112,17 @@ def migrate_config_secrets(
     f'{list_to_multiline_string(sensitive_vars)}'
   )
 
-  logging.info('Configuring vars in Vault...')
-  update_vault(vault_client, configmap_obj, sensitive_vars, dry_run)
-
   if dry_run:
     logging.info('Skipping the rest because this is a dry run.')
   else:
-    logging.info('Syncing vars from Vault to k8s secret...')
-    sync_vault_k8s_secret(
-      kctl, vault_client, secret_obj, artsy_project, sensitive_vars
+    logging.info('Configuring vars in Vault...')
+    update_vault(
+      kctl,
+      vault_client,
+      configmap_obj,
+      secret_obj,
+      sensitive_vars,
+      artsy_project,
     )
 
     logging.info('Comparing k8s secret with configmap...')
@@ -126,14 +139,14 @@ def save_sensitive_var_names_to_file(sensitive_vars, artsy_project, artsy_env):
     for var in sensitive_vars:
       f.write(f'{var}\n')
 
-def sync_vault_k8s_secret(
+def sync_vault_k8s_es(
   kctl,
   vault_client,
   secret_obj,
   artsy_project,
   sensitive_vars
 ):
-  logging.info('Force sync Vault -> k8s secret...')
+  logging.info('Force sync Vault -> k8s ExternalSecret...')
   epoch_time = int(time.time())
   kctl.annotate(
     'externalsecret', artsy_project, f'force-sync={epoch_time}'
@@ -141,22 +154,20 @@ def sync_vault_k8s_secret(
   # allow annotate to finish
   time.sleep(10)
 
-  # confirm the two are in sync, var by var
-  logging.info(
-    'Comparing values in Vault with values in k8s secret...'
-  )
-  for var in sensitive_vars:
-    logging.debug(f'Comparing {var} ...')
-    vault_value = vault_client.get(var)
-    k8s_secret_value = secret_obj.get(var)
-    match_or_raise(
-      vault_value,
-      config_secret_sanitizer(k8s_secret_value)
-    )
-
-def update_vault(vault_client, configmap_obj, var_names, dry_run):
+def update_vault(
+  kctl,
+  vault_client,
+  configmap_obj,
+  secret_obj,
+  var_names,
+  artsy_project,
+):
   ''' configure vars in Vault '''
   for var in var_names:
-    logging.debug(f'Updating {var} value in Vault...')
+    logging.info(f'Updating {var} value in Vault...')
     configmap_value = configmap_obj.get(var)
-    vault_client.get_set(var, configmap_value, dry_run)
+    vault_client.get_set(var, configmap_value)
+    sync_vault_k8s_es(
+      kctl, vault_client, secret_obj, artsy_project, var_names
+    )
+    compare_vault_k8s_secret(vault_client, secret_obj, var)
