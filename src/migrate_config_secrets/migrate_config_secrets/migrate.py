@@ -24,7 +24,9 @@ def ask_user_to_identify_sensitive_vars(keys_values):
   ''' var by var, ask user whether it is sensitive '''
   sensitive = []
   for k,v in keys_values.items():
-    answer = input(f"is {k}={v} sensitive (y/n)? ")
+    answer = None
+    while answer != 'y' and answer != 'n':
+      answer = input(f"is {k}={v} sensitive (y/n)? ")
     if answer == 'y':
       sensitive += [k]
   return sensitive
