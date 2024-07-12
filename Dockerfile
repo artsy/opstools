@@ -1,4 +1,4 @@
-FROM python:3.9.10-alpine
+FROM python:3.10-alpine
 
 RUN adduser --disabled-password --gecos '' deploy
 RUN mkdir -p /src
