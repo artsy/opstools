@@ -17,7 +17,8 @@ def load_secrets(artsy_project, vault_host, vault_port, secrets_file, kvv2_mount
 
   vault_client = Vault(
     url_host_port(vault_host, vault_port),
-    auth_method='iam',
+    auth_method='kubernetes',
+    role=artsy_project,
     kvv2_mount_point=kvv2_mount_point,
     path=path,
   )
