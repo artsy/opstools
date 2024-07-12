@@ -34,7 +34,7 @@ class Vault:
     elif auth_method == 'token':
       self._client.token = token
     elif auth_method == 'kubernetes':
-      self._kubernetes_login(role):
+      self._kubernetes_login(role)
     else:
       raise Exception(f'Un-supported auth method: {auth_method}')
 
