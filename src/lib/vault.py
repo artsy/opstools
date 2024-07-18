@@ -40,8 +40,8 @@ class Vault:
 
   def _kubernetes_login(self, role=None):
     ''' authenticate using k8s pod service account token '''
-    token_file = open('/var/run/secrets/kubernetes.io/serviceaccount/token')
-    jwt = token_file.read()
+    with open('/var/run/secrets/kubernetes.io/serviceaccount/token') as token_file:
+      jwt = token_file.read()
     Kubernetes(self._client.adapter).login(role=role, jwt=jwt)
 
   def _iam_login(self, role=None):
