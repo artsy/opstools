@@ -21,7 +21,6 @@ class FilterOutSensitiveInfoFormatter(logging.Formatter):
 def setup_logging(level):
   ''' configure root level logging '''
   logging.basicConfig(level=level)
-  format = '%(levelname)s: %(message)s'
 
 def setup_sensitive_logging(level):
   ''' configure root level logging, with url filtering '''

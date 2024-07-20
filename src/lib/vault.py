@@ -2,6 +2,8 @@ import boto3
 import hvac
 import logging
 
+from hvac.api.auth_methods import Kubernetes
+
 from lib.export_backup import write_file
 
 
@@ -31,8 +33,16 @@ class Vault:
       self._iam_login(role)
     elif auth_method == 'token':
       self._client.token = token
+    elif auth_method == 'kubernetes':
+      self._kubernetes_login(role)
     else:
       raise Exception(f'Un-supported auth method: {auth_method}')
+
+  def _kubernetes_login(self, role=None):
+    ''' authenticate using k8s pod service account token '''
+    with open('/var/run/secrets/kubernetes.io/serviceaccount/token') as token_file:
+      jwt = token_file.read()
+    Kubernetes(self._client.adapter).login(role=role, jwt=jwt)
 
   def _iam_login(self, role=None):
     ''' log into Vault using AWS IAM keys '''
