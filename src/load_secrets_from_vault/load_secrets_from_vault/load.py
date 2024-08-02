@@ -33,6 +33,6 @@ def load_secrets(artsy_project, vault_host, vault_port, secrets_file, kvv2_mount
     for key in keys:
       try:
         value = vault_client.get(key)
-        f.write(f'{key}={value}\n')
+        f.write(f"export {key}='{value}'\n")
       except hvac.exceptions.InvalidPath:
         logging.info(f'{key} either does not exist or is soft deleted.')
