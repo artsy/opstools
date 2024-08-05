@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 import load_secrets_from_vault.context
