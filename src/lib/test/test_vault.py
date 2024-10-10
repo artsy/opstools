@@ -13,11 +13,10 @@ def describe_vault():
     def it_inits(mocker):
       mocker.patch('lib.vault.boto3')
       mocker.patch('lib.vault.hvac.Client')
-      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', 'foosanitizer')
+      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
       assert obj._client is lib.vault.hvac.Client()
       assert obj._mount_point == 'foomountpoint'
       assert obj._path == 'foopath'
-      assert obj._sanitizer == 'foosanitizer'
       assert obj._client.token == 'footoken'
 
   def describe_login():
@@ -80,14 +79,14 @@ def describe_vault():
       def it_raises(mocker, mock_hvac_client_class):
         mocker.patch('lib.vault.boto3')
         mocker.patch('lib.vault.hvac.Client').side_effect = mock_hvac_client_class
-        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', 'foosanitizer')
+        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
         with pytest.raises(KeyError):
           obj.get('barkey')
     def describe_key_exists():
       def it_gets(mocker):
         mocker.patch('lib.vault.boto3')
         mocker.patch('lib.vault.hvac.Client')
-        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', 'foosanitizer')
+        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
         spy = mocker.spy(obj._client.secrets.kv, 'read_secret_version')
         assert obj.get('fookey') == lib.vault.hvac.Client().secrets.kv.read_secret_version()['data']['data']['key']
         spy.assert_has_calls([
@@ -102,7 +101,7 @@ def describe_vault():
       def it_sets(mocker, mock_exception_function):
         mocker.patch('lib.vault.boto3')
         mocker.patch('lib.vault.hvac.Client')
-        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', 'foosanitizer')
+        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
         mocker.patch.object(obj, 'get').side_effect = mock_exception_function
         mocker.patch.object(obj, 'set')
         spy = mocker.spy(obj, 'set')
@@ -114,9 +113,7 @@ def describe_vault():
       def it_sets(mocker):
         mocker.patch('lib.vault.boto3')
         mocker.patch('lib.vault.hvac.Client')
-        def foosanitizer(value):
-          pass
-        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', foosanitizer)
+        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
         mocker.patch.object(obj, 'get', return_value='barvalue')
         mocker.patch.object(obj, 'set')
         spy = mocker.spy(obj, 'set')
@@ -128,9 +125,7 @@ def describe_vault():
       def it_skips(mocker):
         mocker.patch('lib.vault.boto3')
         mocker.patch('lib.vault.hvac.Client')
-        def foosanitizer(value):
-          return value
-        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', foosanitizer)
+        obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
         mocker.patch.object(obj, 'get', return_value='foovalue')
         mocker.patch.object(obj, 'set')
         spy = mocker.spy(obj, 'set')
@@ -141,7 +136,7 @@ def describe_vault():
     def it_lists(mocker):
       mocker.patch('lib.vault.boto3')
       mocker.patch('lib.vault.hvac.Client')
-      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', 'foosanitizer')
+      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
       spy = mocker.spy(obj._client.secrets.kv.v2, 'list_secrets')
       assert obj.list() == lib.vault.hvac.Client().secrets.kv.v2.list_secrets()
       spy.assert_has_calls([
@@ -155,9 +150,7 @@ def describe_vault():
     def it_sets(mocker):
       mocker.patch('lib.vault.boto3')
       mocker.patch('lib.vault.hvac.Client')
-      def foosanitizer(value):
-        return value
-      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', foosanitizer)
+      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
       spy = mocker.spy(obj._client.secrets.kv.v2, 'create_or_update_secret')
       obj.set('fookey', 'foovalue')
       spy.assert_has_calls([
@@ -170,9 +163,7 @@ def describe_vault():
     def it_does_not_set_when_dry_run(mocker):
       mocker.patch('lib.vault.boto3')
       mocker.patch('lib.vault.hvac.Client')
-      def foosanitizer(value):
-        return value
-      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath', foosanitizer)
+      obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
       spy = mocker.spy(obj._client.secrets.kv.v2, 'create_or_update_secret')
       obj.set('fookey', 'foovalue', True)
       assert spy.call_count == 0

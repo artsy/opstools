@@ -16,15 +16,11 @@ class Vault:
     token=None,
     role=None,
     kvv2_mount_point=None,
-    path=None,
-    sanitizer=None
+    path=None
   ):
     self._client = hvac.Client(url=addr)
     self._mount_point = kvv2_mount_point
     self._path = path
-    # a function for sanitizing a value before setting it in Vault
-    # this is org-specific
-    self._sanitizer = sanitizer
     self._login(auth_method, token, role)
 
   def _login(self, auth_method, token=None, role=None):
@@ -87,7 +83,7 @@ class Vault:
       return
 
     # no exception means there's some value
-    if current_value == self._sanitizer(value):
+    if current_value == value:
       logging.debug(
         f'{key} already has the value. Nothing to do.'
       )
@@ -107,9 +103,8 @@ class Vault:
   def set(self, key, value, dry_run=False):
     ''' set an entry '''
     full_path = f'{self._path}{key}'
-    cleaned_value = self._sanitizer(value)
     logging.debug(f'Vault: setting {full_path}')
-    entry = { key: cleaned_value}
+    entry = { key: value}
     if dry_run:
       logging.info(f'Would have set {full_path}')
     else:
