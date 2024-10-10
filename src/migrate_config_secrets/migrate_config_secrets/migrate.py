@@ -93,7 +93,6 @@ def move_vars(vault_client, configmap_obj, var_names, repos_base_dir, artsy_proj
     vault_client.get_set(var, configmap_value)
     logging.info('Checking if Vault and configmap have same value...')
     compare_vault_configmap(vault_client, configmap_obj, var)
-    logging.info('Same value.')
     # ask user about deleting var in configmap
     answer = input(f'would you like to delete {var} from configmap (y/n)? ')
     if answer == 'y':
