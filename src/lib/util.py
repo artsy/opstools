@@ -38,9 +38,9 @@ def list_subtract(list_a, *args):
 def match_or_raise(str1, str2):
   ''' raise if str1 and str2 differ '''
   if str1 == str2:
-    logging.debug('str1 and str2 match')
+    logging.info('str1 and str2 match')
   else:
-    logging.error('str1 and str2 different')
+    logging.info('str1 and str2 different')
     raise
 
 def parse_string_of_key_value_pairs(str1):

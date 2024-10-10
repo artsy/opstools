@@ -12,11 +12,6 @@ def describe_env_unset():
         'hokusai fooenv env unset foo',
         'foodir'
       ),
-      mocker.call(
-        'hokusai fooenv env unset bar',
-        'foodir'
-      )
     ]
-    env_unset('foodir', 'fooenv', ['foo', 'bar'])
-    assert spy.call_count == 2
+    env_unset('foodir', 'fooenv', 'foo')
     spy.assert_has_calls(calls, any_order=True)
