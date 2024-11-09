@@ -8,6 +8,7 @@
 **/*.so
 **/*.spec
 **/*.swp
+**/*.txt
 **/*.yaml
 **/*.yml
 **/*/*.py[cod]
