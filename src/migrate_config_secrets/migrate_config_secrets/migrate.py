@@ -112,7 +112,7 @@ def move_vars(vault_client, configmap_obj, var_names, repos_base_dir, artsy_proj
 
 def set_exp_meta(vault_client, var, jwt_str):
   ''' extract expiration date from jwt payload and set it in vault custom metadata '''
-  exp_date_filler = 'blah'
+  exp_date_filler = 'nil'
   exp_date_meta_key = 'expires_at'
   payload = jwt.decode(jwt_str, options={"verify_signature": False, "verify_exp": False})
   if 'exp' in payload and payload['exp'] is not None:
