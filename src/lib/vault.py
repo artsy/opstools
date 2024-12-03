@@ -100,6 +100,24 @@ class Vault:
     )
     return response
 
+  def read_custom_meta(self, key):
+    ''' return custom metadata of secret '''
+    full_path = f'{self._path}{key}'
+    meta = self.read_meta(key)
+    if 'custom_metadata' in meta['data']:
+      return meta['data']['custom_metadata']
+    return None
+
+  def read_meta(self, key):
+    ''' return metadata of secret '''
+    full_path = f'{self._path}{key}'
+    meta = self._client.secrets.kv.v2.read_secret_metadata(
+      path=full_path,
+      mount_point=self._mount_point
+    )
+    logging.debug(f'Current meta: {meta}')
+    return meta
+
   def set(self, key, value, dry_run=False):
     ''' set an entry '''
     full_path = f'{self._path}{key}'
@@ -117,3 +135,20 @@ class Vault:
   def take_snapshot(self, output_file):
     binary_response = self._client.sys.take_raft_snapshot()
     write_file(output_file, binary_response.content, data_format='binary')
+
+  def update_custom_meta(self, key, meta_key, meta_value):
+    ''' update an entry's custom metadata '''
+    full_path = f'{self._path}{key}'
+    # get current meta first so as not to overwrite the whole thing
+    current_custom_meta = self.read_custom_meta(key)
+    logging.debug(f'Current custom meta: {current_custom_meta}')
+    if current_custom_meta is None:
+      current_custom_meta = {}
+    current_custom_meta[meta_key] = meta_value
+    logging.debug(f'Vault: setting {full_path} custom metadata {meta_key}')
+    # this overwrites all custom metadata
+    self._client.secrets.kv.v2.update_metadata(
+      path=full_path,
+      mount_point=self._mount_point,
+      custom_metadata=current_custom_meta
+    )
