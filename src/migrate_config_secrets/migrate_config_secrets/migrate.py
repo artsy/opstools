@@ -1,10 +1,14 @@
 import logging
 import os
+
+import datetime
+import jwt
 import time
 
 import migrate_config_secrets.context
 
 from lib.hokusai import env_unset
+from lib.jwt import is_jwt
 from lib.k8s_configmap import ConfigMap
 from lib.kctl import Kctl
 from lib.util import (
@@ -87,14 +91,38 @@ def migrate_config_secrets(
 def move_vars(vault_client, configmap_obj, var_names, repos_base_dir, artsy_project, artsy_env):
   ''' configure vars in Vault '''
   project_repo_dir = os.path.join(repos_base_dir, artsy_project)
+
   for var in var_names:
     logging.info(f'Moving {var} from ConfigMap to Vault...')
     configmap_value = configmap_obj.get(var)
     vault_client.get_set(var, configmap_value)
     logging.info('Checking if Vault and configmap have same value...')
     compare_vault_configmap(vault_client, configmap_obj, var)
+
+    # set expire_at meta if jwt
+    if is_jwt(configmap_value):
+      logging.info(f"Value is a JWT.")
+      set_exp_meta(vault_client, var, configmap_value)
+
     # ask user about deleting var in configmap
     answer = input(f'would you like to delete {var} from configmap (y/n)? ')
     if answer == 'y':
       logging.info(f'Deleting {var} from configmap...')
       env_unset(project_repo_dir, artsy_env, var)
+
+def set_exp_meta(vault_client, var, jwt_str):
+  ''' extract expiration date from jwt payload and set it in vault custom metadata '''
+  exp_date_filler = 'nil'
+  exp_date_meta_key = 'expires_at'
+  payload = jwt.decode(jwt_str, options={"verify_signature": False, "verify_exp": False})
+  if 'exp' in payload and payload['exp'] is not None:
+    exp_payload = payload['exp']
+    logging.info(f"JWT has exp payload: {exp_payload}")
+    exp_date = datetime.datetime.utcfromtimestamp(exp_payload)
+    logging.info(f"Exp payload to date: {exp_date}")
+    exp_date_str = exp_date.isoformat("T") + "Z"
+  else:
+    logging.info(f"JWT does not have exp payload or exp payload is not valid")
+    exp_date_str = exp_date_filler
+  logging.info(f"Setting custom expire_at metadata: {exp_date_str}")
+  vault_client.update_custom_meta(var, exp_date_meta_key, exp_date_str)
