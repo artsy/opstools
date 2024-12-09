@@ -138,7 +138,7 @@ def describe_vault():
       mocker.patch('lib.vault.hvac.Client')
       obj = Vault('fooaddr', 'token', 'footoken', None, 'foomountpoint', 'foopath')
       spy = mocker.spy(obj._client.secrets.kv.v2, 'list_secrets')
-      assert obj.list() == lib.vault.hvac.Client().secrets.kv.v2.list_secrets()
+      assert obj.list(only_valid=False) == lib.vault.hvac.Client().secrets.kv.v2.list_secrets()['data']['keys']
       spy.assert_has_calls([
         mocker.call(
           path='foopath',
