@@ -27,11 +27,6 @@ def parse_args():
     help='artsy project'
   )
   parser.add_argument(
-    '--dry-run',
-    action="store_true",
-    help=("Dry Run. Won't make any changes.")
-  )
-  parser.add_argument(
     '--loglevel',
     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
     default='INFO',
@@ -63,10 +58,9 @@ def validate(artsy_env, vault_host, vault_port):
 if __name__ == "__main__":
 
   args = parse_args()
-  artsy_env, artsy_project, dry_run, loglevel = (
+  artsy_env, artsy_project, loglevel = (
     args.artsy_env,
     args.artsy_project,
-    args.dry_run,
     args.loglevel,
   )
   setup_logging(eval('logging.' + loglevel))
@@ -78,5 +72,4 @@ if __name__ == "__main__":
     vault_host,
     vault_port,
     kvv2_mount_point,
-    dry_run
   )
