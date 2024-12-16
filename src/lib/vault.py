@@ -23,6 +23,8 @@ class Vault:
     self._path = path
     self._login(auth_method, token, role)
 
+  ## login methods
+
   def _login(self, auth_method, token=None, role=None):
     ''' log into Vault using the specified method '''
     if auth_method == 'iam':
@@ -59,12 +61,19 @@ class Vault:
         role=role
       )
 
+  ## other methods
+
   def get(self, key):
     ''' get an entry '''
     full_path = f'{self._path}{key}'
     logging.debug(f'Vault: getting {full_path}')
-    # if key does not exist or if data is soft-deleted, it raises:
-    # hvac.exceptions.InvalidPath
+    # read_secret_version raises hvac.exceptions.InvalidPath if:
+    # - key doesn't exist
+    # - deletion_time is set in key's meta
+    # - destroyed is set to True in key's meta
+    #
+    # when key has multiple versions,
+    # by default, read_secret_version reads the latest.
     response = self._client.secrets.kv.read_secret_version(
       path=full_path,
       mount_point=self._mount_point
@@ -90,15 +99,68 @@ class Vault:
     else:
       self.set(key, value, dry_run)
 
-  def list(self):
+  def is_valid(self, key):
+    '''
+    return True if current version of secret is valid
+    valid means the version is not soft-deleted nor destroyed
+    '''
+    valid = True
+    meta = self.read_meta(key)
+    current_version = str(
+      meta['data']['current_version']
+    )
+    # a string and it's either null or a timestamp
+    # a timestamp means the version is soft deleted at that time
+    deletion_time = meta['data']['versions'][current_version]['deletion_time']
+    # either True or False
+    destroyed = meta['data']['versions'][current_version]['destroyed']
+    if deletion_time != '':
+      logging.debug(
+        f'Version {current_version} of {key} is deleted at {deletion_time}.'
+      )
+      valid = False
+    if destroyed:
+      logging.debug(
+        f'Version {current_version} of {key} is destroyed.'
+      )
+      valid = False
+    return valid
+
+  def list(
+    self,
+    only_valid=True,
+    match_function=None,
+    match_type=None
+  ):
     ''' list keys under a path '''
     logging.debug(f'Vault: listing {self._path}')
-    # list includes soft-deleted keys
+    keys = []
     response = self._client.secrets.kv.v2.list_secrets(
       path=self._path,
       mount_point=self._mount_point
     )
-    return response
+    keys = response['data']['keys']
+    if only_valid:
+      keys = [
+        key for key in keys
+        if self.is_valid(key)
+      ]
+    if match_function is not None:
+        if match_type == 'key':
+          keys = [
+            key for key in keys
+            if match_function(key)
+          ]
+        elif match_type == 'value':
+          keys = [
+            key for key in keys
+            if match_function(self.get(key))
+          ]
+        else:
+          raise Exception(
+            f'Un-supported match type: {match_type}'
+          )
+    return keys
 
   def read_custom_meta(self, key):
     ''' return custom metadata of secret '''
