@@ -37,4 +37,5 @@ ENV HOME /home/deploy
 
 COPY . /src
 
+ENTRYPOINT ["/usr/bin/dumb-init", "./scripts/load_secrets_and_run.sh"]
 CMD ["python"]
