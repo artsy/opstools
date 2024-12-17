@@ -14,6 +14,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-terraform-drift-detection
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -23,8 +39,15 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           restartPolicy: Never
+          serviceAccountName: opstools
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -34,6 +57,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -51,6 +77,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-k8s-export
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -63,7 +105,13 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -75,6 +123,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -92,6 +143,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-s3-prune-backups-k8s
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -106,8 +173,15 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           restartPolicy: Never
+          serviceAccountName: opstools
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -117,6 +191,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -134,6 +211,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-cleanup-hokusai-run-pods
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -148,7 +241,13 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -160,6 +259,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -177,6 +279,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-cleanup-jobs
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -190,7 +308,13 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -202,6 +326,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -219,21 +346,43 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
-            - name: opstools-cleanup-completed-pods
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/kubernetes_cleanup_pods/cleanup.py
-              - production
-              - "48"
-              - --completed
-              - --force
-              - --in_cluster
-              imagePullPolicy: Always
-              envFrom:
-              - configMapRef:
-                  name: opstools-environment
+          - name: opstools-cleanup-completed-pods
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/kubernetes_cleanup_pods/cleanup.py
+            - production
+            - "48"
+            - --completed
+            - --force
+            - --in_cluster
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            - configMapRef:
+                name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -245,6 +394,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -262,6 +414,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-ecr-check-repos-for-terraform
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -271,8 +439,15 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           restartPolicy: Never
+          serviceAccountName: opstools
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -282,6 +457,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -299,6 +477,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-rabbitmq-export
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -310,8 +504,15 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           restartPolicy: Never
+          serviceAccountName: opstools
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -321,6 +522,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -338,6 +542,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-s3-prune-backups-rabbitmq
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -352,8 +572,15 @@ spec:
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
+                name: secrets-config
+            - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           restartPolicy: Never
+          serviceAccountName: opstools
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -363,6 +590,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -380,6 +610,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-k8s-configmap-jwt-scan
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -390,8 +636,14 @@ spec:
             - --in_cluster
             imagePullPolicy: Always
             envFrom:
+             - configMapRef:
+                name: secrets-config
             - configMapRef:
                 name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -403,6 +655,9 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
 
 ---
 apiVersion: batch/v1
@@ -420,6 +675,22 @@ spec:
           annotations:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
+          initContainers:
+          - name: setenv
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:production
+            imagePullPolicy: Always
+            command:
+            - python
+            - src/load/load.py
+            - kubernetes
+            - production
+            - opstools
+            envFrom:
+            - configMapRef:
+                name: secrets-config
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
           containers:
           - name: opstools-vault-snapshot
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
@@ -430,9 +701,16 @@ spec:
             - --s3
             imagePullPolicy: Always
             envFrom:
-              - configMapRef:
-                  name: opstools-environment
+            - configMapRef:
+                name: secrets-config
+            - configMapRef:
+                name: opstools-environment
+            volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
           restartPolicy: Never
+          serviceAccountName: opstools
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -442,3 +720,6 @@ spec:
                     operator: In
                     values:
                     - background
+          volumes:
+          - name: secrets
+            emptyDir: {}
