@@ -11,6 +11,7 @@ ARG terraform_version=0.12.31
 ARG kubectl_version=1.21.14
 
 RUN apk --no-cache --quiet add \
+  dumb-init \
   curl \
   git \
   make
