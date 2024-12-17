@@ -15,15 +15,15 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-terraform-drift-detection
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/terraform_drift_detection/detect.py
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-terraform-drift-detection
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/terraform_drift_detection/detect.py
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -52,18 +52,18 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-k8s-export
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/kubernetes_export/export.py
-              - production
-              - --in_cluster
-              - --s3
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-k8s-export
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/kubernetes_export/export.py
+            - production
+            - --in_cluster
+            - --s3
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -93,20 +93,20 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-s3-prune-backups-k8s
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/s3_prune_backups/prune.py
-              - k8s
-              - production
-              - "30"
-              - tar.gz
-              - --force
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-s3-prune-backups-k8s
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/s3_prune_backups/prune.py
+            - k8s
+            - production
+            - "30"
+            - tar.gz
+            - --force
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -135,20 +135,20 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-cleanup-hokusai-run-pods
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/kubernetes_cleanup_pods/cleanup.py
-              - production
-              - "6"
-              - --force
-              - --in_cluster
-              - --name=-hokusai-run
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-cleanup-hokusai-run-pods
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/kubernetes_cleanup_pods/cleanup.py
+            - production
+            - "6"
+            - --force
+            - --in_cluster
+            - --name=-hokusai-run
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -178,19 +178,19 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-cleanup-jobs
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/kubernetes_cleanup_jobs/cleanup.py
-              - production
-              - "48"
-              - --force
-              - --in_cluster
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-cleanup-jobs
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/kubernetes_cleanup_jobs/cleanup.py
+            - production
+            - "48"
+            - --force
+            - --in_cluster
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -232,8 +232,8 @@ spec:
               - --in_cluster
               imagePullPolicy: Always
               envFrom:
-                - configMapRef:
-                    name: opstools-environment
+              - configMapRef:
+                  name: opstools-environment
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -263,15 +263,15 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-ecr-check-repos-for-terraform
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/ecr_check_repos_for_terraform/check.py
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-ecr-check-repos-for-terraform
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/ecr_check_repos_for_terraform/check.py
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -300,17 +300,17 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-rabbitmq-export
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/rabbitmq_export/export.py
-              - production
-              - --s3
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-rabbitmq-export
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/rabbitmq_export/export.py
+            - production
+            - --s3
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -339,20 +339,20 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-s3-prune-backups-rabbitmq
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/s3_prune_backups/prune.py
-              - rabbitmq
-              - production
-              - "30"
-              - json
-              - --force
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-s3-prune-backups-rabbitmq
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/s3_prune_backups/prune.py
+            - rabbitmq
+            - production
+            - "30"
+            - json
+            - --force
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
@@ -381,17 +381,17 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-k8s-configmap-jwt-scan
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/kubernetes_configmap_jwt_scan/scan.py
-              - production
-              - --in_cluster
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-k8s-configmap-jwt-scan
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/kubernetes_configmap_jwt_scan/scan.py
+            - production
+            - --in_cluster
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                name: opstools-environment
           serviceAccountName: opstools
           restartPolicy: Never
           affinity:
@@ -421,17 +421,17 @@ spec:
             "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
         spec:
           containers:
-            - name: opstools-vault-snapshot
-              image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
-              command:
-              - python
-              - src/vault_snapshot/snap.py
-              - production
-              - --s3
-              imagePullPolicy: Always
-              envFrom:
-                - configMapRef:
-                    name: opstools-environment
+          - name: opstools-vault-snapshot
+            image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
+            command:
+            - python
+            - src/vault_snapshot/snap.py
+            - production
+            - --s3
+            imagePullPolicy: Always
+            envFrom:
+              - configMapRef:
+                  name: opstools-environment
           restartPolicy: Never
           affinity:
             nodeAffinity:
