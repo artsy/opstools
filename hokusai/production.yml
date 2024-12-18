@@ -636,7 +636,7 @@ spec:
             - --in_cluster
             imagePullPolicy: Always
             envFrom:
-             - configMapRef:
+            - configMapRef:
                 name: secrets-config
             - configMapRef:
                 name: opstools-environment
