@@ -201,7 +201,7 @@ kind: CronJob
 metadata:
   name: opstools-cleanup-review-apps
 spec:
-  schedule: "42 9 * * 1"
+  schedule: "42 9 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -233,7 +233,7 @@ spec:
             args:
             - python
             - src/kubernetes_cleanup_review_apps/cleanup.py
-            - "30"
+            - "7"
             - --force
             - --in_cluster
             imagePullPolicy: Always
