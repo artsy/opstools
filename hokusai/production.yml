@@ -598,7 +598,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: opstools-k8s-configmap-jwt-scan
+  name: opstools-vault-jwt-scan
 spec:
   schedule: "43 1 * * 1"
   concurrencyPolicy: Forbid
@@ -627,13 +627,13 @@ spec:
             - name: secrets
               mountPath: /secrets
           containers:
-          - name: opstools-k8s-configmap-jwt-scan
+          - name: opstools-vault-jwt-scan
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
             args:
             - python
-            - src/kubernetes_configmap_jwt_scan/scan.py
+            - src/list_vault_jwt_expiration/list.py
             - production
-            - --in_cluster
+            - 30
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
