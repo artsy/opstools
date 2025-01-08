@@ -77,14 +77,7 @@ def check_jwt_expiry(
     )
 
     metadata = vault_client.read_custom_meta(key)
-    logging.debug(
-      f"Metadata for {key} in {project}: {metadata}"
-    )
     expiry_date = metadata['expires_at'] if metadata else None
-
-    logging.debug(
-      f"{project}{key} expires_at timestamp: {expiry_date}"
-    )
 
     if expiry_date is not None:
       current_time = datetime.now(timezone.utc)
@@ -93,16 +86,17 @@ def check_jwt_expiry(
 
       if expiry_date >= thirty_days_from_now_iso_8601:
         logging.info(
-          f"JWT {project}{key} will expire within {warn_threshold} days"
+          f"JWT {vault_path}{key} will expire within {warn_threshold} days"
         )
         expiring_jwts[key] = expiry_date
       else:
         logging.info(
-          f"JWT {project}{key}  is valid for at least {warn_threshold} days"
+          f"JWT {vault_path}{key} is valid for at least {warn_threshold} days"
         )
     else:
       logging.info(
-        f"JWT {project}{key} does not have a expires_at field set in custom metadata"
+        f"JWT {vault_path}{key} does not have a expires_at field set in custom metadata"
       )
   if expiring_jwts:
+    # Vault returns the project name with a trailing slash, so we remove it before using it as the dictionary key
     scan_results[project[:-1]] = expiring_jwts
