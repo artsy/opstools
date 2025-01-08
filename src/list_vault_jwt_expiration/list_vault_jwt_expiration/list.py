@@ -81,10 +81,10 @@ def check_jwt_expiry(
 
     if expiry_date is not None:
       current_time = datetime.now(timezone.utc)
-      thirty_days_from_now = current_time + timedelta(days=warn_threshold)
-      thirty_days_from_now_iso_8601 = thirty_days_from_now.strftime("%Y-%m-%dT%H:%M:%SZ")
+      warn_threshold_time = current_time + timedelta(days=warn_threshold)
+      warn_threshold_time_iso = warn_threshold_time.isoformat()
 
-      if expiry_date >= thirty_days_from_now_iso_8601:
+      if expiry_date >= warn_threshold_time_iso:
         logging.info(
           f"JWT {vault_path}{key} will expire within {warn_threshold} days"
         )
