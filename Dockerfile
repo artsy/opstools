@@ -4,7 +4,7 @@ RUN adduser --disabled-password --gecos '' deploy
 RUN mkdir -p /src
 RUN chown deploy:deploy /src
 
-RUN pip --no-cache-dir install poetry
+RUN pip --no-cache-dir install poetry==1.8.0
 RUN pip --no-cache-dir install awscli --upgrade
 
 ARG terraform_version=0.12.31
