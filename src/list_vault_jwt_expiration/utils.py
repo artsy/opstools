@@ -1,4 +1,5 @@
 import logging
+import json
 
 from datetime import datetime, timedelta, timezone
 
@@ -39,9 +40,12 @@ def validate_vault_jwt_expiration(
             scan_results,
         )
     if scan_results:
-        raise Exception(
-            f"The following JWT(s) will expire within {warn_threshold} days:  {scan_results}"
+        # Pretty print the results
+        logging.error(
+            f"Found JWT(s) that will expire within {warn_threshold} days. Results: {json.dumps(scan_results, indent=2)}"
         )
+
+        raise Exception(f"Found JWT(s) that will expire within {warn_threshold}.")
     else:
         logging.info(f"Scan complete. All JWTs are valid beyond {warn_threshold} days")
 
@@ -82,7 +86,7 @@ def check_jwt_expiry(
                 )
         else:
             logging.warning(
-                f"JWT {vault_path}{key}'s expires_at field is empty or not a valid iso 8601 timestamp.See: https://www.notion.so/artsy/Hashicorp-Vault-developer-instructions-77d94af51f714d51bb44049f4f2027bc?pvs=4#176cab0764a080948928dce087009794"
+                f"JWT {vault_path}{key}'s expires_at field is empty or not a valid iso 8601 timestamp. See: https://www.notion.so/artsy/Hashicorp-Vault-developer-instructions-77d94af51f714d51bb44049f4f2027bc?pvs=4#176cab0764a080948928dce087009794"
             )
     if expiring_jwts:
         # Vault returns the project name with a trailing slash, so we remove it before using it as the dictionary key
