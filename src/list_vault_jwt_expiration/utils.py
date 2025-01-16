@@ -43,7 +43,7 @@ def validate_vault_jwt_expiration(
             f"The following JWT(s) will expire within {warn_threshold} days:  {scan_results}"
         )
     else:
-        logging.info("Scan complete. All JWTs are valid beyond {warn_threshold} days")
+        logging.info(f"Scan complete. All JWTs are valid beyond {warn_threshold} days")
 
 
 def check_jwt_expiry(
