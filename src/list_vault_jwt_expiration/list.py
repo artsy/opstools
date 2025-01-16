@@ -2,9 +2,9 @@ import argparse
 import logging
 import os
 
-import list_vault_jwt_expiration.context
+import context
 
-from list_vault_jwt_expiration.list import validate_vault_jwt_expiration
+from utils import validate_vault_jwt_expiration
 from lib.logging import setup_logging
 from lib.validations import hostname_agrees_with_artsy_environment
 
@@ -21,7 +21,7 @@ def parse_args():
         "artsy_env", choices=["staging", "production"], help="artsy environment"
     )
     parser.add_argument(
-        "warn_threshold",
+        "--warn_threshold",
         default=30,
         type=int,
         help="The number of days before expiration to warn about",

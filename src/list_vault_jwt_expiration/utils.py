@@ -2,7 +2,7 @@ import logging
 
 from datetime import datetime, timedelta, timezone
 
-import list_vault_jwt_expiration.context
+import context
 
 from lib.jwt import is_jwt
 from lib.util import url_host_port
@@ -66,13 +66,13 @@ def check_jwt_expiry(
         metadata = vault_client.read_custom_meta(key)
         expiry_date = metadata["expires_at"] if metadata else None
 
-        if expiry_date is not None:
+        if expiry_date is not None and is_valid_iso8601(expiry_date):
             current_time = datetime.now(timezone.utc)
             warn_threshold_time = current_time + timedelta(days=warn_threshold)
             warn_threshold_time_iso = warn_threshold_time.isoformat()
 
-            if expiry_date >= warn_threshold_time_iso:
-                logging.info(
+            if expiry_date <= warn_threshold_time_iso:
+                logging.warning(
                     f"JWT {vault_path}{key} will expire within {warn_threshold} days"
                 )
                 expiring_jwts[key] = expiry_date
@@ -81,9 +81,17 @@ def check_jwt_expiry(
                     f"JWT {vault_path}{key} is valid for at least {warn_threshold} days"
                 )
         else:
-            logging.info(
-                f"JWT {vault_path}{key} does not have a expires_at field set in custom metadata"
+            logging.warning(
+                f"JWT {vault_path}{key}'s expires_at field is empty or not a valid iso 8601 timestamp.See: https://www.notion.so/artsy/Hashicorp-Vault-developer-instructions-77d94af51f714d51bb44049f4f2027bc?pvs=4#176cab0764a080948928dce087009794"
             )
     if expiring_jwts:
         # Vault returns the project name with a trailing slash, so we remove it before using it as the dictionary key
         scan_results[project[:-1]] = expiring_jwts
+
+
+def is_valid_iso8601(date_string):
+    try:
+        datetime.fromisoformat(date_string.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return True
