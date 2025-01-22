@@ -633,7 +633,6 @@ spec:
             - python
             - src/list_vault_jwt_expiration/list.py
             - production
-            - 30
             imagePullPolicy: Always
             envFrom:
             - configMapRef:
