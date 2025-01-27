@@ -39,8 +39,9 @@ def parse_env():
     """parse env vars"""
     vault_host = os.environ.get("VAULT_HOST")
     vault_port = os.environ.get("VAULT_PORT")
+    vault_role = os.environ.get("VAULT_ROLE")
     kvv2_mount_point = os.environ.get("VAULT_KVV2_MOUNT_POINT")
-    return vault_host, vault_port, kvv2_mount_point
+    return vault_host, vault_port, vault_role, kvv2_mount_point
 
 
 def validate(artsy_env, vault_host, vault_port):
@@ -66,11 +67,12 @@ if __name__ == "__main__":
         args.warn_threshold,
     )
     setup_logging(eval("logging." + loglevel))
-    vault_host, vault_port, kvv2_mount_point = parse_env()
-    validate(artsy_env, vault_host, vault_port)
+    vault_host, vault_port, vault_role, kvv2_mount_point = parse_env()
+    validate(artsy_env, vault_host, vault_port, kvv2_mount_point)
     validate_vault_jwt_expiration(
         vault_host,
         vault_port,
+        vault_role,
         kvv2_mount_point,
         warn_threshold,
     )
