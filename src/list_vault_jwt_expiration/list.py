@@ -68,7 +68,7 @@ if __name__ == "__main__":
     )
     setup_logging(eval("logging." + loglevel))
     vault_host, vault_port, vault_role, kvv2_mount_point = parse_env()
-    validate(artsy_env, vault_host, vault_port, kvv2_mount_point)
+    validate(artsy_env, vault_host, vault_port)
     validate_vault_jwt_expiration(
         vault_host,
         vault_port,
