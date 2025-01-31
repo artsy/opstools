@@ -13,6 +13,7 @@ from lib.vault import Vault
 def validate_vault_jwt_expiration(
     vault_host,
     vault_port,
+    vault_role,
     kvv2_mount_point,
     warn_threshold,
 ):
@@ -21,6 +22,7 @@ def validate_vault_jwt_expiration(
     vault_client = Vault(
         url_host_port(vault_host, vault_port),
         auth_method="iam",
+        role=vault_role,
         kvv2_mount_point=kvv2_mount_point,
         path=vault_path,
     )
@@ -35,6 +37,7 @@ def validate_vault_jwt_expiration(
             project,
             vault_host,
             vault_port,
+            vault_role,
             kvv2_mount_point,
             warn_threshold,
             scan_results,
@@ -51,13 +54,20 @@ def validate_vault_jwt_expiration(
 
 
 def check_jwt_expiry(
-    project, vault_host, vault_port, kvv2_mount_point, warn_threshold, scan_results
+    project,
+    vault_host,
+    vault_port,
+    vault_role,
+    kvv2_mount_point,
+    warn_threshold,
+    scan_results,
 ):
     """check if JWTs for a given project will expire within a given threshold (days)"""
     vault_path = "kubernetes/apps/" + f"{project}"
     vault_client = Vault(
         url_host_port(vault_host, vault_port),
         auth_method="iam",
+        role=vault_role,
         kvv2_mount_point=kvv2_mount_point,
         path=vault_path,
     )
