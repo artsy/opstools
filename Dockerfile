@@ -7,7 +7,7 @@ RUN chown deploy:deploy /src
 RUN pip --no-cache-dir install poetry==1.8.0
 RUN pip --no-cache-dir install awscli --upgrade
 
-ARG terraform_version=1.5.7
+ARG terraform_version=1.10.5
 ARG kubectl_version=1.21.14
 
 RUN apk --no-cache --quiet add \
