@@ -3,6 +3,8 @@ import os
 import json
 import logging
 
+from collections import defaultdict
+
 from lib.export_backup import backup_to_s3, write_file
 from lib.util import url_host_port
 from lib.vault import Vault
@@ -29,10 +31,9 @@ def backup_secrets(
     )
     apps = vault_client.list(only_valid=False)
     logging.debug(f"Found apps: {apps}")
-    secrets = {}
+    secrets = defaultdict(lambda: {})
     for app in apps:
         app_name = app.strip("/")
-        secrets[app_name] = {}
         logging.debug(f"Reading vars for app: {app_name}...")
         vault_path = "kubernetes/apps/" + f"{app}/"
         vault_client = Vault(
