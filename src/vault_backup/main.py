@@ -21,7 +21,7 @@ def parse_args():
         help="the artsy environment of Vault instance",
     )
     parser.add_argument(
-        "--loglevel",
+        "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         default="INFO",
         help="log level",
@@ -65,8 +65,8 @@ def validate(vault_host, vault_port, local_dir, s3, s3_bucket):
 if __name__ == "__main__":
 
     args = parse_args()
-    artsy_env, loglevel, s3 = (args.artsy_env, args.loglevel, args.s3)
-    setup_logging(eval("logging." + loglevel))
+    artsy_env, log_level, s3 = (args.artsy_env, args.log_level, args.s3)
+    setup_logging(eval("logging." + log_level))
     (
         vault_host,
         vault_port,
