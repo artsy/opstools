@@ -64,14 +64,15 @@ def backup_secrets(
     write_file(output_file, cipher_text, data_format="binary")
 
     if s3:
+        s3_sub_prefix = "vault_backup"
         try:
             logging.info(
-                f"Backing up secrets to {s3_bucket} bucket and {s3_prefix}/vault_backup prefix"
+                f"Backing up secrets to {s3_bucket} bucket and {s3_prefix}/{s3_sub_prefix} prefix"
             )
             backup_to_s3(
                 s3_bucket,
                 s3_prefix,
-                "vault_ascii",
+                s3_sub_prefix,
                 artsy_env,
                 "txt",
                 output_file,
