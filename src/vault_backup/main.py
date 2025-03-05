@@ -39,27 +39,43 @@ def parse_env():
     kvv2_mount_point = os.environ.get("VAULT_KVV2_MOUNT_POINT")
 
     # local dir to store exported secrets
-    local_dir = os.environ.get("VAULT_BACKUP_ASCII_LOCAL_DIR")
+    local_dir = os.environ.get("VAULT_BACKUP_LOCAL_DIR")
 
-    s3_bucket = os.environ.get("VAULT_BACKUP_ASCII_S3_BUCKET", "")
-    s3_prefix = os.environ.get("VAULT_BACKUP_ASCII_S3_PREFIX", "dev")
+    s3_bucket = os.environ.get("VAULT_BACKUP_S3_BUCKET", "")
+    s3_prefix = os.environ.get("VAULT_BACKUP_S3_PREFIX", "dev")
 
-    return vault_host, vault_port, kvv2_mount_point, local_dir, s3_bucket, s3_prefix
+    encryption_key = os.environ.get("VAULT_BACKUP_ENCRYPTION_KEY", "")
+    encryption_iv = os.environ.get("VAULT_BACKUP_ENCRYPTION_IV", "")
+
+    return (
+        vault_host,
+        vault_port,
+        kvv2_mount_point,
+        local_dir,
+        s3_bucket,
+        s3_prefix,
+        encryption_key,
+        encryption_iv,
+    )
 
 
-def validate(vault_host, vault_port, local_dir, s3, s3_bucket):
+def validate(
+    vault_host, vault_port, local_dir, s3, s3_bucket, encryption_key, encryption_iv
+):
     """validate config obtained from env and command line"""
-    if not (vault_host and vault_port and local_dir):
+    if not (
+        vault_host and vault_port and local_dir and encryption_key and encryption_iv
+    ):
         raise Exception(
             "The following environment variables must be specified: "
             + "VAULT_HOST, "
             + "VAULT_PORT, "
-            + "VAULT_BACKUP_ASCII_LOCAL_DIR"
+            + "VAULT_BACKUP_LOCAL_DIR, "
+            + "VAULT_BACKUP_ENCRYPTION_KEY, "
+            + "VAULT_BACKUP_ENCRYPTION_IV"
         )
     if s3 and not s3_bucket:
-        raise Exception(
-            "VAULT_BACKUP_ASCII_S3_BUCKET must be specified in the environment."
-        )
+        raise Exception("VAULT_BACKUP_S3_BUCKET must be specified in the environment.")
 
 
 if __name__ == "__main__":
@@ -74,8 +90,12 @@ if __name__ == "__main__":
         local_dir,
         s3_bucket,
         s3_prefix,
+        encryption_key,
+        encryption_iv,
     ) = parse_env()
-    validate(vault_host, vault_port, local_dir, s3, s3_bucket)
+    validate(
+        vault_host, vault_port, local_dir, s3, s3_bucket, encryption_key, encryption_iv
+    )
 
     logging.info(f"Backup will be stored locally in {local_dir}")
     if s3:
@@ -92,4 +112,6 @@ if __name__ == "__main__":
         s3,
         s3_bucket,
         s3_prefix,
+        encryption_key,
+        encryption_iv,
     )
