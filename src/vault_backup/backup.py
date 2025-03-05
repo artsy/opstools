@@ -66,7 +66,7 @@ def backup_secrets(
     if s3:
         try:
             logging.info(
-                f"Backing up secrets to {s3_bucket} bucket and {s3_prefix}/vault_ascii prefix"
+                f"Backing up secrets to {s3_bucket} bucket and {s3_prefix}/vault_backup prefix"
             )
             backup_to_s3(
                 s3_bucket,
