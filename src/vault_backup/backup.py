@@ -23,7 +23,7 @@ def backup_secrets(
     encryption_key,
     encryption_iv,
 ):
-    """export secrets"""
+    """Encrypts vault secrets using AES256 and exports them to S3."""
     logging.info("Discovering k8s app secrets...")
     vault_path = "kubernetes/apps/"
     vault_client = Vault(
