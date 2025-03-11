@@ -4,8 +4,8 @@ import json
 import logging
 
 from collections import defaultdict
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
+from lib.encrypt import symmetric_encrypt
 from lib.export_backup import backup_to_s3, write_file
 from lib.util import url_host_port
 from lib.vault import Vault
@@ -23,7 +23,7 @@ def backup_secrets(
     encryption_key,
     encryption_iv,
 ):
-    """Encrypts vault secrets using AES256 and exports them to S3."""
+    """Encrypts Vault secrets using AES256 and exports them to S3."""
     logging.info("Discovering k8s app secrets...")
     vault_path = "kubernetes/apps/"
     vault_client = Vault(
@@ -53,11 +53,7 @@ def backup_secrets(
     secrets_json = json.dumps(secrets)
 
     logging.info("Encrypting secrets...")
-    algorithm = algorithms.AES256(bytes.fromhex(encryption_key))
-    mode = modes.CTR(bytes.fromhex(encryption_iv))
-    cipher = Cipher(algorithm, mode)
-    encryptor = cipher.encryptor()
-    cipher_text = encryptor.update(bytes(secrets_json, "utf-8")) + encryptor.finalize()
+    cipher_text = symmetric_encrypt(encryption_key, encryption_iv, secrets_json)
 
     output_file = os.path.join(local_dir, "secrets.enc")
     logging.info(f"Writing encrypted secrets to local file {output_file} ...")
