@@ -695,7 +695,7 @@ spec:
             image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/opstools:production
             args:
             - python
-            - src/vault_snapshot/snap.py
+            - src/vault_snapshot/main.py
             - production
             - --s3
             imagePullPolicy: Always
