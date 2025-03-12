@@ -47,17 +47,17 @@ def parse_env():
 def validate(artsy_env, vault_host, vault_port, s3, s3_bucket):
     """validate config obtained from env and command line"""
     if not (vault_host and vault_port):
-        raise Exception(
+        raise ValueError(
             "The following environment variables must be specified: "
             + "VAULT_HOST, "
             + "VAULT_PORT"
         )
     if not hostname_agrees_with_artsy_environment(vault_host, artsy_env):
-        raise Exception(
+        raise ValueError(
             f"Hostname {vault_host} does not agree with environment {artsy_env}"
         )
     if s3 and not s3_bucket:
-        raise Exception(
+        raise ValueError(
             "VAULT_SNAPSHOT_S3_BUCKET must be specified in the environment."
         )
 
