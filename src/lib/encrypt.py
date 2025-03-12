@@ -1,10 +1,12 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-def symmetric_encrypt(key, iv, message):
-    """AES256 encrypt message and return ciphertext
-    params are all str
-    ciphertext returned is in bytes
+def symmetric_encrypt(key: str, iv: str, message: str) -> bytes:
+    """AES256 encrypt a message.
+
+    Returns
+    -------
+    ciphertext: bytes
     """
     algorithm = algorithms.AES256(bytes.fromhex(key))
     mode = modes.CTR(bytes.fromhex(iv))
