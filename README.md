@@ -2,7 +2,7 @@
 
 Tools for Operations.
 
-* __Point People:__ [#product-sapphire][sapphire_channel]
+* __Point People:__ [@artsyjian](https://github.com/artsyjian)
 
 # Setup
 
