@@ -37,7 +37,7 @@ function commit() {
   BRANCH=$1
 
   echo "### confirm changes ###"
-  git diff
+  git --no-pager diff
   read -p "Enter y or Y to proceed, s or S to skip, any other input exit script: " -n 1 -r </dev/tty
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]
@@ -52,7 +52,8 @@ function commit() {
   fi
 
   echo "### commit changes ###"
-  git commit -am "$MSG" --no-verify
+  git add .
+  git commit -m "$MSG" --no-verify
   echo "### push to origin ###"
   git push -f --set-upstream origin "$BRANCH" --no-verify
 
