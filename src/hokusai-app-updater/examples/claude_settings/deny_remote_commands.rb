@@ -11,7 +11,7 @@ DEFAULT_SETTINGS = {
 }
 ADDITIONS = [
   "Bash(hokusai:*)",
-  "Bash(aws:*)]"
+  "Bash(aws:*)"
 ]
 
 # create settings file if it doesn't already exist
@@ -24,6 +24,9 @@ end
 
 # read in settings
 settings = JSON.parse(File.read(SETTINGS_FILENAME))
+
+# remove typos (e.g.)...
+# settings["permissions"]["deny"] -= ["Bash(aws:*)]"]
 
 # merge additions
 settings["permissions"]["deny"] |= ADDITIONS
