@@ -43,26 +43,16 @@ if len(sys.argv) < 2:
 
 to_find = sys.argv[1]
 
+required_vars = ['VAULT_HOST', 'VAULT_PORT', 'VAULT_KVV2_MOUNT_POINT', 'VAULT_PATH']
+missing_vars = [var for var in required_vars if not os.environ.get(var)]
+if missing_vars:
+    print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
+    sys.exit(1)
+
 vault_host = os.environ.get('VAULT_HOST')
 vault_port = os.environ.get('VAULT_PORT')
 vault_kvv2_mount_point = os.environ.get('VAULT_KVV2_MOUNT_POINT')
 vault_path = os.environ.get('VAULT_PATH')
-
-if not vault_host:
-    print("Error: VAULT_HOST environment variable is required.")
-    sys.exit(1)
-
-if not vault_port:
-    print("Error: VAULT_PORT environment variable is required.")
-    sys.exit(1)
-
-if not vault_kvv2_mount_point:
-    print("Error: VAULT_KVV2_MOUNT_POINT environment variable is required.")
-    sys.exit(1)
-
-if not vault_path:
-    print("Error: VAULT_PATH environment variable is required.")
-    sys.exit(1)
 
 vault_addr = f"https://{vault_host}:{vault_port}"
 print(f"Setting VAULT_ADDR to {vault_addr}")
