@@ -16,7 +16,7 @@ Arguments:
     search_term: the text to search for in secret values
 
 Example:
-    # connect to VPN
+    # connect to VPN (artsy specific)
     # download .env.shared for env vars and set them (artsy specific)
     export VAULT_ADDR=https://foo.example.com:1234
     export VAULT_KVV2_MOUNT_POINT=foo
@@ -26,7 +26,7 @@ Example:
 
 The script will automatically:
 - Connect to Vault using the specified vault address
-- Login to Vault using AWS authentication
+- Login to Vault using AWS authentication (if not already authenticated)
 - Search through all vault secrets for the term
 """
 
