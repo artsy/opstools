@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Define the title (filename) as a variable
-target_file="./.github/workflows/run-conventional-commits-check.yml"
-source_file="/Users/mcj/code/duchamp/.github/workflows/run-conventional-commits-check.yml"
+#
+target_file="" # e.g., "/code/repo/.github/workflows/run-conventional-commits-check.yml"
+source_file="" # e.g., "/path/to/duchamp/.github/workflows/run-conventional-commits-check.yml"
 
 # Check if the source file exists
 if [ ! -f "$source_file" ]; then
