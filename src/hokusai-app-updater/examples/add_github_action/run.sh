@@ -14,7 +14,7 @@ PR_REVIEWER=
 PR_ASSIGNEE=
 
 # If feeling bold add MERGE_ON_GREEN=1 to env to add "Merge On Green" label to PR.
-src/hokusai-app-updater/update_apps.sh \
+../../update_apps.sh \
     "$PATH_TO_CHANGE_SCRIPT" \
     "$PATH_TO_PROJECT_LIST" \
     "$PATH_TO_SOURCE_CODE_ROOT_DIR" \
