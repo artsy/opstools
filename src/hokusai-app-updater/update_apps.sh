@@ -2,7 +2,7 @@
 
 set -e
 
-ARGUMENT_COUNT=7
+ARGUMENT_COUNT=8
 
 function check_input() {
   if (( $# < $ARGUMENT_COUNT ))
@@ -71,7 +71,7 @@ function commit() {
     gh label edit "merge on green" --name "Merge On Green" || gh label create "Merge On Green" --color "247A38" --description "Merge this PR when all statuses are green"
     LABEL_ARG='--label "Merge On Green"'
   fi
-  eval "gh pr create --title \"$MSG\" --body \"$MSG\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
+  eval "gh pr create --title \"$TITLE\" --body \"$MSG\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
 }
 
 check_input "$@"
@@ -92,14 +92,17 @@ SRC_ROOT=$3
 # name of github branch to make changes under.
 BRANCH=$4
 
+# title of PR
+TITLE=$5
+
 # commit message. will be title of PR as well.
-MSG=$5
+MSG=$6
 
 # reviewer (user or team) for pr.
-REVIEWER=$6
+REVIEWER=$7
 
 # assignee for pr.
-ASSIGNEE=$7
+ASSIGNEE=$8
 
 COUNT=1
 
