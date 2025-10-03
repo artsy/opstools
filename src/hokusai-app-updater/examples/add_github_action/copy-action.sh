@@ -10,7 +10,7 @@ if [ -z "$CODE_DIR_ROOT" ] || [ -z "$PROJECT" ] || [ -z "$FILENAME" ]; then
     exit 1
 fi
 
-SOURCE="${CODE_DIR_ROOT}/duchamp/workflows/$FILENAME"
+SOURCE="${CODE_DIR_ROOT}/duchamp/templates/$FILENAME"
 TARGET="${CODE_DIR_ROOT}/${PROJECT}/.github/workflows/$FILENAME"
 
 # Check if the source file exists
