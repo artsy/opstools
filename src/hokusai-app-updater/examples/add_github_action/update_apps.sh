@@ -70,10 +70,7 @@ function commit() {
 
 check_input "$@"
 
-# dir of this script.
-SCRIPT_DIR=$(pwd)
-
-# path to the script that makes the desired changes. relative to SCRIPT_DIR.
+# Absolute path to the script that makes the desired changes.
 SCRIPT=$1
 
 # path to file that lists projects to be operated on.
@@ -99,10 +96,6 @@ REVIEWER=$7
 ASSIGNEE=$8
 
 COUNT=1
-
-echo PROJECT_LIST:
-echo "$PROJECT_LIST"
-echo "-------------------------------------"
 
 while read -r PROJECT;
 do
