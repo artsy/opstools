@@ -17,7 +17,7 @@ if ! command -v jq &> /dev/null; then
 fi
 
 # Validate required fields in config.json
-REQUIRED_FIELDS=("pathToProjectList" "pathToSourceCodeRootDir" "branchName" "commitTitle" "commitMessage" "prReviewer" "prAssignee" "actionConfigFile" "projectList")
+REQUIRED_FIELDS=("pathToSourceCodeRootDir" "branchName" "commitTitle" "commitMessage" "prReviewer" "prAssignee" "actionConfigFile" "projectList")
 for FIELD in "${REQUIRED_FIELDS[@]}"; do
     if [[ -z "$(jq -r --arg field "$FIELD" '.[$field]' "$CONFIG_FILE")" || "$(jq -r --arg field "$FIELD" '.[$field]' "$CONFIG_FILE")" == "null" ]]; then
         echo "Error: '$FIELD' is required in config.json but is missing or empty."
@@ -28,7 +28,6 @@ done
 # If feeling bold add MERGE_ON_GREEN=1 to env to add "Merge On Green" label to PR.
 ./update_apps.sh \
     "./copy-action.sh" \
-    "$(jq -r '.pathToProjectList' "$CONFIG_FILE")" \
     "$(jq -r '.pathToSourceCodeRootDir' "$CONFIG_FILE")" \
     "$(jq -r '.branchName' "$CONFIG_FILE")" \
     "$(jq -r '.commitTitle' "$CONFIG_FILE")" \
