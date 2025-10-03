@@ -1,17 +1,17 @@
 #!/bin/bash
 
-SRC_ROOT="$1"
+CODE_DIR_ROOT="$1"
 PROJECT="$2"
 FILENAME="$3"
 
 # Check for required arguments
-if [ -z "$SRC_ROOT" ] || [ -z "$PROJECT" ] || [ -z "$FILENAME" ]; then
+if [ -z "$CODE_DIR_ROOT" ] || [ -z "$PROJECT" ] || [ -z "$FILENAME" ]; then
     echo "Usage: $0 <src_root> <project> <filename>"
     exit 1
 fi
 
-SOURCE="${SRC_ROOT}/duchamp/configs/$FILENAME"
-TARGET="${SRC_ROOT}/${PROJECT}/.github/workflows/$FILENAME"
+SOURCE="${CODE_DIR_ROOT}/duchamp/workflows/$FILENAME"
+TARGET="${CODE_DIR_ROOT}/${PROJECT}/.github/workflows/$FILENAME"
 
 # Check if the source file exists
 if [ ! -f "$SOURCE" ]; then
@@ -26,6 +26,9 @@ if [ ! -f "$TARGET" ]; then
     mkdir -p "$(dirname "$TARGET")"
     # Copy the file from duchamp
     cp "$SOURCE" "$TARGET"
+    # track file in git
+    git add -N "$TARGET"
+
     echo "File copied successfully."
 else
     echo "Target file $TARGET exists. Checking for differences..."
