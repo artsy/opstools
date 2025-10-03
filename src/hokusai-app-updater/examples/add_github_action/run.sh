@@ -2,7 +2,8 @@
 set -e
 
 # Get the directory where this script is located
-CONFIG_FILE="./config.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/config.json"
 
 # Check if config.json exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
@@ -26,8 +27,9 @@ for FIELD in "${REQUIRED_FIELDS[@]}"; do
 done
 
 # If feeling bold add MERGE_ON_GREEN=1 to env to add "Merge On Green" label to PR.
-./update_apps.sh \
-    "./copy-action.sh" \
+"$SCRIPT_DIR/update_apps.sh" \
+    "$SCRIPT_DIR/copy-action.sh" \
+    "$(jq -r '.projectList' "$CONFIG_FILE" | jq -r 'join("\n")')" \
     "$(jq -r '.pathToSourceCodeRootDir' "$CONFIG_FILE")" \
     "$(jq -r '.branchName' "$CONFIG_FILE")" \
     "$(jq -r '.commitTitle' "$CONFIG_FILE")" \
@@ -35,4 +37,3 @@ done
     "$(jq -r '.prReviewer' "$CONFIG_FILE")" \
     "$(jq -r '.prAssignee' "$CONFIG_FILE")" \
     "$(jq -r '.actionConfigFile' "$CONFIG_FILE")" \
-    "$(jq -r '.projectList' "$CONFIG_FILE" | jq -r 'join("\n")')"
