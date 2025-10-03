@@ -12,12 +12,6 @@ function check_input() {
   fi
 }
 
-function usage() {
-  cat << EOF
-    Usage: $0 path_to_change_script(relative to this dir) path_to_project_list path_to_source_code_root_dir branch_name commit_message(also pr title/body) pr_assignee(user or team) pr_reviewer(user) <extra arguments to pass to the change script itself>...
-EOF
-}
-
 function prep() {
   BRANCH=$1
 
@@ -87,7 +81,7 @@ PROJECT_LIST=$2
 
 # path to dir that holds dirs of all projects.
 # should be absolute path.
-SRC_ROOT=$3
+CODE_DIR_ROOT=$3
 
 # name of github branch to make changes under.
 BRANCH=$4
@@ -106,9 +100,29 @@ ASSIGNEE=$8
 
 COUNT=1
 
-while read PROJECT
+echo PROJECT_LIST:
+echo "$PROJECT_LIST"
+echo "-------------------------------------"
+
+while read -r PROJECT;
 do
-  echo "---------------- #$COUNT -------------------------"
+  echo "---------------- #$COUNT: $PROJECT -------------------------"
+
+  # check if project exists, if not, clone it with GH CLI, if user wants it to be cloned
+  if [ ! -d "$CODE_DIR_ROOT/$PROJECT" ]
+  then
+    echo "### $PROJECT does not exist in $CODE_DIR_ROOT ###"
+    read -p "Would you like to clone it from GitHub? Enter y or Y to proceed: " -n 1 -r </dev/tty
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+      echo "Cloning $PROJECT into $CODE_DIR_ROOT"
+      gh repo clone "artsy/$PROJECT" "$CODE_DIR_ROOT/$PROJECT"
+    else
+      echo "Skipping $PROJECT"
+      continue
+    fi
+  fi
 
   # allow user to skip project
   echo "### Operate on $PROJECT? ###"
@@ -119,15 +133,15 @@ do
     continue
   fi
 
-  WORKDIR="$SRC_ROOT/$PROJECT"
+  WORKDIR="$CODE_DIR_ROOT/$PROJECT"
   cd "$WORKDIR"
   echo "### Operating in directory: $WORKDIR ###"
   prep "$BRANCH"
 
   cd "$WORKDIR"
   echo "### run script ###"
-  # pass on to script argument#8 and on
-  $SCRIPT_DIR/$SCRIPT "${@:8}"
+  # pass on to script argument#9 and on
+  $SCRIPT_DIR/$SCRIPT "$CODE_DIR_ROOT" "$PROJECT" "${@:9}"
 
   cd "$WORKDIR"
   # commit if there are changes
@@ -140,4 +154,4 @@ do
   fi
 
   COUNT=$(( $COUNT + 1 ))
-done <$PROJECT_LIST
+done <<< "$PROJECT_LIST"

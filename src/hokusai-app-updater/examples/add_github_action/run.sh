@@ -1,25 +1,39 @@
 #!/bin/bash
 set -e
 
-# USAGE: cd src/hokusai-app-updater/examples/add_github_action && ./run.sh
+# Get the directory where this script is located
+CONFIG_FILE="./config.json"
 
-# NOTE: Paths are relative to the location of this script.
-PATH_TO_CHANGE_SCRIPT=""
-PATH_TO_PROJECT_LIST="" # Requires newline delimited list with a terminating empty line
-PATH_TO_SOURCE_CODE_ROOT_DIR=""
-BRANCH_NAME=""
-COMMIT_TITLE=""
-COMMIT_MESSAGE=""
-PR_REVIEWER=
-PR_ASSIGNEE=
+# Check if config.json exists
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "Error: config.json not found. Please copy config.example.json to config.json and update the values."
+    exit 1
+fi
+
+# Check if jq is available
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is required but not installed. Please install jq first."
+    exit 1
+fi
+
+# Validate required fields in config.json
+REQUIRED_FIELDS=("pathToProjectList" "pathToSourceCodeRootDir" "branchName" "commitTitle" "commitMessage" "prReviewer" "prAssignee" "actionConfigFile" "projectList")
+for FIELD in "${REQUIRED_FIELDS[@]}"; do
+    if [[ -z "$(jq -r --arg field "$FIELD" '.[$field]' "$CONFIG_FILE")" || "$(jq -r --arg field "$FIELD" '.[$field]' "$CONFIG_FILE")" == "null" ]]; then
+        echo "Error: '$FIELD' is required in config.json but is missing or empty."
+        exit 1
+    fi
+done
 
 # If feeling bold add MERGE_ON_GREEN=1 to env to add "Merge On Green" label to PR.
-../../update_apps.sh \
-    "$PATH_TO_CHANGE_SCRIPT" \
-    "$PATH_TO_PROJECT_LIST" \
-    "$PATH_TO_SOURCE_CODE_ROOT_DIR" \
-    "$BRANCH_NAME" \
-    "$COMMIT_TITLE" \
-    "$COMMIT_MESSAGE" \
-    "$PR_REVIEWER" \
-    "$PR_ASSIGNEE"
+./update_apps.sh \
+    "./copy-action.sh" \
+    "$(jq -r '.pathToProjectList' "$CONFIG_FILE")" \
+    "$(jq -r '.pathToSourceCodeRootDir' "$CONFIG_FILE")" \
+    "$(jq -r '.branchName' "$CONFIG_FILE")" \
+    "$(jq -r '.commitTitle' "$CONFIG_FILE")" \
+    "$(jq -r '.commitMessage' "$CONFIG_FILE")" \
+    "$(jq -r '.prReviewer' "$CONFIG_FILE")" \
+    "$(jq -r '.prAssignee' "$CONFIG_FILE")" \
+    "$(jq -r '.actionConfigFile' "$CONFIG_FILE")" \
+    "$(jq -r '.projectList' "$CONFIG_FILE" | jq -r 'join("\n")')"

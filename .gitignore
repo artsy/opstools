@@ -57,3 +57,6 @@ tmp
 var/
 venv/
 !src/lib
+
+# Local configuration files
+src/hokusai-app-updater/examples/add_github_action/config.json
