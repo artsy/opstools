@@ -1,10 +1,10 @@
 {
-  "PATH_TO_PROJECT_LIST": "",
-  "PATH_TO_SOURCE_CODE_ROOT_DIR": "",
-  "BRANCH_NAME": "",
-  "COMMIT_TITLE": "",
-  "COMMIT_MESSAGE": "",
-  "PR_REVIEWER": "",
-  "PR_ASSIGNEE": "",
-  "ACTION_CONFIG_FILE": ""
+  "projectList": [],
+  "pathToSourceCodeRootDir": "",
+  "branchName": "",
+  "commitTitle": "",
+  "commitMessage": "",
+  "prReviewer": "",
+  "prAssignee": "",
+  "actionConfigFile": ""
 }
