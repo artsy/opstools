@@ -47,7 +47,7 @@ function commit() {
 
   echo "### commit changes ###"
   git add .
-  git commit -m "$MSG" --no-verify
+  git commit -m "$TITLE" --no-verify
   echo "### push to origin ###"
   git push -f --set-upstream origin "$BRANCH" --no-verify
 
