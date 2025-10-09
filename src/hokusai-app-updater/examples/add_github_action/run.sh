@@ -18,7 +18,7 @@ if ! command -v jq &> /dev/null; then
 fi
 
 # Validate required fields in config.json
-REQUIRED_FIELDS=("pathToSourceCodeRootDir" "branchName" "commitTitle" "commitMessage" "prReviewer" "prAssignee" "actionConfigFile" "projectList")
+REQUIRED_FIELDS=("pathToSourceCodeRootDir" "branchName" "commitMessage" "prDescription" "prReviewer" "prAssignee" "actionConfigFile" "projectList")
 for FIELD in "${REQUIRED_FIELDS[@]}"; do
     if [[ -z "$(jq -r --arg field "$FIELD" '.[$field]' "$CONFIG_FILE")" || "$(jq -r --arg field "$FIELD" '.[$field]' "$CONFIG_FILE")" == "null" ]]; then
         echo "Error: '$FIELD' is required in config.json but is missing or empty."
@@ -32,8 +32,8 @@ done
     "$(jq -r '.projectList' "$CONFIG_FILE" | jq -r 'join("\n")')" \
     "$(jq -r '.pathToSourceCodeRootDir' "$CONFIG_FILE")" \
     "$(jq -r '.branchName' "$CONFIG_FILE")" \
-    "$(jq -r '.commitTitle' "$CONFIG_FILE")" \
     "$(jq -r '.commitMessage' "$CONFIG_FILE")" \
+    "$(jq -r '.prDescription' "$CONFIG_FILE")" \
     "$(jq -r '.prReviewer' "$CONFIG_FILE")" \
     "$(jq -r '.prAssignee' "$CONFIG_FILE")" \
     "$(jq -r '.actionConfigFile' "$CONFIG_FILE")" \

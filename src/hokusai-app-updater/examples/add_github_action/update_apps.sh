@@ -65,7 +65,7 @@ function commit() {
     gh label edit "merge on green" --name "Merge On Green" || gh label create "Merge On Green" --color "247A38" --description "Merge this PR when all statuses are green"
     LABEL_ARG='--label "Merge On Green"'
   fi
-  eval "gh pr create --title \"$TITLE\" --body \"$MSG\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
+  eval "gh pr create --title \"$TITLE\" --body \"$BODY\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
 }
 
 check_input "$@"
@@ -83,11 +83,11 @@ CODE_DIR_ROOT=$3
 # name of github branch to make changes under.
 BRANCH=$4
 
-# title of PR
+# title of PR and commit message.
 TITLE=$5
 
-# commit message. will be title of PR as well.
-MSG=$6
+# commit message.
+BODY=$6
 
 # reviewer (user or team) for pr.
 REVIEWER=$7
