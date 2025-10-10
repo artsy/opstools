@@ -39,7 +39,7 @@ This script automates adding or updating GitHub Actions workflow files across mu
 - **projectList**: Array of project directory names to update
 - **pathToSourceCodeRootDir**: Root directory containing your Artsy code repositories
 - **branchName**: Git branch name for changes
-- **commitMessage**:  Git commit title (also used as GitHub PR title)
+- **commitMessage**:  Git commit message (also used as GitHub PR title)
 - **prDescription**: GitHub pull request description
 - **prReviewer**: GitHub username to review PRs
 - **prAssignee**: GitHub username to assign PRs
