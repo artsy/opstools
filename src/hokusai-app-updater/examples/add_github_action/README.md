@@ -2,6 +2,19 @@
 
 This script automates adding or updating GitHub Actions workflow files across multiple projects.
 
+## How It Works
+
+The script copies GitHub Action workflow files from a template directory (`duchamp/templates/`) to each project's `.github/workflows/` directory. If the file already exists, it checks for differences and only updates if needed.
+
+The script will:
+1. Validate your configuration
+2. For each project in `projectList`:
+   - Copy the workflow file from `duchamp/templates/` to `.github/workflows/`
+   - Create a new branch
+   - Commit changes
+   - Create a pull request
+
+
 ## Prerequisites
 
 - `jq` - JSON processor for parsing configuration
@@ -52,21 +65,9 @@ Run the script:
 ./run.sh
 ```
 
-The script will:
-1. Validate your configuration
-2. For each project in `projectList`:
-   - Copy the workflow file from `duchamp/templates/` to `.github/workflows/`
-   - Create a new branch
-   - Commit changes
-   - Create a pull request
-
 ## Optional: Auto-merge
 
 To add "Merge On Green" label to PRs:
 ```bash
 MERGE_ON_GREEN=1 ./run.sh
 ```
-
-## How It Works
-
-The script copies GitHub Action workflow files from a template directory (`duchamp/templates/`) to each project's `.github/workflows/` directory. If the file already exists, it checks for differences and only updates if needed.
