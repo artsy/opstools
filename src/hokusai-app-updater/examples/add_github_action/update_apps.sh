@@ -131,12 +131,10 @@ do
   echo "### Operating in directory: $WORKDIR ###"
   prep "$BRANCH"
 
-  cd "$WORKDIR"
   echo "### run script ###"
   # pass on to script argument#9 and on
   $SCRIPT_DIR/$SCRIPT "$CODE_DIR_ROOT" "$PROJECT" "${@:9}"
 
-  cd "$WORKDIR"
   # commit if there are changes
   changes=$(git status -s)
   if [ ! -z "$changes" ]
