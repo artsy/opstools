@@ -19,31 +19,43 @@ function prep() {
   git stash
   echo "### git fetch ###"
   git fetch
-  echo "### checkout main ###"
-  git checkout main
-  echo "### rebase from origin/main ###"
-  git pull --rebase origin main
+
+  # Determine default branch (main or master)
+  if git show-ref --verify --quiet refs/heads/main || git show-ref --verify --quiet refs/remotes/origin/main; then
+    DEFAULT_BRANCH="main"
+  else
+    DEFAULT_BRANCH="master"
+  fi
+
+  echo "### checkout $DEFAULT_BRANCH ###"
+  git checkout "$DEFAULT_BRANCH"
+  echo "### rebase from origin/$DEFAULT_BRANCH ###"
+  git pull --rebase origin "$DEFAULT_BRANCH"
   echo "### checkout $BRANCH branch ###"
+  if git show-ref --verify --quiet refs/heads/"$BRANCH"; then
+    echo "Branch $BRANCH exists, deleting..."
+    git branch -D "$BRANCH"
+  fi
   git checkout -b "$BRANCH"
 }
 
 function commit() {
   BRANCH=$1
 
-  echo "### confirm changes ###"
-  git --no-pager diff
-  read -p "Enter y or Y to proceed, s or S to skip, any other input exit script: " -n 1 -r </dev/tty
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]
-  then
-    echo "Applying changes..."
-  elif [[ $REPLY =~ ^[Ss]$ ]]
-  then
-    # exit function but continue executing the script
-    return
-  else
-    exit 1
-  fi
+  # echo "### confirm changes ###"
+  # git --no-pager diff
+  # read -p "Enter y or Y to proceed, s or S to skip, any other input exit script: " -n 1 -r </dev/tty
+  # echo
+  # if [[ $REPLY =~ ^[Yy]$ ]]
+  # then
+  #   echo "Applying changes..."
+  # elif [[ $REPLY =~ ^[Ss]$ ]]
+  # then
+  #   # exit function but continue executing the script
+  #   return
+  # else
+  #   exit 1
+  # fi
 
   echo "### commit changes ###"
   git add .
@@ -104,27 +116,27 @@ do
   # check if project exists, if not, clone it with GH CLI, if user wants it to be cloned
   if [ ! -d "$CODE_DIR_ROOT/$PROJECT" ]
   then
-    echo "### $PROJECT does not exist in $CODE_DIR_ROOT ###"
-    read -p "Would you like to clone it from GitHub? Enter y or Y to proceed: " -n 1 -r </dev/tty
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-      echo "Cloning $PROJECT into $CODE_DIR_ROOT"
-      gh repo clone "artsy/$PROJECT" "$CODE_DIR_ROOT/$PROJECT"
-    else
-      echo "Skipping $PROJECT"
-      continue
-    fi
+    # echo "### $PROJECT does not exist in $CODE_DIR_ROOT ###"
+    # read -p "Would you like to clone it from GitHub? Enter y or Y to proceed: " -n 1 -r </dev/tty
+    # echo
+    # if [[ $REPLY =~ ^[Yy]$ ]]
+    # then
+    echo "Cloning $PROJECT into $CODE_DIR_ROOT"
+    gh repo clone "artsy/$PROJECT" "$CODE_DIR_ROOT/$PROJECT"
+    # else
+      # echo "Skipping $PROJECT"
+      # continue
+    # fi
   fi
 
   # allow user to skip project
-  echo "### Operate on $PROJECT? ###"
-  read -p "Enter y or Y to proceed: " -n 1 -r </dev/tty
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]
-  then
-    continue
-  fi
+  # echo "### Operate on $PROJECT? ###"
+  # read -p "Enter y or Y to proceed: " -n 1 -r </dev/tty
+  # echo
+  # if [[ ! $REPLY =~ ^[Yy]$ ]]
+  # then
+  #   continue
+  # fi
 
   WORKDIR="$CODE_DIR_ROOT/$PROJECT"
   cd "$WORKDIR"
