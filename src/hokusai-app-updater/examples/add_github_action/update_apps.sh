@@ -32,9 +32,11 @@ function prep() {
   echo "### rebase from origin/$DEFAULT_BRANCH ###"
   git pull --rebase origin "$DEFAULT_BRANCH"
   echo "### checkout $BRANCH branch ###"
-  if git show-ref --verify --quiet refs/heads/"$BRANCH"; then
-    echo "Branch $BRANCH exists, deleting..."
-    git branch -D "$BRANCH"
+  if [ "$DELETE_BRANCH_IF_EXISTS" = true ] ; then
+    if git show-ref --verify --quiet refs/heads/"$BRANCH"; then
+      echo "Branch $BRANCH exists, deleting..."
+      git branch -D "$BRANCH"
+    fi
   fi
   git checkout -b "$BRANCH"
 }
@@ -110,6 +112,9 @@ ASSIGNEE=$8
 
 # workflow filename.
 WORKFLOW_FILE=$9
+
+# delete file if exists
+DELETE_BRANCH_IF_EXISTS=${10}
 
 COUNT=1
 
