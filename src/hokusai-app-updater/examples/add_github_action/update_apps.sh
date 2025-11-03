@@ -19,16 +19,29 @@ function prep() {
   git stash
   echo "### git fetch ###"
   git fetch
-  echo "### checkout main ###"
-  git checkout main
-  echo "### rebase from origin/main ###"
-  git pull --rebase origin main
+
+  # Determine default branch (main or master)
+  if git show-ref --verify --quiet refs/heads/main || git show-ref --verify --quiet refs/remotes/origin/main; then
+    DEFAULT_BRANCH="main"
+  else
+    DEFAULT_BRANCH="master"
+  fi
+
+  echo "### checkout $DEFAULT_BRANCH ###"
+  git checkout "$DEFAULT_BRANCH"
+  echo "### rebase from origin/$DEFAULT_BRANCH ###"
+  git pull --rebase origin "$DEFAULT_BRANCH"
   echo "### checkout $BRANCH branch ###"
+  if git show-ref --verify --quiet refs/heads/"$BRANCH"; then
+    echo "Branch $BRANCH exists, deleting..."
+    git branch -D "$BRANCH"
+  fi
   git checkout -b "$BRANCH"
 }
 
 function commit() {
   BRANCH=$1
+  WORKFLOW_FILE=$2
 
   echo "### confirm changes ###"
   git --no-pager diff
@@ -46,7 +59,7 @@ function commit() {
   fi
 
   echo "### commit changes ###"
-  git add .
+  git add -f ".github/workflows/$WORKFLOW_FILE"
   git commit -m "$TITLE" --no-verify
   echo "### push to origin ###"
   git push -f --set-upstream origin "$BRANCH" --no-verify
@@ -95,6 +108,9 @@ REVIEWER=$7
 # assignee for pr.
 ASSIGNEE=$8
 
+# workflow filename.
+WORKFLOW_FILE=$9
+
 COUNT=1
 
 while read -r PROJECT;
@@ -139,7 +155,7 @@ do
   changes=$(git status -s)
   if [ ! -z "$changes" ]
   then
-    commit "$BRANCH"
+    commit "$BRANCH" "$WORKFLOW_FILE"
   else
     echo "no changes"
   fi
