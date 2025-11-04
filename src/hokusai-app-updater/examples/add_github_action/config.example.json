@@ -2,6 +2,7 @@
   "projectList": [],
   "pathToSourceCodeRootDir": "",
   "branchName": "",
+  "deleteBranchIfExists": false,
   "commitMessage": "",
   "prDescription": "",
   "prReviewer": "",
