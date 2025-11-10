@@ -38,7 +38,8 @@ function prep() {
       git branch -D "$BRANCH"
     fi
   fi
-  git checkout -b "$BRANCH"
+
+  git checkout -B "$BRANCH"
 }
 
 function commit() {
@@ -66,7 +67,7 @@ function commit() {
   echo "### push to origin ###"
   git push -f --set-upstream origin "$BRANCH" --no-verify
 
-  echo "### open PR ###"
+  echo "### open or update PR ###"
 
   # check whether you are logged into github https api.
   # command exits 0 if yes, 1 if not.
@@ -80,7 +81,23 @@ function commit() {
     gh label edit "merge on green" --name "Merge On Green" || gh label create "Merge On Green" --color "247A38" --description "Merge this PR when all statuses are green"
     LABEL_ARG='--label "Merge On Green"'
   fi
-  eval "gh pr create --title \"$TITLE\" --body \"$BODY\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
+
+  # Check if PR already exists for this branch
+  EXISTING_PR=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+  if [[ -n "$EXISTING_PR" ]]; then
+    echo "PR #$EXISTING_PR already exists for branch $BRANCH, updating it..."
+    gh pr edit "$EXISTING_PR" --title "$TITLE" --body "$BODY"
+    # Add reviewer and assignee if they don't already exist
+    gh pr edit "$EXISTING_PR" --add-reviewer "$REVIEWER" --add-assignee "$ASSIGNEE" 2>/dev/null || true
+    if [[ -n "${MERGE_ON_GREEN}" ]]; then
+      gh pr edit "$EXISTING_PR" --add-label "Merge On Green" 2>/dev/null || true
+    fi
+    echo "Updated PR #$EXISTING_PR"
+  else
+    echo "Creating new PR..."
+    eval "gh pr create --title \"$TITLE\" --body \"$BODY\" --reviewer \"$REVIEWER\" --assignee \"$ASSIGNEE\" $LABEL_ARG"
+  fi
 }
 
 check_input "$@"
