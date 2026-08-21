@@ -2,7 +2,7 @@
 
 Tools for Operations.
 
-* __Point People:__ [@artsyjian](https://github.com/artsyjian)
+* __Point People:__ [@phires](https://artsy.slack.com/archives/CA8SANW3W)
 
 # Setup
 
