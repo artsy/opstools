@@ -28,6 +28,8 @@ def validate_vault_jwt_expiration(
     )
     # Dictionary to store the results. We will error if not empty and print the results
     scan_results = {}
+    # Secrets that could not be read or checked, also reported as a failure
+    scan_errors = {}
     projects_list = vault_client.list(only_valid=False)
 
     logging.info(f"List of projects: {projects_list}")
@@ -41,14 +43,22 @@ def validate_vault_jwt_expiration(
             kvv2_mount_point,
             warn_threshold,
             scan_results,
+            scan_errors,
         )
     if scan_results:
         # Pretty print the results
         logging.error(
             f"Found JWT(s) that will expire within {warn_threshold} days. Results: {json.dumps(scan_results, indent=2)}"
         )
-
-        raise Exception(f"Found JWT(s) that will expire within {warn_threshold}.")
+    if scan_errors:
+        logging.error(
+            f"Unable to check some secrets. Errors: {json.dumps(scan_errors, indent=2)}"
+        )
+    if scan_results or scan_errors:
+        raise Exception(
+            f"Found JWT(s) that will expire within {warn_threshold} days: {sum(len(v) for v in scan_results.values())}. "
+            f"Secrets that could not be checked: {sum(len(v) for v in scan_errors.values())}."
+        )
     else:
         logging.info(f"Scan complete. All JWTs are valid beyond {warn_threshold} days")
 
@@ -61,6 +71,7 @@ def check_jwt_expiry(
     kvv2_mount_point,
     warn_threshold,
     scan_results,
+    scan_errors,
 ):
     """check if JWTs for a given project will expire within a given threshold (days)"""
     vault_path = "kubernetes/apps/" + f"{project}"
@@ -72,7 +83,16 @@ def check_jwt_expiry(
         path=vault_path,
     )
     expiring_jwts = {}
-    jwt_keys = vault_client.list(match_function=is_jwt, match_type="value")
+    errors = {}
+    jwt_keys = []
+    # Check each secret individually so one unreadable secret doesn't stop the scan
+    for key in vault_client.list():
+        try:
+            if is_jwt(vault_client.get(key)):
+                jwt_keys.append(key)
+        except Exception as e:
+            logging.warning(f"Unable to check {vault_path}{key}: {type(e).__name__}: {e}")
+            errors[key] = f"{type(e).__name__}: {e}"
 
     for key in jwt_keys:
         logging.info(f"Checking jwt {key} in {project}.")
@@ -98,9 +118,11 @@ def check_jwt_expiry(
             logging.warning(
                 f"JWT {vault_path}{key}'s expires_at field is empty or not a valid iso 8601 timestamp. See: https://www.notion.so/artsy/Hashicorp-Vault-developer-instructions-77d94af51f714d51bb44049f4f2027bc?pvs=4#176cab0764a080948928dce087009794"
             )
+    # Vault returns the project name with a trailing slash, so we remove it before using it as the dictionary key
     if expiring_jwts:
-        # Vault returns the project name with a trailing slash, so we remove it before using it as the dictionary key
         scan_results[project[:-1]] = expiring_jwts
+    if errors:
+        scan_errors[project[:-1]] = errors
 
 
 def is_valid_iso8601(date_string):
