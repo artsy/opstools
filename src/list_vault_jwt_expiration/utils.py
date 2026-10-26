@@ -34,6 +34,11 @@ def validate_vault_jwt_expiration(
 
     logging.info(f"List of projects: {projects_list}")
     for project in projects_list:
+        # Vault lists folders with a trailing slash. An entry without one is a
+        # secret stored directly under the apps path, not a project.
+        if not project.endswith("/"):
+            logging.warning(f"{project} is a secret, not a folder; skipping")
+            continue
         logging.info(f"Scanning {project}...")
         check_jwt_expiry(
             project,
