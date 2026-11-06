@@ -55,6 +55,10 @@ def validate_vault_jwt_expiration(
         logging.error(
             f"Found JWT(s) that will expire within {warn_threshold} days. Results: {json.dumps(scan_results, indent=2)}"
         )
+        logging.error(
+            "To rotate an App Trust token: src/rotate_app_trust_token/rotate.sh --env <env> --app <project> --key <KEY> "
+            "(see src/rotate_app_trust_token/README.md)"
+        )
     if scan_errors:
         logging.error(
             f"Unable to check some secrets. Errors: {json.dumps(scan_errors, indent=2)}"
